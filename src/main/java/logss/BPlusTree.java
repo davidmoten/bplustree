@@ -44,7 +44,7 @@ public class BPlusTree<K, V> {
         if (result != null) {
             // The old root was split into two parts.
             // We have to create a new root pointing to them
-            INode rt = new INode();
+            InnerNode rt = new InnerNode();
             rt.num = 1;
             rt.keys[0] = result.key;
             rt.children[0] = result.left;
@@ -59,8 +59,8 @@ public class BPlusTree<K, V> {
      */
     public V find(K key) {
         Node node = root;
-        while (node instanceof BPlusTree.INode) { // need to traverse down to the leaf
-            INode inner = (INode) node;
+        while (node instanceof BPlusTree.InnerNode) { // need to traverse down to the leaf
+            InnerNode inner = (InnerNode) node;
             int idx = inner.getLocation(key);
             node = inner.children[idx];
         }
@@ -91,6 +91,7 @@ public class BPlusTree<K, V> {
         abstract public void dump();
     }
 
+    @SuppressWarnings("unchecked")
     class Leaf extends Node {
         // In some sense, the following casts are almost always illegal
         // (if Value was replaced with a real type other than Object,
@@ -100,7 +101,7 @@ public class BPlusTree<K, V> {
         // It will break if we return it and other people try to use it.
         final V[] values = (V[]) new Object[maxLeafKeys];
         {
-            keys = (K[]) new Comparable[maxLeafKeys];
+            keys = (K[]) new Object[maxLeafKeys];
         }
 
         /**
@@ -148,7 +149,6 @@ public class BPlusTree<K, V> {
         }
 
         private void insertNonfull(K key, V value, int idx) {
-            // if (idx < M && keys[idx].equals(key)) {
             if (idx < num && keys[idx].equals(key)) {
                 // We are inserting a duplicate value, simply overwrite the old one
                 values[idx] = value;
@@ -171,7 +171,7 @@ public class BPlusTree<K, V> {
         }
     }
 
-    class INode extends Node {
+    class InnerNode extends Node {
         final Node[] children = new BPlusTree.Node[maxInnerKeys + 1];
         {
             keys = (K[]) new Comparable[maxInnerKeys];
@@ -204,7 +204,7 @@ public class BPlusTree<K, V> {
             if (this.num == maxInnerKeys) { // Split
                 int mid = (maxInnerKeys + 1) / 2;
                 int sNum = this.num - mid;
-                INode sibling = new INode();
+                InnerNode sibling = new InnerNode();
                 sibling.num = sNum;
                 System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
                 System.arraycopy(this.children, mid, sibling.children, 0, sNum + 1);
