@@ -12,7 +12,7 @@ import java.util.Comparator;
  * @version 1.0.0 created on May 19, 2006 edited by Spoon! 2008 edited by Mistro
  *          2010
  */
-public class BPlusTree<Key, Value> {
+public class BPlusTree<K, V> {
     /**
      * Pointer to the root node. It may be a leaf or an inner node, but it is never
      * null.
@@ -25,21 +25,21 @@ public class BPlusTree<Key, Value> {
      * must be > 2
      */
     private final int N;
-    private final Comparator<Key> comparator;
+    private final Comparator<K> comparator;
 
     /** Create a new empty tree. */
-    public BPlusTree(int n, Comparator<Key> comparator) {
+    public BPlusTree(int n, Comparator<K> comparator) {
         this(n, n, comparator);
     }
 
-    public BPlusTree(int m, int n, Comparator<Key> comparator) {
+    public BPlusTree(int m, int n, Comparator<K> comparator) {
         M = m;
         N = n;
         root = new Leaf();
         this.comparator = comparator;
     }
 
-    public void insert(Key key, Value value) {
+    public void insert(K key, V value) {
         System.out.println("insert key=" + key);
         Split result = root.insert(key, value);
         if (result != null) {
@@ -58,7 +58,7 @@ public class BPlusTree<Key, Value> {
      * Looks for the given key. If it is not found, it returns null. If it is found,
      * it returns the associated value.
      */
-    public Value find(Key key) {
+    public V find(K key) {
         Node node = root;
         while (node instanceof BPlusTree.INode) { // need to traverse down to the leaf
             INode inner = (INode) node;
@@ -82,12 +82,12 @@ public class BPlusTree<Key, Value> {
 
     abstract class Node {
         protected int num; // number of keys
-        protected Key[] keys;
+        protected K[] keys;
 
-        abstract public int getLoc(Key key);
+        abstract public int getLoc(K key);
 
         // returns null if no split, otherwise returns split info
-        abstract public Split insert(Key key, Value value);
+        abstract public Split insert(K key, V value);
 
         abstract public void dump();
     }
@@ -99,16 +99,16 @@ public class BPlusTree<Key, Value> {
         // by allowing us to pretend we have arrays of certain types.
         // They work because type erasure will erase the type variables.
         // It will break if we return it and other people try to use it.
-        final Value[] values = (Value[]) new Object[M];
+        final V[] values = (V[]) new Object[M];
         {
-            keys = (Key[]) new Comparable[M];
+            keys = (K[]) new Comparable[M];
         }
 
         /**
          * Returns the position where 'key' should be inserted in a leaf node that has
          * the given keys.
          */
-        public int getLoc(Key key) {
+        public int getLoc(K key) {
             // Simple linear search. Faster for small values of N or M, binary search would
             // be faster for larger M / N
             for (int i = 0; i < num; i++) {
@@ -119,7 +119,7 @@ public class BPlusTree<Key, Value> {
             return num;
         }
 
-        public Split insert(Key key, Value value) {
+        public Split insert(K key, V value) {
             // Simple linear search
             int i = getLoc(key);
             if (this.num == M) { // The node was full. We must split it
@@ -148,7 +148,7 @@ public class BPlusTree<Key, Value> {
             }
         }
 
-        private void insertNonfull(Key key, Value value, int idx) {
+        private void insertNonfull(K key, V value, int idx) {
             // if (idx < M && keys[idx].equals(key)) {
             if (idx < num && keys[idx].equals(key)) {
                 // We are inserting a duplicate value, simply overwrite the old one
@@ -175,14 +175,14 @@ public class BPlusTree<Key, Value> {
     class INode extends Node {
         final Node[] children = new BPlusTree.Node[N + 1];
         {
-            keys = (Key[]) new Comparable[N];
+            keys = (K[]) new Comparable[N];
         }
 
         /**
          * Returns the position where 'key' should be inserted in an inner node that has
          * the given keys.
          */
-        public int getLoc(Key key) {
+        public int getLoc(K key) {
             // Simple linear search. Faster for small values of N or M
             for (int i = 0; i < num; i++) {
                 if (comparator.compare(keys[i], key) > 0) {
@@ -193,7 +193,7 @@ public class BPlusTree<Key, Value> {
             // Binary search is faster when N or M is big,
         }
 
-        public Split insert(Key key, Value value) {
+        public Split insert(K key, V value) {
             /*
              * Early split if node is full. This is not the canonical algorithm for B+
              * trees, but it is simpler and it does break the definition which might result
@@ -230,7 +230,7 @@ public class BPlusTree<Key, Value> {
             }
         }
 
-        private void insertNonfull(Key key, Value value) {
+        private void insertNonfull(K key, V value) {
             // Simple linear search
             int idx = getLoc(key);
             Split result = children[idx].insert(key, value);
@@ -271,11 +271,11 @@ public class BPlusTree<Key, Value> {
     }
 
     class Split {
-        public final Key key;
+        public final K key;
         public final Node left;
         public final Node right;
 
-        public Split(Key k, Node l, Node r) {
+        public Split(K k, Node l, Node r) {
             key = k;
             left = l;
             right = r;
