@@ -19,12 +19,12 @@ public class BPlusTree<K, V> {
      */
     private Node root;
     /** the maximum number of keys in the leaf node, M must be > 0 */
-    private final int M;
+    private final int maxLeafKeys;
     /**
      * the maximum number of keys in inner node, the number of pointer is N+1, N
      * must be > 2
      */
-    private final int N;
+    private final int maxInnerKeys;
     private final Comparator<K> comparator;
 
     /** Create a new empty tree. */
@@ -32,25 +32,24 @@ public class BPlusTree<K, V> {
         this(n, n, comparator);
     }
 
-    public BPlusTree(int m, int n, Comparator<K> comparator) {
-        M = m;
-        N = n;
-        root = new Leaf();
+    public BPlusTree(int maxLeafKeys, int maxInnerKeys, Comparator<K> comparator) {
+        this.maxLeafKeys = maxLeafKeys;
+        this.maxInnerKeys = maxInnerKeys;
+        this.root = new Leaf();
         this.comparator = comparator;
     }
 
     public void insert(K key, V value) {
-        System.out.println("insert key=" + key);
         Split result = root.insert(key, value);
         if (result != null) {
             // The old root was split into two parts.
             // We have to create a new root pointing to them
-            INode _root = new INode();
-            _root.num = 1;
-            _root.keys[0] = result.key;
-            _root.children[0] = result.left;
-            _root.children[1] = result.right;
-            root = _root;
+            INode rt = new INode();
+            rt.num = 1;
+            rt.keys[0] = result.key;
+            rt.children[0] = result.left;
+            rt.children[1] = result.right;
+            root = rt;
         }
     }
 
@@ -62,13 +61,13 @@ public class BPlusTree<K, V> {
         Node node = root;
         while (node instanceof BPlusTree.INode) { // need to traverse down to the leaf
             INode inner = (INode) node;
-            int idx = inner.getLoc(key);
+            int idx = inner.getLocation(key);
             node = inner.children[idx];
         }
 
         // We are @ leaf after while loop
         Leaf leaf = (Leaf) node;
-        int idx = leaf.getLoc(key);
+        int idx = leaf.getLocation(key);
         if (idx < leaf.num && leaf.keys[idx].equals(key)) {
             return leaf.values[idx];
         } else {
@@ -84,7 +83,7 @@ public class BPlusTree<K, V> {
         protected int num; // number of keys
         protected K[] keys;
 
-        abstract public int getLoc(K key);
+        abstract public int getLocation(K key);
 
         // returns null if no split, otherwise returns split info
         abstract public Split insert(K key, V value);
@@ -99,16 +98,16 @@ public class BPlusTree<K, V> {
         // by allowing us to pretend we have arrays of certain types.
         // They work because type erasure will erase the type variables.
         // It will break if we return it and other people try to use it.
-        final V[] values = (V[]) new Object[M];
+        final V[] values = (V[]) new Object[maxLeafKeys];
         {
-            keys = (K[]) new Comparable[M];
+            keys = (K[]) new Comparable[maxLeafKeys];
         }
 
         /**
          * Returns the position where 'key' should be inserted in a leaf node that has
          * the given keys.
          */
-        public int getLoc(K key) {
+        public int getLocation(K key) {
             // Simple linear search. Faster for small values of N or M, binary search would
             // be faster for larger M / N
             for (int i = 0; i < num; i++) {
@@ -121,9 +120,9 @@ public class BPlusTree<K, V> {
 
         public Split insert(K key, V value) {
             // Simple linear search
-            int i = getLoc(key);
-            if (this.num == M) { // The node was full. We must split it
-                int mid = (M + 1) / 2;
+            int i = getLocation(key);
+            if (this.num == maxLeafKeys) { // The node was full. We must split it
+                int mid = (maxLeafKeys + 1) / 2;
                 int sNum = this.num - mid;
                 Leaf sibling = new Leaf();
                 sibling.num = sNum;
@@ -173,16 +172,16 @@ public class BPlusTree<K, V> {
     }
 
     class INode extends Node {
-        final Node[] children = new BPlusTree.Node[N + 1];
+        final Node[] children = new BPlusTree.Node[maxInnerKeys + 1];
         {
-            keys = (K[]) new Comparable[N];
+            keys = (K[]) new Comparable[maxInnerKeys];
         }
 
         /**
          * Returns the position where 'key' should be inserted in an inner node that has
          * the given keys.
          */
-        public int getLoc(K key) {
+        public int getLocation(K key) {
             // Simple linear search. Faster for small values of N or M
             for (int i = 0; i < num; i++) {
                 if (comparator.compare(keys[i], key) > 0) {
@@ -202,8 +201,8 @@ public class BPlusTree<K, V> {
              * first search to the leaf, and split from bottom up is the correct approach.
              */
 
-            if (this.num == N) { // Split
-                int mid = (N + 1) / 2;
+            if (this.num == maxInnerKeys) { // Split
+                int mid = (maxInnerKeys + 1) / 2;
                 int sNum = this.num - mid;
                 INode sibling = new INode();
                 sibling.num = sNum;
@@ -232,7 +231,7 @@ public class BPlusTree<K, V> {
 
         private void insertNonfull(K key, V value) {
             // Simple linear search
-            int idx = getLoc(key);
+            int idx = getLocation(key);
             Split result = children[idx].insert(key, value);
 
             if (result != null) {
