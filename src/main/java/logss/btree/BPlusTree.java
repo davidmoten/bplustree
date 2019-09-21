@@ -13,14 +13,14 @@ import java.util.Comparator;
  *          2010
  */
 public class BPlusTree<K, V> {
+
+    private final Options<K> options;
+
     /**
      * Pointer to the root node. It may be a leaf or an inner node, but it is never
      * null.
      */
     private Node<K, V> root;
-    /** the maximum number of keys in the leaf node, M must be > 0 */
-
-    private final Options<K> options;
 
     /** Create a new empty tree. */
     public BPlusTree(int n, Comparator<K> comparator) {
@@ -73,7 +73,10 @@ public class BPlusTree<K, V> {
     }
 
     static final class Options<K> {
+       
+        /** the maximum number of keys in the leaf node, M must be > 0 */
         final int maxLeafKeys;
+
         /**
          * the maximum number of keys in inner node, the number of pointer is N+1, N
          * must be > 2
