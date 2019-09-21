@@ -89,23 +89,23 @@ public class BPlusTree<K, V> {
 
     }
 
-    static abstract class Node<K, V> {
-        int numKeys; // number of keys
-        K[] keys;
+    interface Node<K, V> {
 
-        abstract public int getLocation(K key);
+        int getLocation(K key);
 
         // returns null if no split, otherwise returns split info
-        abstract public Split<K, V> insert(K key, V value);
+        Split<K, V> insert(K key, V value);
 
-        abstract public void dump();
+        void dump();
 
     }
 
     @SuppressWarnings("unchecked")
-    static class Leaf<K, V> extends Node<K, V> {
+    static class Leaf<K, V> implements Node<K, V> {
         private final Options<K> options;
         private final V[] values;
+        final K[] keys;
+        int numKeys; // number of keys
 
         public Leaf(Options<K> options) {
             this.options = options;
@@ -117,6 +117,7 @@ public class BPlusTree<K, V> {
          * Returns the position where 'key' should be inserted in a leaf node that has
          * the given keys.
          */
+        @Override
         public int getLocation(K key) {
             // Simple linear search. Faster for small values of N or M, binary search would
             // be faster for larger M / N
@@ -128,6 +129,7 @@ public class BPlusTree<K, V> {
             return numKeys;
         }
 
+        @Override
         public Split<K, V> insert(K key, V value) {
             // Simple linear search
             int i = getLocation(key);
@@ -173,6 +175,7 @@ public class BPlusTree<K, V> {
             }
         }
 
+        @Override
         public void dump() {
             System.out.println("lNode h==0");
             for (int i = 0; i < numKeys; i++) {
@@ -181,10 +184,12 @@ public class BPlusTree<K, V> {
         }
     }
 
-    static class InnerNode<K, V> extends Node<K, V> {
+    static class InnerNode<K, V> implements Node<K, V> {
 
         private final Options<K> options;
         private final Node<K, V>[] children;
+        final K[] keys;
+        int numKeys; // number of keys
 
         @SuppressWarnings("unchecked")
         InnerNode(Options<K> options) {
@@ -197,6 +202,7 @@ public class BPlusTree<K, V> {
          * Returns the position where 'key' should be inserted in an inner node that has
          * the given keys.
          */
+        @Override
         public int getLocation(K key) {
             // Simple linear search. Faster for small values of N or M
             for (int i = 0; i < numKeys; i++) {
@@ -208,6 +214,7 @@ public class BPlusTree<K, V> {
             // Binary search is faster when N or M is big,
         }
 
+        @Override
         public Split<K, V> insert(K key, V value) {
             /*
              * Early split if node is full. This is not the canonical algorithm for B+
@@ -226,7 +233,7 @@ public class BPlusTree<K, V> {
                 System.arraycopy(this.children, mid, sibling.children, 0, sNum + 1);
 
                 this.numKeys = mid - 1;// this is important, so the middle one elevate to next
-                                   // depth(height), inner node's key don't repeat itself
+                // depth(height), inner node's key don't repeat itself
 
                 // Set up the return variable
                 Split<K, V> result = new Split<>(this.keys[mid - 1], this, sibling);
@@ -274,6 +281,7 @@ public class BPlusTree<K, V> {
         /**
          * This one only dump integer key
          */
+        @Override
         public void dump() {
             System.out.println("iNode h==?");
             for (int i = 0; i < numKeys; i++) {
@@ -290,7 +298,7 @@ public class BPlusTree<K, V> {
         final Node<K, V> left;
         final Node<K, V> right;
 
-        public Split(K key, Node<K, V> left, Node<K, V> right) {
+        Split(K key, Node<K, V> left, Node<K, V> right) {
             this.key = key;
             this.left = left;
             this.right = right;
