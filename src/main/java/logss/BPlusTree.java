@@ -38,7 +38,7 @@ public class BPlusTree<K, V> {
             // The old root was split into two parts.
             // We have to create a new root pointing to them
             InnerNode<K, V> rt = new InnerNode<>(options);
-            rt.num = 1;
+            rt.numKeys = 1;
             rt.keys[0] = result.key;
             rt.children[0] = result.left;
             rt.children[1] = result.right;
@@ -61,7 +61,7 @@ public class BPlusTree<K, V> {
         // We are @ leaf after while loop
         Leaf<K, V> leaf = (Leaf<K, V>) node;
         int idx = leaf.getLocation(key);
-        if (idx < leaf.num && leaf.keys[idx].equals(key)) {
+        if (idx < leaf.numKeys && leaf.keys[idx].equals(key)) {
             return leaf.values[idx];
         } else {
             return null;
@@ -90,7 +90,7 @@ public class BPlusTree<K, V> {
     }
 
     static abstract class Node<K, V> {
-        int num; // number of keys
+        int numKeys; // number of keys
         K[] keys;
 
         abstract public int getLocation(K key);
@@ -120,25 +120,25 @@ public class BPlusTree<K, V> {
         public int getLocation(K key) {
             // Simple linear search. Faster for small values of N or M, binary search would
             // be faster for larger M / N
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i < numKeys; i++) {
                 if (options.comparator.compare(keys[i], key) >= 0) {
                     return i;
                 }
             }
-            return num;
+            return numKeys;
         }
 
         public Split<K, V> insert(K key, V value) {
             // Simple linear search
             int i = getLocation(key);
-            if (this.num == options.maxLeafKeys) { // The node was full. We must split it
+            if (this.numKeys == options.maxLeafKeys) { // The node was full. We must split it
                 int mid = (options.maxLeafKeys + 1) / 2;
-                int sNum = this.num - mid;
+                int sNum = this.numKeys - mid;
                 Leaf<K, V> sibling = new Leaf<K, V>(options);
-                sibling.num = sNum;
+                sibling.numKeys = sNum;
                 System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
                 System.arraycopy(this.values, mid, sibling.values, 0, sNum);
-                this.num = mid;
+                this.numKeys = mid;
                 if (i < mid) {
                     // Inserted element goes to left sibling
                     this.insertNonfull(key, value, i);
@@ -159,23 +159,23 @@ public class BPlusTree<K, V> {
         }
 
         private void insertNonfull(K key, V value, int idx) {
-            if (idx < num && keys[idx].equals(key)) {
+            if (idx < numKeys && keys[idx].equals(key)) {
                 // We are inserting a duplicate value, simply overwrite the old one
                 values[idx] = value;
             } else {
                 // The key we are inserting is unique
-                System.arraycopy(keys, idx, keys, idx + 1, num - idx);
-                System.arraycopy(values, idx, values, idx + 1, num - idx);
+                System.arraycopy(keys, idx, keys, idx + 1, numKeys - idx);
+                System.arraycopy(values, idx, values, idx + 1, numKeys - idx);
 
                 keys[idx] = key;
                 values[idx] = value;
-                num++;
+                numKeys++;
             }
         }
 
         public void dump() {
             System.out.println("lNode h==0");
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i < numKeys; i++) {
                 System.out.println(keys[i]);
             }
         }
@@ -199,12 +199,12 @@ public class BPlusTree<K, V> {
          */
         public int getLocation(K key) {
             // Simple linear search. Faster for small values of N or M
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i < numKeys; i++) {
                 if (options.comparator.compare(keys[i], key) > 0) {
                     return i;
                 }
             }
-            return num;
+            return numKeys;
             // Binary search is faster when N or M is big,
         }
 
@@ -217,15 +217,15 @@ public class BPlusTree<K, V> {
              * first search to the leaf, and split from bottom up is the correct approach.
              */
 
-            if (this.num == options.maxInnerKeys) { // Split
+            if (this.numKeys == options.maxInnerKeys) { // Split
                 int mid = (options.maxInnerKeys + 1) / 2;
-                int sNum = this.num - mid;
+                int sNum = this.numKeys - mid;
                 InnerNode<K, V> sibling = new InnerNode<K, V>(options);
-                sibling.num = sNum;
+                sibling.numKeys = sNum;
                 System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
                 System.arraycopy(this.children, mid, sibling.children, 0, sNum + 1);
 
-                this.num = mid - 1;// this is important, so the middle one elevate to next
+                this.numKeys = mid - 1;// this is important, so the middle one elevate to next
                                    // depth(height), inner node's key don't repeat itself
 
                 // Set up the return variable
@@ -248,25 +248,25 @@ public class BPlusTree<K, V> {
         private void insertNonfull(K key, V value) {
             // Simple linear search
             int idx = getLocation(key);
-            Split<K,V> result = children[idx].insert(key, value);
+            Split<K, V> result = children[idx].insert(key, value);
 
             if (result != null) {
-                if (idx == num) {
+                if (idx == numKeys) {
                     // Insertion at the rightmost key
                     keys[idx] = result.key;
                     children[idx] = result.left;
                     children[idx + 1] = result.right;
-                    num++;
+                    numKeys++;
                 } else {
                     // Insertion not at the rightmost key
                     // shift i>idx to the right
-                    System.arraycopy(keys, idx, keys, idx + 1, num - idx);
-                    System.arraycopy(children, idx, children, idx + 1, num - idx + 1);
+                    System.arraycopy(keys, idx, keys, idx + 1, numKeys - idx);
+                    System.arraycopy(children, idx, children, idx + 1, numKeys - idx + 1);
 
                     children[idx] = result.left;
                     children[idx + 1] = result.right;
                     keys[idx] = result.key;
-                    num++;
+                    numKeys++;
                 }
             } // else the current node is not affected
         }
@@ -276,12 +276,12 @@ public class BPlusTree<K, V> {
          */
         public void dump() {
             System.out.println("iNode h==?");
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i < numKeys; i++) {
                 children[i].dump();
                 System.out.print('>');
                 System.out.println(keys[i]);
             }
-            children[num].dump();
+            children[numKeys].dump();
         }
     }
 
