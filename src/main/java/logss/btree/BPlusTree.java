@@ -1,4 +1,4 @@
-package logss;
+package logss.btree;
 
 import java.util.Comparator;
 
@@ -103,7 +103,7 @@ public class BPlusTree<K, V> {
     @SuppressWarnings("unchecked")
     static class Leaf<K, V> implements Node<K, V> {
         private final Options<K> options;
-        private final V[] values;
+        final V[] values;
         final K[] keys;
         int numKeys; // number of keys
 
@@ -187,7 +187,7 @@ public class BPlusTree<K, V> {
     static class InnerNode<K, V> implements Node<K, V> {
 
         private final Options<K> options;
-        private final Node<K, V>[] children;
+        final Node<K, V>[] children;
         final K[] keys;
         int numKeys; // number of keys
 
