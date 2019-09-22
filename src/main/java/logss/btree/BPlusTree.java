@@ -23,13 +23,60 @@ public class BPlusTree<K, V> {
     private Node<K, V> root;
 
     /** Create a new empty tree. */
-    public BPlusTree(int n, Comparator<K> comparator) {
-        this(n, n, comparator);
-    }
-
-    public BPlusTree(int maxLeafKeys, int maxInnerKeys, Comparator<K> comparator) {
+    private BPlusTree(int maxLeafKeys, int maxInnerKeys, Comparator<? super K> comparator) {
         this.options = new Options<K>(maxLeafKeys, maxInnerKeys, comparator);
         this.root = new Leaf<K, V>(options);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+
+        private static final int NOT_SPECIFIED = -1;
+
+        private static final int DEFAULT_NUM_KEYS = 4;
+
+        private int maxLeafKeys = NOT_SPECIFIED;
+        private int maxInnerKeys = NOT_SPECIFIED;
+
+        Builder() {
+            // prevent instantiation
+        }
+
+        public Builder maxLeafKeys(int maxLeafKeys) {
+            this.maxLeafKeys = maxLeafKeys;
+            return this;
+        }
+
+        public Builder maxInnerKeys(int maxInnerKeys) {
+            this.maxInnerKeys = maxInnerKeys;
+            return this;
+        }
+
+        public Builder maxKeys(int maxKeys) {
+            maxLeafKeys(maxKeys);
+            return maxInnerKeys(maxKeys);
+        }
+
+        public <K, V> BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
+            if (maxLeafKeys == NOT_SPECIFIED) {
+                if (maxInnerKeys == NOT_SPECIFIED) {
+                    maxLeafKeys = DEFAULT_NUM_KEYS;
+                    maxInnerKeys = DEFAULT_NUM_KEYS;
+                } else {
+                    maxLeafKeys = maxInnerKeys;
+                }
+            } else if (maxInnerKeys == NOT_SPECIFIED) {
+                maxInnerKeys = maxLeafKeys;
+            }
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, comparator);
+        }
+
+        public <K extends Comparable<K>, V> BPlusTree<K, V> naturalOrder() {
+            return comparator(Comparator.naturalOrder());
+        }
     }
 
     public void insert(K key, V value) {
@@ -73,7 +120,7 @@ public class BPlusTree<K, V> {
     }
 
     static final class Options<K> {
-       
+
         /** the maximum number of keys in the leaf node, M must be > 0 */
         final int maxLeafKeys;
 
