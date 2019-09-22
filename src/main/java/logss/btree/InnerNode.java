@@ -4,8 +4,8 @@ final class InnerNode<K, V> implements Node<K, V> {
 
     private final Options<K> options;
     private final Node<K, V>[] children;
-    final K[] keys;
-    int numKeys; // number of keys
+    private final K[] keys;
+    private int numKeys; // number of keys
 
     @SuppressWarnings("unchecked")
     InnerNode(Options<K> options) {
@@ -19,8 +19,26 @@ final class InnerNode<K, V> implements Node<K, V> {
         return this;
     }
 
-    Node<K, V> getChild(int index) {
+    Node<K, V> child(int index) {
         return children[index];
+    }
+
+    int numKeys() {
+        return numKeys;
+    }
+
+    InnerNode<K, V> setNumKeys(int numKeys) {
+        this.numKeys = numKeys;
+        return this;
+    }
+
+    K key(int index) {
+        return keys[index];
+    }
+
+    Node<K, V> setKey(int index, K key) {
+        keys[index] = key;
+        return this;
     }
 
     /**
