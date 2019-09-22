@@ -14,7 +14,7 @@ import java.util.Comparator;
  */
 public class BPlusTree<K, V> {
 
-    private final Options<K> options;
+    private final Options<K, V> options;
 
     /**
      * Pointer to the root node. It may be a leaf or an inner node, but it is never
@@ -24,7 +24,8 @@ public class BPlusTree<K, V> {
 
     /** Create a new empty tree. */
     private BPlusTree(int maxLeafKeys, int maxInnerKeys, Comparator<? super K> comparator) {
-        this.options = new Options<K>(maxLeafKeys, maxInnerKeys, comparator);
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, comparator,
+                new Storage<K, V>());
         this.root = new Leaf<K, V>(options);
     }
 

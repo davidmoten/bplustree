@@ -2,7 +2,7 @@ package logss.btree;
 
 import java.util.Comparator;
 
-final class Options<K> {
+final class Options<K, V> {
 
     /** the maximum number of keys in the leaf node, M must be > 0 */
     final int maxLeafKeys;
@@ -13,11 +13,14 @@ final class Options<K> {
      */
     final int maxInnerKeys;
     final Comparator<? super K> comparator;
+    final Storage<K, V> storage;
 
-    Options(int maxLeafKeys, int maxInnerKeys, Comparator<? super K> comparator) {
+    Options(int maxLeafKeys, int maxInnerKeys, Comparator<? super K> comparator,
+            Storage<K, V> storage) {
         this.maxLeafKeys = maxLeafKeys;
         this.maxInnerKeys = maxInnerKeys;
         this.comparator = comparator;
+        this.storage = storage;
     }
 
 }

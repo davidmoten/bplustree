@@ -2,13 +2,13 @@ package logss.btree;
 
 final class InnerNode<K, V> implements Node<K, V> {
 
-    private final Options<K> options;
+    private final Options<K, V> options;
     private final Node<K, V>[] children;
     private final K[] keys;
     private int numKeys; // number of keys
 
     @SuppressWarnings("unchecked")
-    InnerNode(Options<K> options) {
+    InnerNode(Options<K, V> options) {
         this.options = options;
         this.children = new Node[options.maxInnerKeys + 1];
         this.keys = (K[]) new Object[options.maxInnerKeys];

@@ -2,12 +2,12 @@ package logss.btree;
 
 @SuppressWarnings("unchecked")
 final class Leaf<K, V> implements Node<K, V> {
-    private final Options<K> options;
+    private final Options<K, V> options;
     private final V[] values;
     private final K[] keys;
     private int numKeys; // number of keys
 
-    public Leaf(Options<K> options) {
+    Leaf(Options<K, V> options) {
         this.options = options;
         this.values = (V[]) new Object[options.maxLeafKeys];
         this.keys = (K[]) new Object[options.maxLeafKeys];
