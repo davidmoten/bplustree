@@ -87,8 +87,9 @@ public class BPlusTree<K, V> {
             InnerNode<K, V> rt = new InnerNode<>(options);
             rt.numKeys = 1;
             rt.keys[0] = result.key;
-            rt.children[0] = result.left;
-            rt.children[1] = result.right;
+            rt //
+                    .setChild(0, result.left) //
+                    .setChild(1, result.right);
             root = rt;
         }
     }
@@ -102,7 +103,7 @@ public class BPlusTree<K, V> {
         while (node instanceof InnerNode) { // need to traverse down to the leaf
             InnerNode<K, V> inner = (InnerNode<K, V>) node;
             int idx = inner.getLocation(key);
-            node = inner.children[idx];
+            node = inner.getChild(idx);
         }
 
         // We are @ leaf after while loop

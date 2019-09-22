@@ -1,9 +1,9 @@
 package logss.btree;
 
-class InnerNode<K, V> implements Node<K, V> {
+final class InnerNode<K, V> implements Node<K, V> {
 
     private final Options<K> options;
-    final Node<K, V>[] children;
+    private final Node<K, V>[] children;
     final K[] keys;
     int numKeys; // number of keys
 
@@ -12,6 +12,15 @@ class InnerNode<K, V> implements Node<K, V> {
         this.options = options;
         this.children = new Node[options.maxInnerKeys + 1];
         this.keys = (K[]) new Object[options.maxInnerKeys];
+    }
+
+    InnerNode<K, V> setChild(int index, Node<K, V> value) {
+        children[index] = value;
+        return this;
+    }
+
+    Node<K, V> getChild(int index) {
+        return children[index];
     }
 
     /**
