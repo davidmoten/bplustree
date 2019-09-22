@@ -14,8 +14,8 @@ final class InnerNode<K, V> implements Node<K, V> {
         this.keys = (K[]) new Object[options.maxInnerKeys];
     }
 
-    InnerNode<K, V> setChild(int index, Node<K, V> value) {
-        children[index] = value;
+    InnerNode<K, V> setChild(int index, Node<K, V> node) {
+        children[index] = node;
         return this;
     }
 
@@ -36,7 +36,7 @@ final class InnerNode<K, V> implements Node<K, V> {
         return keys[index];
     }
 
-    Node<K, V> setKey(int index, K key) {
+    InnerNode<K, V> setKey(int index, K key) {
         keys[index] = key;
         return this;
     }

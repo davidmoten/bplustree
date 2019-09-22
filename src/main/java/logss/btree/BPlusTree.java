@@ -84,13 +84,12 @@ public class BPlusTree<K, V> {
         if (result != null) {
             // The old root was split into two parts.
             // We have to create a new root pointing to them
-            InnerNode<K, V> rt = //
-                    new InnerNode<>(options) //
-            .setNumKeys(1) //
-            .setKey(0, result.key) //
-                    .setChild(0, result.left) //
-                    .setChild(1, result.right);
-            root = rt;
+            root = //
+                    new InnerNode<K, V>(options) //
+                            .setNumKeys(1) //
+                            .setKey(0, result.key) //
+                            .setChild(0, result.left) //
+                            .setChild(1, result.right);
         }
     }
 
