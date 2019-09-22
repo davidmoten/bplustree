@@ -108,8 +108,8 @@ public class BPlusTree<K, V> {
         // We are @ leaf after while loop
         Leaf<K, V> leaf = (Leaf<K, V>) node;
         int idx = leaf.getLocation(key);
-        if (idx < leaf.numKeys && leaf.keys[idx].equals(key)) {
-            return leaf.values[idx];
+        if (idx < leaf.numKeys() && leaf.key(idx).equals(key)) {
+            return leaf.value(idx);
         } else {
             return null;
         }

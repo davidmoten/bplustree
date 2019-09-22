@@ -1,15 +1,28 @@
 package logss.btree;
 
-@SuppressWarnings("unchecked") class Leaf<K, V> implements Node<K, V> {
+@SuppressWarnings("unchecked")
+final class Leaf<K, V> implements Node<K, V> {
     private final Options<K> options;
-    final V[] values;
-    final K[] keys;
-    int numKeys; // number of keys
+    private final V[] values;
+    private final K[] keys;
+    private int numKeys; // number of keys
 
     public Leaf(Options<K> options) {
         this.options = options;
         this.values = (V[]) new Object[options.maxLeafKeys];
         this.keys = (K[]) new Object[options.maxLeafKeys];
+    }
+
+    V value(int index) {
+        return values[index];
+    }
+
+    K key(int index) {
+        return keys[index];
+    }
+
+    int numKeys() {
+        return numKeys;
     }
 
     /**
