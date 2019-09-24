@@ -1,12 +1,12 @@
 package logss.btree;
 
-public final class NonLeafStorageMemory<K, V> implements NonLeafStorage<K, V> {
+public final class NonLeafStoreMemory<K, V> implements NonLeafStore<K, V> {
 
     private final Node<K, V>[] children;
     private int numKeys;
 
     @SuppressWarnings("unchecked")
-    NonLeafStorageMemory(int maxKeys) {
+    NonLeafStoreMemory(int maxKeys) {
         this.children = (Node<K, V>[]) new Node[maxKeys];
     }
 

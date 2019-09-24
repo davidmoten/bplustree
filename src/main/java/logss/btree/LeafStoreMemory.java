@@ -1,8 +1,8 @@
 package logss.btree;
 
-public final class LeafStorageMemory<K, V> implements LeafStorage<K, V> {
+public final class LeafStoreMemory<K, V> implements LeafStore<K, V> {
 
-    public LeafStorageMemory(int maxKeys) {
+    public LeafStoreMemory(int maxKeys) {
         // TODO Auto-generated constructor stub
     }
 
@@ -16,6 +16,12 @@ public final class LeafStorageMemory<K, V> implements LeafStorage<K, V> {
     public K key(int index) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public int numKeys() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
 }

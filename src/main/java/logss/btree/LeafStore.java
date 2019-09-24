@@ -1,6 +1,6 @@
 package logss.btree;
 
-public interface LeafStorage<K, V> {
+public interface LeafStore<K, V> {
     
     V value(int index);
     

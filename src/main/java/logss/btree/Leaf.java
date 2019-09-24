@@ -6,7 +6,7 @@ final class Leaf<K, V> implements Node<K, V> {
     private final V[] values;
     private final K[] keys;
     private int numKeys; // number of keys
-    private final LeafStorage<K, V> store;
+    private final LeafStore<K, V> store;
 
     Leaf(Options<K, V> options) {
         this.options = options;

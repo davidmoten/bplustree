@@ -10,11 +10,11 @@ public class Storage<K, V> {
         this.maxLeafKeys = maxLeafKeys;
     }
 
-    NonLeafStorage<K, V> createNonLeafStore() {
-        return new NonLeafStorageMemory<K, V>(maxNonLeafKeys);
+    NonLeafStore<K, V> createNonLeafStore() {
+        return new NonLeafStoreMemory<K, V>(maxNonLeafKeys);
     }
 
-    LeafStorage<K, V> createLeafStore() {
-        return new LeafStorageMemory<K, V>(maxLeafKeys);
+    LeafStore<K, V> createLeafStore() {
+        return new LeafStoreMemory<K, V>(maxLeafKeys);
     }
 }
