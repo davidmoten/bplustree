@@ -2,7 +2,7 @@ package logss.btree;
 
 public class Storage<K, V> {
 
-    InnerNodeStorage<K, V> createInner() {
-        return new InnerNodeStorageMemory<K, V>(4);
+    NonLeafStorage<K, V> createInner() {
+        return new NonLeafStorageMemory<K, V>(4);
     }
 }

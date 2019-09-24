@@ -86,7 +86,7 @@ public class BPlusTree<K, V> {
             // The old root was split into two parts.
             // We have to create a new root pointing to them
             root = //
-                    new InnerNode<K, V>(options) //
+                    new NonLeaf<K, V>(options) //
                             .setNumKeys(1) //
                             .setKey(0, result.key) //
                             .setChild(0, result.left) //
@@ -100,8 +100,8 @@ public class BPlusTree<K, V> {
      */
     public V find(K key) {
         Node<K, V> node = root;
-        while (node instanceof InnerNode) { // need to traverse down to the leaf
-            InnerNode<K, V> inner = (InnerNode<K, V>) node;
+        while (node instanceof NonLeaf) { // need to traverse down to the leaf
+            NonLeaf<K, V> inner = (NonLeaf<K, V>) node;
             int idx = inner.getLocation(key);
             node = inner.child(idx);
         }

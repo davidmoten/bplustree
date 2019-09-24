@@ -1,6 +1,6 @@
 package logss.btree;
 
-final class InnerNode<K, V> implements Node<K, V> {
+final class NonLeaf<K, V> implements Node<K, V> {
 
     private final Options<K, V> options;
     private final Node<K, V>[] children;
@@ -8,13 +8,13 @@ final class InnerNode<K, V> implements Node<K, V> {
     private int numKeys; // number of keys
 
     @SuppressWarnings("unchecked")
-    InnerNode(Options<K, V> options) {
+    NonLeaf(Options<K, V> options) {
         this.options = options;
         this.children = new Node[options.maxInnerKeys + 1];
         this.keys = (K[]) new Object[options.maxInnerKeys];
     }
 
-    InnerNode<K, V> setChild(int index, Node<K, V> node) {
+    NonLeaf<K, V> setChild(int index, Node<K, V> node) {
         children[index] = node;
         return this;
     }
@@ -27,7 +27,7 @@ final class InnerNode<K, V> implements Node<K, V> {
         return numKeys;
     }
 
-    InnerNode<K, V> setNumKeys(int numKeys) {
+    NonLeaf<K, V> setNumKeys(int numKeys) {
         this.numKeys = numKeys;
         return this;
     }
@@ -36,7 +36,7 @@ final class InnerNode<K, V> implements Node<K, V> {
         return keys[index];
     }
 
-    InnerNode<K, V> setKey(int index, K key) {
+    NonLeaf<K, V> setKey(int index, K key) {
         keys[index] = key;
         return this;
     }
@@ -70,7 +70,7 @@ final class InnerNode<K, V> implements Node<K, V> {
         if (this.numKeys == options.maxInnerKeys) { // Split
             int mid = (options.maxInnerKeys + 1) / 2;
             int sNum = this.numKeys - mid;
-            InnerNode<K, V> sibling = new InnerNode<K, V>(options);
+            NonLeaf<K, V> sibling = new NonLeaf<K, V>(options);
             sibling.numKeys = sNum;
             System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
             System.arraycopy(this.children, mid, sibling.children, 0, sNum + 1);

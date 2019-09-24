@@ -1,6 +1,6 @@
 package logss.btree;
 
-public interface InnerNodeStorage<K,V> {
+public interface NonLeafStorage<K,V> {
     
     void setNumKeys(int numKeys);
     
