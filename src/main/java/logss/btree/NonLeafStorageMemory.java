@@ -1,6 +1,6 @@
 package logss.btree;
 
-public class NonLeafStorageMemory<K, V> implements NonLeafStorage<K, V> {
+public final class NonLeafStorageMemory<K, V> implements NonLeafStorage<K, V> {
 
     private final Node<K, V>[] children;
     private int numKeys;
@@ -23,6 +23,18 @@ public class NonLeafStorageMemory<K, V> implements NonLeafStorage<K, V> {
     @Override
     public void setChild(int index, Node<K, V> node) {
         children[index] = node;
+    }
+
+    @Override
+    public Node<K, V> getChild(int index) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void addKey(K key) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

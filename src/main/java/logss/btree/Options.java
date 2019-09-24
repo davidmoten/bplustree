@@ -11,14 +11,14 @@ final class Options<K, V> {
      * the maximum number of keys in inner node, the number of pointer is N+1, N
      * must be > 2
      */
-    final int maxInnerKeys;
+    final int maxNonLeafKeys;
     final Comparator<? super K> comparator;
     final Storage<K, V> storage;
 
     Options(int maxLeafKeys, int maxInnerKeys, Comparator<? super K> comparator,
             Storage<K, V> storage) {
         this.maxLeafKeys = maxLeafKeys;
-        this.maxInnerKeys = maxInnerKeys;
+        this.maxNonLeafKeys = maxInnerKeys;
         this.comparator = comparator;
         this.storage = storage;
     }

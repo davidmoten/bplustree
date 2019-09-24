@@ -10,8 +10,8 @@ final class NonLeaf<K, V> implements Node<K, V> {
     @SuppressWarnings("unchecked")
     NonLeaf(Options<K, V> options) {
         this.options = options;
-        this.children = new Node[options.maxInnerKeys + 1];
-        this.keys = (K[]) new Object[options.maxInnerKeys];
+        this.children = new Node[options.maxNonLeafKeys + 1];
+        this.keys = (K[]) new Object[options.maxNonLeafKeys];
     }
 
     NonLeaf<K, V> setChild(int index, Node<K, V> node) {
@@ -67,8 +67,8 @@ final class NonLeaf<K, V> implements Node<K, V> {
          * first search to the leaf, and split from bottom up is the correct approach.
          */
 
-        if (this.numKeys == options.maxInnerKeys) { // Split
-            int mid = (options.maxInnerKeys + 1) / 2;
+        if (this.numKeys == options.maxNonLeafKeys) { // Split
+            int mid = (options.maxNonLeafKeys + 1) / 2;
             int sNum = this.numKeys - mid;
             NonLeaf<K, V> sibling = new NonLeaf<K, V>(options);
             sibling.numKeys = sNum;

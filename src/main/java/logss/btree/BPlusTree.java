@@ -25,7 +25,7 @@ public class BPlusTree<K, V> {
     /** Create a new empty tree. */
     private BPlusTree(int maxLeafKeys, int maxInnerKeys, Comparator<? super K> comparator) {
         this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, comparator,
-                new Storage<K, V>());
+                new Storage<K, V>(maxInnerKeys, maxLeafKeys));
         this.root = new Leaf<K, V>(options);
     }
 

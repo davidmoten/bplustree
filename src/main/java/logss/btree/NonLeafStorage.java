@@ -8,4 +8,8 @@ public interface NonLeafStorage<K,V> {
 
     void setChild(int index, Node<K, V> node);
     
+    Node<K,V> getChild(int index);
+    
+    void addKey(K key);
+    
 }
