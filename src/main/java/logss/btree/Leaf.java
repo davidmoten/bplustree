@@ -1,7 +1,7 @@
 package logss.btree;
 
 @SuppressWarnings("unchecked")
-final class Leaf<K, V> implements Node<K, V> {
+public final class Leaf<K, V> implements Node<K, V> {
     private final Options<K, V> options;
     private final V[] values;
     private final K[] keys;

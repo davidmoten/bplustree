@@ -1,6 +1,6 @@
 package logss.btree;
 
-public class Storage<K, V> {
+public final class Storage<K, V> {
 
     private final int maxNonLeafKeys;
     private final int maxLeafKeys;

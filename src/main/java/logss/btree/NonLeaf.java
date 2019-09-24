@@ -1,6 +1,6 @@
 package logss.btree;
 
-final class NonLeaf<K, V> implements Node<K, V> {
+public final class NonLeaf<K, V> implements Node<K, V> {
 
     private final Options<K, V> options;
     private final Node<K, V>[] children;
