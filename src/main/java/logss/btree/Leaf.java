@@ -6,7 +6,7 @@ public final class Leaf<K, V> implements Node<K, V> {
     private final V[] values;
     private final K[] keys;
     private int numKeys; // number of keys
-    private final LeafStore<K, V> store;
+    final LeafStore<K, V> store;
 
     Leaf(Options<K, V> options) {
         this.options = options;
@@ -16,15 +16,15 @@ public final class Leaf<K, V> implements Node<K, V> {
     }
 
     V value(int index) {
-        return values[index];
+        return store.value(index);
     }
 
     K key(int index) {
-        return keys[index];
+        return store.key(index);
     }
 
     int numKeys() {
-        return numKeys;
+        return store.numKeys();
     }
 
     /**
@@ -35,8 +35,8 @@ public final class Leaf<K, V> implements Node<K, V> {
     public int getLocation(K key) {
         // Simple linear search. Faster for small values of N or M, binary search would
         // be faster for larger M / N
-        for (int i = 0; i < numKeys; i++) {
-            if (options.comparator.compare(keys[i], key) >= 0) {
+        for (int i = 0; i < store.numKeys(); i++) {
+            if (options.comparator.compare(store.key(i), key) >= 0) {
                 return i;
             }
         }
@@ -51,13 +51,14 @@ public final class Leaf<K, V> implements Node<K, V> {
             int mid = (options.maxLeafKeys + 1) / 2;
             int sNum = this.numKeys - mid;
             Leaf<K, V> sibling = new Leaf<K, V>(options);
-            sibling.numKeys = sNum;
-            System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
-            System.arraycopy(this.values, mid, sibling.values, 0, sNum);
-            this.numKeys = mid;
+            sibling.store.setNumKeys(sNum);
+            store.move(this.keys, mid, sibling, sNum);
+//            System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
+//            System.arraycopy(this.values, mid, sibling.values, 0, sNum);
+            store.setNumKeys(mid);
             if (i < mid) {
                 // Inserted element goes to left sibling
-                this.insertNonfull(key, value, i);
+                insertNonfull(key, value, i);
             } else {
                 // Inserted element goes to right sibling
                 sibling.insertNonfull(key, value, i - mid);
@@ -74,10 +75,10 @@ public final class Leaf<K, V> implements Node<K, V> {
         }
     }
 
-    private void insertNonfull(K key, V value, int idx) {
-        if (idx < numKeys && keys[idx].equals(key)) {
+    void insertNonfull(K key, V value, int idx) {
+        if (idx < store.numKeys() && store.key(idx).equals(key)) {
             // We are inserting a duplicate value, simply overwrite the old one
-            values[idx] = value;
+            store.setValue(idx, value);
         } else {
             // The key we are inserting is unique
             System.arraycopy(keys, idx, keys, idx + 1, numKeys - idx);

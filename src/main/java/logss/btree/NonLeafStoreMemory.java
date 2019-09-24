@@ -27,14 +27,7 @@ public final class NonLeafStoreMemory<K, V> implements NonLeafStore<K, V> {
 
     @Override
     public Node<K, V> getChild(int index) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void addKey(K key) {
-        // TODO Auto-generated method stub
-        
+        return children[index];
     }
 
 }

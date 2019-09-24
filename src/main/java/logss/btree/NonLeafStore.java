@@ -10,6 +10,4 @@ public interface NonLeafStore<K,V> {
     
     Node<K,V> getChild(int index);
     
-    void addKey(K key);
-    
 }
