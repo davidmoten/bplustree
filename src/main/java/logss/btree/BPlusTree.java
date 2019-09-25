@@ -167,7 +167,7 @@ public class BPlusTree<K, V> {
     private static String indent(int level) {
         StringBuilder b = new StringBuilder();
         for (int i = 0; i < level; i++) {
-            b.append(' ');
+            b.append("  ");
         }
         return b.toString();
     }

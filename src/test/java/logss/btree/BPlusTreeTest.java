@@ -65,7 +65,7 @@ public class BPlusTreeTest {
         t.insert(1, "cd");
         assertEquals("cd", t.find(1));
         t.print(0, System.out);
-        for (int i = 2; i < 10; i++) {
+        for (int i = 2; i < 100; i++) {
             t.insert(i, "a" + i);
         }
         System.out.println();
