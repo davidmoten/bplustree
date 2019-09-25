@@ -3,16 +3,10 @@ package logss.btree;
 public final class NonLeaf<K, V> implements Node<K, V> {
 
     private final Options<K, V> options;
-    private final Node<K, V>[] children;
-    private final K[] keys;
-    private int numKeys; // number of keys
     final NonLeafStore<K, V> store;
 
-    @SuppressWarnings("unchecked")
     NonLeaf(Options<K, V> options) {
         this.options = options;
-        this.children = new Node[options.maxNonLeafKeys + 1];
-        this.keys = (K[]) new Object[options.maxNonLeafKeys];
         this.store = options.storage.createNonLeafStore();
     }
 
@@ -22,20 +16,12 @@ public final class NonLeaf<K, V> implements Node<K, V> {
     }
 
     Node<K, V> child(int index) {
-        return store.getChild(index);
-    }
-
-    int numKeys() {
-        return store.numKeys();
+        return store.child(index);
     }
 
     NonLeaf<K, V> setNumKeys(int numKeys) {
         store.setNumKeys(numKeys);
         return this;
-    }
-
-    K key(int index) {
-        return store.key(index);
     }
 
     NonLeaf<K, V> setKey(int index, K key) {
@@ -52,7 +38,7 @@ public final class NonLeaf<K, V> implements Node<K, V> {
         // Simple linear search. Faster for small values of N or M
         int numKeys = store.numKeys();
         for (int i = 0; i < numKeys; i++) {
-            if (options.comparator.compare(keys[i], key) > 0) {
+            if (options.comparator.compare(store.key(i), key) > 0) {
                 return i;
             }
         }
@@ -72,29 +58,23 @@ public final class NonLeaf<K, V> implements Node<K, V> {
 
         if (store.numKeys() == options.maxNonLeafKeys) { // Split
             int mid = (options.maxNonLeafKeys + 1) / 2;
-            int sNum = store.numKeys() - mid;
+            int len = store.numKeys() - mid;
             NonLeaf<K, V> sibling = new NonLeaf<K, V>(options);
-            store.move(mid, sibling, sNum);
-//            sibling.store.setNumKeys(sNum);
-//            System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
-//            System.arraycopy(this.children, mid, sibling.children, 0, sNum + 1);
-//
-//            this.numKeys = mid - 1;// this is important, so the middle one elevate to next
-//            // depth(height), inner node's key don't repeat itself
+            store.move(mid, sibling, len);
 
             // Set up the return variable
-            Split<K, V> result = new Split<>(this.keys[mid - 1], this, sibling);
+            Split<K, V> result = new Split<>(store.key(mid - 1), this, sibling);
 
             // Now insert in the appropriate sibling
             if (options.comparator.compare(key, result.key) < 0) {
-                this.insertNonfull(key, value);
+                insertNonfull(key, value);
             } else {
                 sibling.insertNonfull(key, value);
             }
             return result;
 
         } else {// No split
-            this.insertNonfull(key, value);
+            insertNonfull(key, value);
             return null;
         }
     }
@@ -102,26 +82,21 @@ public final class NonLeaf<K, V> implements Node<K, V> {
     private void insertNonfull(K key, V value) {
         // Simple linear search
         int idx = getLocation(key);
-        Split<K, V> result = children[idx].insert(key, value);
+        Split<K, V> result = store.child(idx).insert(key, value);
 
         if (result != null) {
-            if (idx == numKeys) {
+            if (idx == store.numKeys()) {
                 // Insertion at the rightmost key
-                keys[idx] = result.key;
-                children[idx] = result.left;
-                children[idx + 1] = result.right;
-                numKeys++;
+                store.setKey(idx, result.key);
+                store.setChild(idx, result.left);
+                store.setChild(idx + 1, result.right);
             } else {
                 // Insertion not at the rightmost key
                 // shift i>idx to the right
-                System.arraycopy(keys, idx, keys, idx + 1, numKeys - idx);
-                System.arraycopy(children, idx, children, idx + 1, numKeys - idx + 1);
-
-                children[idx] = result.left;
-                children[idx + 1] = result.right;
-                keys[idx] = result.key;
-                numKeys++;
+                store.insert(idx, result.key, result.left);
+                store.setChild(idx + 1, result.right);
             }
+            store.setNumKeys(store.numKeys() + 1);
         } // else the current node is not affected
     }
 
@@ -131,11 +106,12 @@ public final class NonLeaf<K, V> implements Node<K, V> {
     @Override
     public void dump() {
         System.out.println("iNode h==?");
+        int numKeys = store.numKeys();
         for (int i = 0; i < numKeys; i++) {
-            children[i].dump();
+            store.child(i).dump();
             System.out.print('>');
-            System.out.println(keys[i]);
+            System.out.println(store.key(i));
         }
-        children[numKeys].dump();
+        store.child(numKeys).dump();
     }
 }

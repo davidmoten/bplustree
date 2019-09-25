@@ -3,12 +3,17 @@ package logss.btree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.junit.Test;
 
 public class BPlusTreeTest {
 
     @Test
-    public void test() {
+    public void testFindOnEmptyTree() {
         BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(4).naturalOrder();
         assertNull(t.find(1));
     }
@@ -27,6 +32,23 @@ public class BPlusTreeTest {
             for (int n = 1; n < 1000; n++) {
                 for (int i = 0; i < n; i++) {
                     t.insert(i, "a" + i);
+                }
+                for (int i = n - 1; i >= 0; i--) {
+                    assertEquals("a" + i, t.find(i));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testAddManyShuffledAndFind() {
+        for (int m = 4; m <= 10; m++) {
+            BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(m).naturalOrder();
+            for (int n = 1; n <= 1000; n++) {
+                List<Integer> list = IntStream.range(0, n).boxed().collect(Collectors.toList());
+                Collections.shuffle(list);
+                for (int i = 0; i < n; i++) {
+                    t.insert(list.get(i), "a" + list.get(i));
                 }
                 for (int i = n - 1; i >= 0; i--) {
                     assertEquals("a" + i, t.find(i));
