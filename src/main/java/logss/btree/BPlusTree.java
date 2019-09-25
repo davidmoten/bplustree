@@ -1,5 +1,6 @@
 package logss.btree;
 
+import java.io.PrintStream;
 import java.util.Comparator;
 
 /**
@@ -119,4 +120,56 @@ public class BPlusTree<K, V> {
     public void dump() {
         root.dump();
     }
+
+    public void print(int level, PrintStream out) {
+        print(root, level, out);
+    }
+
+    private static <K, V> void print(Node<K, V> node, int level, PrintStream out) {
+        if (node instanceof Leaf) {
+            print((Leaf<K, V>) node, level, out);
+        } else {
+            print((NonLeaf<K, V>) node, level, out);
+        }
+    }
+
+    private static <K, V> void print(Leaf<K, V> node, int level, PrintStream out) {
+        out.print(indent(level));
+        out.print("Leaf: ");
+        int n = node.store.numKeys();
+        for (int i = 0; i < n; i++) {
+            if (i > 0) {
+                out.print(", ");
+            }
+            out.print(node.store.key(i));
+            out.print("->");
+            out.print(node.store.value(i));
+        }
+        out.println();
+    }
+
+    private static <K, V> void print(NonLeaf<K, V> node, int level, PrintStream out) {
+        out.print(indent(level));
+        out.println("NonLeaf");
+        int n = node.store.numKeys();
+        for (int i = 0; i < n; i++) {
+            Node<K, V> nd = node.store.child(i);
+            print(nd, level + 1, out);
+            out.print(indent(level) + node.store.key(i));
+            out.println();
+        }
+        if (node.store.child(n) != null) {
+            print(node.store.child(n), level + 1, out);
+        }
+        out.println();
+    }
+
+    private static String indent(int level) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            b.append(' ');
+        }
+        return b.toString();
+    }
+
 }

@@ -3,6 +3,7 @@ package logss.btree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,6 +56,20 @@ public class BPlusTreeTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void testStructure() {
+        BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(4).naturalOrder();
+        t.insert(1, "ab");
+        t.insert(1, "cd");
+        assertEquals("cd", t.find(1));
+        t.print(0, System.out);
+        for (int i = 2; i < 10; i++) {
+            t.insert(i, "a" + i);
+        }
+        System.out.println();
+        t.print(0, System.out);
     }
 
 }
