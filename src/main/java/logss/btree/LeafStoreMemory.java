@@ -28,10 +28,11 @@ public final class LeafStoreMemory<K, V> implements LeafStore<K, V> {
     }
 
     @Override
-    public void move(int start, Leaf<K, V> sibling, int length) {
-        System.arraycopy(this.keys, start, ((LeafStoreMemory<K, V>) sibling.store).keys, 0, length);
-        System.arraycopy(this.values, start, ((LeafStoreMemory<K, V>) sibling.store).values, 0, length);
-        this.numKeys = start;
+    public void move(int start, Leaf<K, V> other, int length) {
+        other.store.setNumKeys(length);
+        System.arraycopy(keys, start, ((LeafStoreMemory<K, V>) other.store).keys, 0, length);
+        System.arraycopy(values, start, ((LeafStoreMemory<K, V>) other.store).values, 0, length);
+        numKeys = start;
     }
 
     @Override

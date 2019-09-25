@@ -44,10 +44,9 @@ public final class Leaf<K, V> implements Node<K, V> {
         int i = getLocation(key);
         if (store.numKeys() == options.maxLeafKeys) { // The node was full. We must split it
             int mid = (options.maxLeafKeys + 1) / 2;
-            int sNum = store.numKeys() - mid;
+            int len = store.numKeys() - mid;
             Leaf<K, V> sibling = new Leaf<K, V>(options);
-            sibling.store.setNumKeys(sNum);
-            store.move(mid, sibling, sNum);
+            store.move(mid, sibling, len);
             // System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
             // System.arraycopy(this.values, mid, sibling.values, 0, sNum);
             store.setNumKeys(mid);

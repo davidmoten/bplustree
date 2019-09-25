@@ -6,38 +6,40 @@ public final class NonLeaf<K, V> implements Node<K, V> {
     private final Node<K, V>[] children;
     private final K[] keys;
     private int numKeys; // number of keys
+    final NonLeafStore<K, V> store;
 
     @SuppressWarnings("unchecked")
     NonLeaf(Options<K, V> options) {
         this.options = options;
         this.children = new Node[options.maxNonLeafKeys + 1];
         this.keys = (K[]) new Object[options.maxNonLeafKeys];
+        this.store = options.storage.createNonLeafStore();
     }
 
     NonLeaf<K, V> setChild(int index, Node<K, V> node) {
-        children[index] = node;
+        store.setChild(index, node);
         return this;
     }
 
     Node<K, V> child(int index) {
-        return children[index];
+        return store.getChild(index);
     }
 
     int numKeys() {
-        return numKeys;
+        return store.numKeys();
     }
 
     NonLeaf<K, V> setNumKeys(int numKeys) {
-        this.numKeys = numKeys;
+        store.setNumKeys(numKeys);
         return this;
     }
 
     K key(int index) {
-        return keys[index];
+        return store.key(index);
     }
 
     NonLeaf<K, V> setKey(int index, K key) {
-        keys[index] = key;
+        store.setKey(index, key);
         return this;
     }
 
@@ -48,6 +50,7 @@ public final class NonLeaf<K, V> implements Node<K, V> {
     @Override
     public int getLocation(K key) {
         // Simple linear search. Faster for small values of N or M
+        int numKeys = store.numKeys();
         for (int i = 0; i < numKeys; i++) {
             if (options.comparator.compare(keys[i], key) > 0) {
                 return i;
@@ -67,16 +70,17 @@ public final class NonLeaf<K, V> implements Node<K, V> {
          * first search to the leaf, and split from bottom up is the correct approach.
          */
 
-        if (this.numKeys == options.maxNonLeafKeys) { // Split
+        if (store.numKeys() == options.maxNonLeafKeys) { // Split
             int mid = (options.maxNonLeafKeys + 1) / 2;
-            int sNum = this.numKeys - mid;
+            int sNum = store.numKeys() - mid;
             NonLeaf<K, V> sibling = new NonLeaf<K, V>(options);
-            sibling.numKeys = sNum;
-            System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
-            System.arraycopy(this.children, mid, sibling.children, 0, sNum + 1);
-
-            this.numKeys = mid - 1;// this is important, so the middle one elevate to next
-            // depth(height), inner node's key don't repeat itself
+            store.move(mid, sibling, sNum);
+//            sibling.store.setNumKeys(sNum);
+//            System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
+//            System.arraycopy(this.children, mid, sibling.children, 0, sNum + 1);
+//
+//            this.numKeys = mid - 1;// this is important, so the middle one elevate to next
+//            // depth(height), inner node's key don't repeat itself
 
             // Set up the return variable
             Split<K, V> result = new Split<>(this.keys[mid - 1], this, sibling);
