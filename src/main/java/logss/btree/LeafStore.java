@@ -8,10 +8,12 @@ public interface LeafStore<K, V> {
     
     int numKeys();
 
-    void move(K[] keys, int mid, Leaf<K, V> sibling, int numKeys);
-
     void setNumKeys(int numKeys);
 
     void setValue(int idx, V value);
+
+    void insert(int idx, K key, V value);
+
+    void move(int start, Leaf<K, V> sibling, int length);
     
 }
