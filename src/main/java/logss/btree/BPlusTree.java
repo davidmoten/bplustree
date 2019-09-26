@@ -3,16 +3,6 @@ package logss.btree;
 import java.io.PrintStream;
 import java.util.Comparator;
 
-/**
- * B+ Tree If you understand B+ or B Tree better, M & N don't need to be the
- * same Here is an example of M=N=4, with 12 keys
- * 
- * 5 / \ 3 7 9 / \ / | \ 1 2 3 4 5 6 7 8 9 10 11 12
- * 
- * @author jwang01
- * @version 1.0.0 created on May 19, 2006 edited by Spoon! 2008 edited by Mistro
- *          2010
- */
 public class BPlusTree<K, V> {
 
     private final Options<K, V> options;
@@ -84,8 +74,8 @@ public class BPlusTree<K, V> {
     public void insert(K key, V value) {
         Split<K, V> result = root.insert(key, value);
         if (result != null) {
-            // The old root was split into two parts.
-            // We have to create a new root pointing to them
+            // The root is split into two parts.
+            // We create a new root pointing to them
             root = //
                     new NonLeaf<K, V>(options) //
                             .setNumKeys(1) //
