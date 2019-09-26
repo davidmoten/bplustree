@@ -3,6 +3,7 @@ package logss.btree;
 import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class BPlusTree<K, V> {
 
@@ -111,23 +112,61 @@ public class BPlusTree<K, V> {
         return (Leaf<K, V>) node;
     }
 
+    /**
+     * Returns an in-order sequence of values whose keys are >= start and < finish.
+     * 
+     * @param start
+     *            inclusive end of search
+     * @param finish
+     *            exclusive end of search
+     * @return
+     */
     public Iterable<V> find(K start, K finish) {
         return new Iterable<V>() {
 
             @Override
             public Iterator<V> iterator() {
                 return new Iterator<V>() {
+                    Leaf<K, V> leaf = findFirstLeaf(start);
+                    int idx = leaf.getLocation(start);
+                    V value;
 
                     @Override
                     public boolean hasNext() {
-                        // TODO Auto-generated method stub
-                        return false;
+                        load();
+                        return value != null;
                     }
 
                     @Override
                     public V next() {
-                        // TODO Auto-generated method stub
-                        return null;
+                        load();
+                        V v = value;
+                        value = null;
+                        if (v == null) {
+                            throw new NoSuchElementException();
+                        } else {
+                            return v;
+                        }
+                    }
+
+                    private void load() {
+                        if (value != null) {
+                            return;
+                        }
+                        while (true) {
+                            if (leaf == null) {
+                                return;
+                            } else if (idx < leaf.numKeys()) {
+                                if (options.comparator.compare(leaf.key(idx), finish) < 0) {
+                                    value = leaf.value(idx);
+                                    idx++;
+                                }
+                                return;
+                            } else {
+                                leaf = leaf.next();
+                                idx = 0;
+                            }
+                        }
                     }
 
                 };

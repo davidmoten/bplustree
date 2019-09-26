@@ -3,8 +3,10 @@ package logss.btree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -114,7 +116,7 @@ public class BPlusTreeTest {
         assertEquals(Arrays.asList(2), children.get(1).keys());
         assertEquals(Arrays.asList(3, 4), children.get(2).keys());
     }
-    
+
     @Test
     public void testPrint() {
         BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
@@ -123,5 +125,23 @@ public class BPlusTreeTest {
         }
         t.print();
     }
-    
+
+    @Test
+    public void testFindRange() {
+        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        for (int i = 1; i <= 10; i++) {
+            t.insert(i, i);
+        }
+        assertEquals(Arrays.asList(1), toList(t.find(1, 2)));
+        assertEquals(Arrays.asList(1, 2), toList(t.find(1, 3)));
+        assertEquals(Arrays.asList(9, 10), toList(t.find(9, 11)));
+        assertEquals(Arrays.asList(), toList(t.find(11, 20)));
+    }
+
+    private static <T> List<T> toList(Iterable<T> iterable) {
+        List<T> list = new ArrayList<>();
+        iterable.forEach(list::add);
+        return list;
+    }
+
 }
