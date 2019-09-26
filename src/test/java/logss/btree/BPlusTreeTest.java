@@ -152,7 +152,6 @@ public class BPlusTreeTest {
         t.insert(1, 2);
         t.insert(1, 3);
         t.print();
-        NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
         assertEquals(Lists.newArrayList(2, 3), toList(t.find(0,4)));
     }
 
