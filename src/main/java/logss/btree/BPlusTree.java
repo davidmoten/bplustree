@@ -16,8 +16,8 @@ public class BPlusTree<K, V> {
     private Node<K, V> root;
 
     /** Create a new empty tree. */
-    private BPlusTree(int maxLeafKeys, int maxInnerKeys, Comparator<? super K> comparator) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, comparator,
+    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator) {
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
                 new Storage<K, V>(maxInnerKeys, maxLeafKeys));
         this.root = new Leaf<K, V>(options);
     }
@@ -34,6 +34,8 @@ public class BPlusTree<K, V> {
 
         private int maxLeafKeys = NOT_SPECIFIED;
         private int maxInnerKeys = NOT_SPECIFIED;
+
+        private boolean uniqueKeys = false;
 
         Builder() {
             // prevent instantiation
@@ -54,6 +56,11 @@ public class BPlusTree<K, V> {
             return maxNonLeafKeys(maxKeys);
         }
 
+        public Builder uniqueKeys(boolean uniqueKeys) {
+            this.uniqueKeys = uniqueKeys;
+            return this;
+        }
+
         public <K, V> BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
             if (maxLeafKeys == NOT_SPECIFIED) {
                 if (maxInnerKeys == NOT_SPECIFIED) {
@@ -65,7 +72,7 @@ public class BPlusTree<K, V> {
             } else if (maxInnerKeys == NOT_SPECIFIED) {
                 maxInnerKeys = maxLeafKeys;
             }
-            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, comparator);
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator);
         }
 
         public <K extends Comparable<K>, V> BPlusTree<K, V> naturalOrder() {

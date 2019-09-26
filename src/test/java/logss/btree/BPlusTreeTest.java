@@ -12,6 +12,8 @@ import java.util.stream.IntStream;
 
 import org.junit.Test;
 
+import com.github.davidmoten.guavamini.Lists;
+
 public class BPlusTreeTest {
 
     @Test
@@ -67,7 +69,7 @@ public class BPlusTreeTest {
         for (int i = 1; i <= 5; i++) {
             t.insert(i, i);
         }
-        NodeWrapper<Integer, Integer> root = new NodeWrapper<Integer, Integer>(t.root());
+        NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
         assertEquals(Arrays.asList(3), root.keys());
         List<NodeWrapper<Integer, Integer>> children = root.children();
         assertEquals(2, children.size());
@@ -91,7 +93,7 @@ public class BPlusTreeTest {
         for (int i = 1; i <= 3; i++) {
             t.insert(i, i);
         }
-        NodeWrapper<Integer, Integer> root = new NodeWrapper<Integer, Integer>(t.root());
+        NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
         assertEquals(Arrays.asList(2), root.keys());
         List<NodeWrapper<Integer, Integer>> children = root.children();
         assertEquals(2, children.size());
@@ -107,7 +109,7 @@ public class BPlusTreeTest {
         for (int i = 1; i <= 4; i++) {
             t.insert(i, i);
         }
-        NodeWrapper<Integer, Integer> root = new NodeWrapper<Integer, Integer>(t.root());
+        NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
         assertEquals(Arrays.asList(2, 3), root.keys());
         List<NodeWrapper<Integer, Integer>> children = root.children();
         assertEquals(3, children.size());
@@ -142,6 +144,16 @@ public class BPlusTreeTest {
         List<T> list = new ArrayList<>();
         iterable.forEach(list::add);
         return list;
+    }
+
+    @Test
+    public void testDuplicateSupportedAndInOrderOfInsert() {
+        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        t.insert(1, 2);
+        t.insert(1, 3);
+        t.print();
+        NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
+        assertEquals(Lists.newArrayList(2, 3), toList(t.find(0,4)));
     }
 
 }

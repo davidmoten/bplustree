@@ -73,7 +73,7 @@ public final class Leaf<K, V> implements Node<K, V> {
     }
 
     void insertNonfull(K key, V value, int idx) {
-        if (idx < store.numKeys() && store.key(idx).equals(key)) {
+        if (idx < store.numKeys() && options.uniqueKeys && store.key(idx).equals(key)) {
             // We are inserting a duplicate value, simply overwrite the old one
             store.setValue(idx, value);
         } else {

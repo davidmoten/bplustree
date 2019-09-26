@@ -15,12 +15,15 @@ final class Options<K, V> {
     final Comparator<? super K> comparator;
     final Storage<K, V> storage;
 
-    Options(int maxLeafKeys, int maxInnerKeys, Comparator<? super K> comparator,
+    final boolean uniqueKeys;
+
+    Options(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
             Storage<K, V> storage) {
         this.maxLeafKeys = maxLeafKeys;
         this.maxNonLeafKeys = maxInnerKeys;
         this.comparator = comparator;
         this.storage = storage;
+        this.uniqueKeys = uniqueKeys;
     }
 
 }
