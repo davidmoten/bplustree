@@ -13,11 +13,13 @@ public final class Leaf<K, V> implements Node<K, V> {
         return store.value(index);
     }
 
-    K key(int index) {
+    @Override
+    public K key(int index) {
         return store.key(index);
     }
 
-    int numKeys() {
+    @Override
+    public int numKeys() {
         return store.numKeys();
     }
 

@@ -57,7 +57,7 @@ public final class NonLeaf<K, V> implements Node<K, V> {
          */
 
         if (store.numKeys() == options.maxNonLeafKeys) { // Split
-            int mid = (options.maxNonLeafKeys + 1) / 2;
+            int mid = options.maxNonLeafKeys/ 2 + 1;
             int len = store.numKeys() - mid;
             NonLeaf<K, V> sibling = new NonLeaf<K, V>(options);
             store.move(mid, sibling, len);
@@ -115,4 +115,14 @@ public final class NonLeaf<K, V> implements Node<K, V> {
         store.child(numKeys).dump();
     }
 
+    @Override
+    public K key(int i) {
+        return store.key(i);
+    }
+
+    @Override
+    public int numKeys() {
+        return store.numKeys();
+    }
+    
 }

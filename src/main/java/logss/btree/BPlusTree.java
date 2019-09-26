@@ -176,4 +176,8 @@ public class BPlusTree<K, V> {
         return b.toString();
     }
 
+    public Node<K,V> root() {
+        return root;
+    }
+
 }

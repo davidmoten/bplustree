@@ -3,6 +3,8 @@ package logss.btree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,14 +74,16 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testStructure2() {
-        for (int n = 1; n <= 10; n++) {
-            BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
-            for (int i = 1; i <= n; i++) {
-                t.insert(i, i);
-            }
-            t.print();
+    public void testSplitsCorrect() {
+        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        for (int i = 1; i <= 5; i++) {
+            t.insert(i, i);
         }
+        NodeWrapper<Integer, Integer> root = new NodeWrapper<Integer, Integer>(t.root());
+        assertEquals(Arrays.asList(3),root.keys());
+        List<NodeWrapper<Integer, Integer>> children = root.children();
+        assertEquals(2, children.size());
+        assertEquals(Arrays.asList(2), children.get(0).keys());
+        assertEquals(Arrays.asList(4), children.get(1).keys());
     }
-
 }
