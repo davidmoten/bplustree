@@ -3,7 +3,6 @@ package logss.btree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

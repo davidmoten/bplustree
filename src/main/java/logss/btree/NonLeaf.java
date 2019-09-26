@@ -1,7 +1,5 @@
 package logss.btree;
 
-import java.io.PrintStream;
-
 public final class NonLeaf<K, V> implements Node<K, V> {
 
     private final Options<K, V> options;

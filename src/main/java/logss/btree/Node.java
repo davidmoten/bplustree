@@ -1,7 +1,5 @@
 package logss.btree;
 
-import java.io.PrintStream;
-
 interface Node<K, V> {
 
     int getLocation(K key);
