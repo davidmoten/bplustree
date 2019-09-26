@@ -52,14 +52,14 @@ public class BPlusTree<K, V> {
             return this;
         }
 
-        public Builder maxInnerKeys(int maxInnerKeys) {
+        public Builder maxNonLeafKeys(int maxInnerKeys) {
             this.maxInnerKeys = maxInnerKeys;
             return this;
         }
 
         public Builder maxKeys(int maxKeys) {
             maxLeafKeys(maxKeys);
-            return maxInnerKeys(maxKeys);
+            return maxNonLeafKeys(maxKeys);
         }
 
         public <K, V> BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
@@ -121,8 +121,12 @@ public class BPlusTree<K, V> {
         root.dump();
     }
 
-    public void print(int level, PrintStream out) {
-        print(root, level, out);
+    public void print(PrintStream out) {
+        print(root, 0, out);
+    }
+    
+    public void print() {
+        print(System.out);
     }
 
     private static <K, V> void print(Node<K, V> node, int level, PrintStream out) {

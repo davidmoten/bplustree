@@ -63,12 +63,23 @@ public class BPlusTreeTest {
         t.insert(1, "ab");
         t.insert(1, "cd");
         assertEquals("cd", t.find(1));
-        t.print(0, System.out);
+        t.print();
         for (int i = 2; i < 100; i++) {
             t.insert(i, "a" + i);
         }
         System.out.println();
-        t.print(0, System.out);
+        t.print();
+    }
+
+    @Test
+    public void testStructure2() {
+        for (int n = 1; n <= 10; n++) {
+            BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+            for (int i = 1; i <= n; i++) {
+                t.insert(i, i);
+            }
+            t.print();
+        }
     }
 
 }
