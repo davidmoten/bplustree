@@ -100,21 +100,6 @@ public final class NonLeaf<K, V> implements Node<K, V> {
         } // else the current node is not affected
     }
 
-    /**
-     * This one only dump integer key
-     */
-    @Override
-    public void dump() {
-        System.out.println("iNode h==?");
-        int numKeys = store.numKeys();
-        for (int i = 0; i < numKeys; i++) {
-            store.child(i).dump();
-            System.out.print('>');
-            System.out.println(store.key(i));
-        }
-        store.child(numKeys).dump();
-    }
-
     @Override
     public K key(int i) {
         return store.key(i);

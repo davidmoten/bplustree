@@ -114,4 +114,14 @@ public class BPlusTreeTest {
         assertEquals(Arrays.asList(2), children.get(1).keys());
         assertEquals(Arrays.asList(3, 4), children.get(2).keys());
     }
+    
+    @Test
+    public void testPrint() {
+        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        for (int i = 1; i <= 10; i++) {
+            t.insert(i, i);
+        }
+        t.print();
+    }
+    
 }

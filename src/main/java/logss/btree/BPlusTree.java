@@ -107,10 +107,6 @@ public class BPlusTree<K, V> {
         }
     }
 
-    public void dump() {
-        root.dump();
-    }
-
     public void print(PrintStream out) {
         print(root, 0, out);
     }
@@ -138,6 +134,9 @@ public class BPlusTree<K, V> {
             out.print(node.store.key(i));
             out.print("->");
             out.print(node.store.value(i));
+        }
+        if (node.next()!= null) {
+            out.print("| -> " + node.next().keys());
         }
         out.println();
     }
