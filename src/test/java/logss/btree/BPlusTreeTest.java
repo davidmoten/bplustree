@@ -19,14 +19,14 @@ public class BPlusTreeTest {
     @Test
     public void testFindOnEmptyTree() {
         BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(4).naturalOrder();
-        assertNull(t.find(1));
+        assertNull(t.findFirst(1));
     }
 
     @Test
     public void testAddElementAndFind() {
         BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(4).naturalOrder();
         t.insert(1, "boo");
-        assertEquals("boo", t.find(1));
+        assertEquals("boo", t.findFirst(1));
     }
 
     @Test
@@ -38,7 +38,7 @@ public class BPlusTreeTest {
                     t.insert(i, "a" + i);
                 }
                 for (int i = n - 1; i >= 0; i--) {
-                    assertEquals("a" + i, t.find(i));
+                    assertEquals("a" + i, t.findFirst(i));
                 }
             }
         }
@@ -55,7 +55,7 @@ public class BPlusTreeTest {
                     t.insert(list.get(i), "a" + list.get(i));
                 }
                 for (int i = n - 1; i >= 0; i--) {
-                    assertEquals("a" + i, t.find(i));
+                    assertEquals("a" + i, t.findFirst(i));
                 }
             }
         }
@@ -147,12 +147,12 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testDuplicateSupportedAndInOrderOfInsert() {
+    public void testDuplicateSupportedAndInReverseOrderOfInsert() {
         BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
         t.insert(1, 2);
         t.insert(1, 3);
         t.print();
-        assertEquals(Lists.newArrayList(2, 3), toList(t.find(0,4)));
+        assertEquals(Lists.newArrayList(3, 2), toList(t.find(0,4)));
     }
 
 }

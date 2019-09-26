@@ -98,7 +98,7 @@ public class BPlusTree<K, V> {
      * Looks for the given key. If it is not found, it returns null. If it is found,
      * it returns the associated value.
      */
-    public V find(K key) {
+    public V findFirst(K key) {
         Leaf<K, V> leaf = findFirstLeaf(key);
         int idx = leaf.getLocation(key);
         if (idx < leaf.numKeys() && leaf.key(idx).equals(key)) {
@@ -106,6 +106,17 @@ public class BPlusTree<K, V> {
         } else {
             return null;
         }
+    }
+
+    public Iterable<V> find(K key) {
+
+        return new Iterable<V>() {
+
+            @Override
+            public Iterator<V> iterator() {
+                throw new UnsupportedOperationException("not implemented yet");
+            }
+        };
     }
 
     private Leaf<K, V> findFirstLeaf(K key) {
