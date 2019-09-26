@@ -2,6 +2,7 @@ package logss.btree;
 
 import java.io.PrintStream;
 import java.util.Comparator;
+import java.util.Iterator;
 
 public class BPlusTree<K, V> {
 
@@ -90,15 +91,7 @@ public class BPlusTree<K, V> {
      * it returns the associated value.
      */
     public V find(K key) {
-        Node<K, V> node = root;
-        while (node instanceof NonLeaf) { // need to traverse down to the leaf
-            NonLeaf<K, V> inner = (NonLeaf<K, V>) node;
-            int idx = inner.getLocation(key);
-            node = inner.child(idx);
-        }
-
-        // We are @ leaf after while loop
-        Leaf<K, V> leaf = (Leaf<K, V>) node;
+        Leaf<K, V> leaf = findFirstLeaf(key);
         int idx = leaf.getLocation(key);
         if (idx < leaf.numKeys() && leaf.key(idx).equals(key)) {
             return leaf.value(idx);
@@ -107,10 +100,46 @@ public class BPlusTree<K, V> {
         }
     }
 
+    private Leaf<K, V> findFirstLeaf(K key) {
+        Node<K, V> node = root;
+        while (node instanceof NonLeaf) { // need to traverse down to the leaf
+            NonLeaf<K, V> inner = (NonLeaf<K, V>) node;
+            int idx = inner.getLocation(key);
+            node = inner.child(idx);
+        }
+        // We are @ leaf after while loop
+        return (Leaf<K, V>) node;
+    }
+
+    public Iterable<V> find(K start, K finish) {
+        return new Iterable<V>() {
+
+            @Override
+            public Iterator<V> iterator() {
+                return new Iterator<V>() {
+
+                    @Override
+                    public boolean hasNext() {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    @Override
+                    public V next() {
+                        // TODO Auto-generated method stub
+                        return null;
+                    }
+
+                };
+            }
+
+        };
+    }
+
     public void print(PrintStream out) {
         print(root, 0, out);
     }
-    
+
     public void print() {
         print(System.out);
     }
@@ -135,7 +164,7 @@ public class BPlusTree<K, V> {
             out.print("->");
             out.print(node.store.value(i));
         }
-        if (node.next()!= null) {
+        if (node.next() != null) {
             out.print("| -> " + node.next().keys());
         }
         out.println();
@@ -165,7 +194,7 @@ public class BPlusTree<K, V> {
         return b.toString();
     }
 
-    public Node<K,V> root() {
+    public Node<K, V> root() {
         return root;
     }
 
