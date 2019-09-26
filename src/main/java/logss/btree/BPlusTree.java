@@ -183,12 +183,12 @@ public class BPlusTree<K, V> {
         };
     }
 
-    public void print(PrintStream out) {
-        print(root, 0, out);
-    }
-
     public void print() {
         print(System.out);
+    }
+
+    public void print(PrintStream out) {
+        print(root, 0, out);
     }
 
     private static <K, V> void print(Node<K, V> node, int level, PrintStream out) {

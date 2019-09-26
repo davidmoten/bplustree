@@ -48,14 +48,6 @@ public final class NonLeaf<K, V> implements Node<K, V> {
 
     @Override
     public Split<K, V> insert(K key, V value) {
-        /*
-         * Early split if node is full. This is not the canonical algorithm for B+
-         * trees, but it is simpler and it does break the definition which might result
-         * in immature split, which might not be desired in database because additional
-         * split lead to tree's height increase by 1, thus the number of disk read so
-         * first search to the leaf, and split from bottom up is the correct approach.
-         */
-
         if (store.numKeys() == options.maxNonLeafKeys) { // Split
             int mid = options.maxNonLeafKeys/ 2 + 1;
             int len = store.numKeys() - mid;

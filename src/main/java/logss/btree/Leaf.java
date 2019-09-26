@@ -81,8 +81,8 @@ public final class Leaf<K, V> implements Node<K, V> {
             store.insert(idx, key, value);
         }
     }
-    
-    Leaf<K,V> next() {
+
+    Leaf<K, V> next() {
         return next;
     }
 
