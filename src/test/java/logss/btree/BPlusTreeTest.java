@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -136,6 +135,7 @@ public class BPlusTreeTest {
         assertEquals(Arrays.asList(1, 2), toList(t.find(1, 3)));
         assertEquals(Arrays.asList(9, 10), toList(t.find(9, 11)));
         assertEquals(Arrays.asList(), toList(t.find(11, 20)));
+        assertEquals(Arrays.asList(), toList(t.find(-3, -1)));
     }
 
     private static <T> List<T> toList(Iterable<T> iterable) {

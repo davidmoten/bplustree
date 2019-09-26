@@ -122,6 +122,10 @@ public class BPlusTree<K, V> {
      * @return
      */
     public Iterable<V> find(K start, K finish) {
+        return find(start, finish, false);
+    }
+
+    public Iterable<V> find(K start, K finish, boolean finishInclusive) {
         return new Iterable<V>() {
 
             @Override
@@ -157,9 +161,13 @@ public class BPlusTree<K, V> {
                             if (leaf == null) {
                                 return;
                             } else if (idx < leaf.numKeys()) {
-                                if (options.comparator.compare(leaf.key(idx), finish) < 0) {
+                                int c = options.comparator.compare(leaf.key(idx), finish);
+                                if (c < 0 || (c == 0 && finishInclusive)) {
                                     value = leaf.value(idx);
                                     idx++;
+                                } else {
+                                    // don't search further
+                                    leaf = null;
                                 }
                                 return;
                             } else {
