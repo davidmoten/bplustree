@@ -22,20 +22,4 @@ interface Node<K, V> {
         return list;
     }
     
-    /**
-     * Returns the position where 'key' should be inserted in a leaf node that has
-     * the given keys.
-     */
-    default int getLocation(K key) {
-        // Simple linear search. Faster for small values of N or M, binary search would
-        // be faster for larger M / N
-        int numKeys = numKeys();
-        for (int i = 0; i < numKeys; i++) {
-            if (options().comparator.compare(key(i), key) >= 0) {
-                return i;
-            }
-        }
-        return numKeys;
-    }
-
 }
