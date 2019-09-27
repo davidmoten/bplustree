@@ -1,57 +1,35 @@
 package logss.btree;
 
-public final class Leaf<K, V> implements Node<K, V> {
-    private final Options<K, V> options;
-    final LeafStore<K, V> store;
+public interface Leaf<K, V> extends Node<K, V> {
 
-    Leaf(Options<K, V> options) {
-        this.options = options;
-        this.store = options.storage.createLeafStore();
-    }
+    Options<K, V> options();
 
-    V value(int index) {
-        return store.value(index);
-    }
+    V value(int index);
 
-    @Override
-    public K key(int index) {
-        return store.key(index);
-    }
+    void setNumKeys(int numKeys);
 
-    @Override
-    public int numKeys() {
-        return store.numKeys();
-    }
+    void setValue(int idx, V value);
 
-    /**
-     * Returns the position where 'key' should be inserted in a leaf node that has
-     * the given keys.
-     */
-    @Override
-    public int getLocation(K key) {
-        // Simple linear search. Faster for small values of N or M, binary search would
-        // be faster for larger M / N
-        int numKeys = store.numKeys();
-        for (int i = 0; i < numKeys; i++) {
-            if (options.comparator.compare(store.key(i), key) >= 0) {
-                return i;
-            }
-        }
-        return numKeys;
-    }
+    void insert(int idx, K key, V value);
+
+    void move(int start, Leaf<K, V> other, int length);
+
+    void setNext(Leaf<K, V> sibling);
+
+    Leaf<K, V> next();
 
     @Override
-    public Split<K, V> insert(K key, V value) {
+    default Split<K, V> insert(K key, V value) {
         // Simple linear search
         int i = getLocation(key);
-        if (store.numKeys() == options.maxLeafKeys) { // The node was full. We must split it
-            int mid = (options.maxLeafKeys + 1) / 2;
-            int len = store.numKeys() - mid;
-            Leaf<K, V> sibling = new Leaf<K, V>(options);
-            store.move(mid, sibling, len);
+        if (numKeys() == options().maxLeafKeys) { // The node was full. We must split it
+            int mid = (options().maxLeafKeys + 1) / 2;
+            int len = numKeys() - mid;
+            Leaf<K, V> sibling = options().factory.createLeaf(options());
+            move(mid, sibling, len);
             // System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
             // System.arraycopy(this.values, mid, sibling.values, 0, sNum);
-            store.setNumKeys(mid);
+            setNumKeys(mid);
             if (i < mid) {
                 // Inserted element goes to left sibling
                 insertNonfull(key, value, i);
@@ -59,10 +37,10 @@ public final class Leaf<K, V> implements Node<K, V> {
                 // Inserted element goes to right sibling
                 sibling.insertNonfull(key, value, i - mid);
             }
-            store.setNext(sibling);
+            setNext(sibling);
             // Notify the parent about the split
-            return new Split<>(sibling.store.key(0), // make the right's key >=
-                                                     // result.key
+            return new Split<>(sibling.key(0), // make the right's key >=
+                                               // result.key
                     this, sibling);
         } else {
             // The node was not full
@@ -71,20 +49,15 @@ public final class Leaf<K, V> implements Node<K, V> {
         }
     }
 
-    void insertNonfull(K key, V value, int idx) {
-        if (idx < store.numKeys() && options.uniqueKeys && store.key(idx).equals(key)) {
+    default void insertNonfull(K key, V value, int idx) {
+        if (idx < numKeys() && options().uniqueKeys && key(idx).equals(key)) {
             // We are inserting a duplicate value, simply overwrite the old one
-            store.setValue(idx, value);
+            setValue(idx, value);
         } else {
             // TODO put at end of duplicate keys
             // The key we are inserting is unique
-            store.insert(idx, key, value);
+            insert(idx, key, value);
         }
-    }
-
-    
-    public Leaf<K, V> next() {
-        return store.next();
     }
 
 }

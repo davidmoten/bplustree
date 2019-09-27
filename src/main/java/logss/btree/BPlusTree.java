@@ -17,9 +17,8 @@ public class BPlusTree<K, V> {
 
     /** Create a new empty tree. */
     private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
-                new Storage<K, V>(maxInnerKeys, maxLeafKeys));
-        this.root = new Leaf<K, V>(options);
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, new Factory<K, V>());
+        this.root = options.factory.createLeaf(options);
     }
 
     public static Builder builder() {
@@ -85,12 +84,14 @@ public class BPlusTree<K, V> {
         if (result != null) {
             // The root is split into two parts.
             // We create a new root pointing to them
-            root = //
-                    new NonLeaf<K, V>(options) //
-                            .setNumKeys(1) //
-                            .setKey(0, result.key) //
-                            .setChild(0, result.left) //
-                            .setChild(1, result.right);
+            NonLeaf<K, V> node = //
+                    options.factory //
+                            .createNonLeaf(options);
+            node.setNumKeys(1);
+            node.setKey(0, result.key);
+            node.setChild(0, result.left);
+            node.setChild(1, result.right);
+            root = node;
         }
     }
 
@@ -220,14 +221,14 @@ public class BPlusTree<K, V> {
     private static <K, V> void print(Leaf<K, V> node, int level, PrintStream out) {
         out.print(indent(level));
         out.print("Leaf: ");
-        int n = node.store.numKeys();
+        int n = node.numKeys();
         for (int i = 0; i < n; i++) {
             if (i > 0) {
                 out.print(", ");
             }
-            out.print(node.store.key(i));
+            out.print(node.key(i));
             out.print("->");
-            out.print(node.store.value(i));
+            out.print(node.value(i));
         }
         if (node.next() != null) {
             out.print("| -> " + node.next().keys());
@@ -238,15 +239,15 @@ public class BPlusTree<K, V> {
     private static <K, V> void print(NonLeaf<K, V> node, int level, PrintStream out) {
         out.print(indent(level));
         out.println("NonLeaf");
-        int n = node.store.numKeys();
+        int n = node.numKeys();
         for (int i = 0; i < n; i++) {
-            Node<K, V> nd = node.store.child(i);
+            Node<K, V> nd = node.child(i);
             print(nd, level + 1, out);
-            out.print(indent(level) + node.store.key(i));
+            out.print(indent(level) + node.key(i));
             out.println();
         }
-        if (node.store.child(n) != null) {
-            print(node.store.child(n), level + 1, out);
+        if (node.child(n) != null) {
+            print(node.child(n), level + 1, out);
         }
         out.println();
     }

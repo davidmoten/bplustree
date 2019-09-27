@@ -1,16 +1,18 @@
 package logss.btree;
 
-public final class LeafStoreMemory<K, V> implements LeafStore<K, V> {
+public final class LeafMemory<K, V> implements Leaf<K, V> {
 
     private final K[] keys;
     private final V[] values;
     private int numKeys;
     private Leaf<K, V> next;
+    private final Options<K, V> options;
 
     @SuppressWarnings("unchecked")
-    public LeafStoreMemory(int maxKeys) {
-        keys = (K[]) new Object[maxKeys];
-        values = (V[]) new Object[maxKeys];
+    public LeafMemory(Options<K,V> options) {
+        this.options = options;
+        keys = (K[]) new Object[options.maxLeafKeys];
+        values = (V[]) new Object[options.maxLeafKeys];
     }
 
     @Override
@@ -30,9 +32,9 @@ public final class LeafStoreMemory<K, V> implements LeafStore<K, V> {
 
     @Override
     public void move(int start, Leaf<K, V> other, int length) {
-        other.store.setNumKeys(length);
-        System.arraycopy(keys, start, ((LeafStoreMemory<K, V>) other.store).keys, 0, length);
-        System.arraycopy(values, start, ((LeafStoreMemory<K, V>) other.store).values, 0, length);
+        other.setNumKeys(length);
+        System.arraycopy(keys, start, ((LeafMemory<K, V>) other).keys, 0, length);
+        System.arraycopy(values, start, ((LeafMemory<K, V>) other).values, 0, length);
         numKeys = start;
     }
 
@@ -63,6 +65,11 @@ public final class LeafStoreMemory<K, V> implements LeafStore<K, V> {
     @Override
     public Leaf<K, V> next() {
        return next;
+    }
+
+    @Override
+    public Options<K, V> options() {
+        return options;
     }
 
 }

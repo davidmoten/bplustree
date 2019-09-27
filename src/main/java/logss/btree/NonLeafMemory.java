@@ -1,15 +1,17 @@
 package logss.btree;
 
-public final class NonLeafStoreMemory<K, V> implements NonLeafStore<K, V> {
+public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
 
+    private final Options<K, V> options;
     private final Node<K, V>[] children;
     private final K[] keys;
     private int numKeys; // number of keys
 
     @SuppressWarnings("unchecked")
-    NonLeafStoreMemory(int maxKeys) {
-        this.children = (Node<K, V>[]) new Node[maxKeys + 1];
-        this.keys = (K[]) new Object[maxKeys];
+    NonLeafMemory(Options<K,V> options) {
+        this.options = options;
+        this.children = (Node<K, V>[]) new Node[options.maxNonLeafKeys + 1];
+        this.keys = (K[]) new Object[options.maxLeafKeys];
     }
 
     @Override
@@ -44,9 +46,9 @@ public final class NonLeafStoreMemory<K, V> implements NonLeafStore<K, V> {
 
     @Override
     public void move(int mid, NonLeaf<K, V> other, int length) {
-        other.store.setNumKeys(length);
-        System.arraycopy(this.keys, mid, ((NonLeafStoreMemory<K, V>) other.store).keys, 0, length);
-        System.arraycopy(this.children, mid, ((NonLeafStoreMemory<K, V>) other.store).children, 0, length + 1);
+        other.setNumKeys(length);
+        System.arraycopy(this.keys, mid, ((NonLeafMemory<K, V>) other).keys, 0, length);
+        System.arraycopy(this.children, mid, ((NonLeafMemory<K, V>) other).children, 0, length + 1);
         numKeys = mid - 1;// this is important, so the middle one elevate to next
         // depth(height), inner node's key don't repeat itself
     }
@@ -57,6 +59,11 @@ public final class NonLeafStoreMemory<K, V> implements NonLeafStore<K, V> {
         System.arraycopy(children, idx, children, idx + 1, numKeys - idx + 1);
         children[idx] = node;
         keys[idx] = key;
+    }
+
+    @Override
+    public Options<K, V> options() {
+        return options;
     }
 
 }

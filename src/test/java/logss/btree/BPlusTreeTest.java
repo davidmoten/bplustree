@@ -38,6 +38,8 @@ public class BPlusTreeTest {
                     t.insert(i, "a" + i);
                 }
                 for (int i = n - 1; i >= 0; i--) {
+                    t.print();
+                    System.out.println("i=" + i + ",n=" + n + ", m=" + m);
                     assertEquals("a" + i, t.findFirst(i));
                 }
             }
@@ -152,7 +154,7 @@ public class BPlusTreeTest {
         t.insert(1, 2);
         t.insert(1, 3);
         t.print();
-        assertEquals(Lists.newArrayList(3, 2), toList(t.find(0,4)));
+        assertEquals(Lists.newArrayList(3, 2), toList(t.find(0, 4)));
     }
 
 }
