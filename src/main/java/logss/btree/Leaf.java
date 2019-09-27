@@ -3,7 +3,6 @@ package logss.btree;
 public final class Leaf<K, V> implements Node<K, V> {
     private final Options<K, V> options;
     final LeafStore<K, V> store;
-    private Leaf<K, V> next;
 
     Leaf(Options<K, V> options) {
         this.options = options;
@@ -60,7 +59,7 @@ public final class Leaf<K, V> implements Node<K, V> {
                 // Inserted element goes to right sibling
                 sibling.insertNonfull(key, value, i - mid);
             }
-            this.next = sibling;
+            store.setNext(sibling);
             // Notify the parent about the split
             return new Split<>(sibling.store.key(0), // make the right's key >=
                                                      // result.key
@@ -83,8 +82,9 @@ public final class Leaf<K, V> implements Node<K, V> {
         }
     }
 
-    Leaf<K, V> next() {
-        return next;
+    
+    public Leaf<K, V> next() {
+        return store.next();
     }
 
 }

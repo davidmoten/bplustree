@@ -5,6 +5,7 @@ public final class LeafStoreMemory<K, V> implements LeafStore<K, V> {
     private final K[] keys;
     private final V[] values;
     private int numKeys;
+    private Leaf<K, V> next;
 
     @SuppressWarnings("unchecked")
     public LeafStoreMemory(int maxKeys) {
@@ -52,6 +53,16 @@ public final class LeafStoreMemory<K, V> implements LeafStore<K, V> {
         keys[idx] = key;
         values[idx] = value;
         numKeys++;
+    }
+
+    @Override
+    public void setNext(Leaf<K, V> next) {
+        this.next = next;
+    }
+
+    @Override
+    public Leaf<K, V> next() {
+       return next;
     }
 
 }

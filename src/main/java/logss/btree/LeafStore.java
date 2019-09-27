@@ -15,5 +15,9 @@ public interface LeafStore<K, V> {
     void insert(int idx, K key, V value);
 
     void move(int start, Leaf<K, V> other, int length);
+
+    void setNext(Leaf<K, V> sibling);
+
+    Leaf<K, V> next();
     
 }
