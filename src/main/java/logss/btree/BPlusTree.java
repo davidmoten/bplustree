@@ -16,8 +16,10 @@ public class BPlusTree<K, V> {
     private Node<K, V> root;
 
     /** Create a new empty tree. */
-    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, new Factory<K, V>());
+    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys,
+            Comparator<? super K> comparator) {
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
+                new Factory<K, V>());
         this.root = options.factory.createLeaf(options);
     }
 
@@ -134,11 +136,9 @@ public class BPlusTree<K, V> {
     /**
      * Returns an in-order sequence of values whose keys are >= start and < finish.
      * 
-     * @param start
-     *            inclusive end of search
-     * @param finish
-     *            exclusive end of search
-     * @return
+     * @param start  inclusive end of search
+     * @param finish exclusive end of search
+     * @return in-order sequence of values whose keys are >= start and < finish
      */
     public Iterable<V> find(K start, K finish) {
         return find(start, finish, false);
