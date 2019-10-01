@@ -18,13 +18,13 @@ public class BPlusTreeTest {
 
     @Test
     public void testFindOnEmptyTree() {
-        BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(4).naturalOrder();
+        BPlusTree<Integer, String> t = BPlusTree.<Integer, String>builder().maxKeys(4).naturalOrder();
         assertNull(t.findFirst(1));
     }
 
     @Test
     public void testAddElementAndFind() {
-        BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(4).naturalOrder();
+        BPlusTree<Integer, String> t = BPlusTree.<Integer, String>builder().maxKeys(4).naturalOrder();
         t.insert(1, "boo");
         assertEquals("boo", t.findFirst(1));
     }
@@ -32,7 +32,7 @@ public class BPlusTreeTest {
     @Test
     public void testAddManyAndFind() {
         for (int m = 4; m <= 10; m++) {
-            BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(m).naturalOrder();
+            BPlusTree<Integer, String> t = BPlusTree.<Integer, String>builder().maxKeys(m).naturalOrder();
             for (int n = 1; n < 1000; n++) {
                 for (int i = 0; i < n; i++) {
                     t.insert(i, "a" + i);
@@ -47,7 +47,7 @@ public class BPlusTreeTest {
     @Test
     public void testAddManyShuffledAndFind() {
         for (int m = 4; m <= 10; m++) {
-            BPlusTree<Integer, String> t = BPlusTree.builder().maxKeys(m).naturalOrder();
+            BPlusTree<Integer, String> t = BPlusTree.<Integer, String>builder().maxKeys(m).naturalOrder();
             for (int n = 1; n <= 1000; n++) {
                 List<Integer> list = IntStream.range(0, n).boxed().collect(Collectors.toList());
                 Collections.shuffle(list);
@@ -65,7 +65,7 @@ public class BPlusTreeTest {
     public void testSplitsCorrect() {
         // verified with
         // https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
-        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).naturalOrder();
         for (int i = 1; i <= 5; i++) {
             t.insert(i, i);
         }
@@ -89,7 +89,7 @@ public class BPlusTreeTest {
     public void testStructureCorrect3Entries() {
         // verified with
         // https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
-        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).naturalOrder();
         for (int i = 1; i <= 3; i++) {
             t.insert(i, i);
         }
@@ -105,7 +105,7 @@ public class BPlusTreeTest {
     public void testStructureCorrect4Entries() {
         // verified with
         // https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
-        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).naturalOrder();
         for (int i = 1; i <= 4; i++) {
             t.insert(i, i);
         }
@@ -120,7 +120,7 @@ public class BPlusTreeTest {
 
     @Test
     public void testPrint() {
-        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).naturalOrder();
         for (int i = 1; i <= 10; i++) {
             t.insert(i, i);
         }
@@ -129,7 +129,7 @@ public class BPlusTreeTest {
 
     @Test
     public void testFindRange() {
-        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).naturalOrder();
         for (int i = 1; i <= 10; i++) {
             t.insert(i, i);
         }
@@ -148,7 +148,7 @@ public class BPlusTreeTest {
 
     @Test
     public void testDuplicateSupportedAndInReverseOrderOfInsert() {
-        BPlusTree<Integer, Integer> t = BPlusTree.builder().maxKeys(2).naturalOrder();
+        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).naturalOrder();
         t.insert(1, 2);
         t.insert(1, 3);
         t.print();

@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 public class BPlusTree<K, V> {
 
     private final Options<K, V> options;
-    private final FactoryMemory<K, V> factory;
+    private final Factory<K, V> factory;
 
     /**
      * Pointer to the root node. It may be a leaf or an inner node, but it is never
@@ -18,21 +18,18 @@ public class BPlusTree<K, V> {
 
     /** Create a new empty tree. */
     private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys,
-            Comparator<? super K> comparator, boolean inMemory) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator);
-        if (inMemory) {
-            this.factory = new FactoryMemory<K, V>(options);
-        } else {
-            throw new UnsupportedOperationException();
-        }
+            Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
+                factoryProvider);
+        this.factory = options.factoryProvider.createFactory(options);
         this.root = factory.createLeaf();
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static <K,V> Builder<K,V> builder() {
+        return new Builder<K,V>();
     }
 
-    public static final class Builder {
+    public static final class Builder<K,V> {
 
         private static final int NOT_SPECIFIED = -1;
 
@@ -42,42 +39,33 @@ public class BPlusTree<K, V> {
         private int maxInnerKeys = NOT_SPECIFIED;
 
         private boolean uniqueKeys = false;
-        private boolean inMemory = true;
+        private FactoryProvider<K, V> factoryProvider = options -> new FactoryMemory<K, V>(options);
 
         Builder() {
             // prevent instantiation
         }
 
-        public Builder maxLeafKeys(int maxLeafKeys) {
+        public Builder<K,V> maxLeafKeys(int maxLeafKeys) {
             this.maxLeafKeys = maxLeafKeys;
             return this;
         }
 
-        public Builder maxNonLeafKeys(int maxInnerKeys) {
+        public Builder<K,V> maxNonLeafKeys(int maxInnerKeys) {
             this.maxInnerKeys = maxInnerKeys;
             return this;
         }
 
-        public Builder maxKeys(int maxKeys) {
+        public Builder<K,V> maxKeys(int maxKeys) {
             maxLeafKeys(maxKeys);
             return maxNonLeafKeys(maxKeys);
         }
 
-        public Builder uniqueKeys(boolean uniqueKeys) {
+        public Builder<K,V> uniqueKeys(boolean uniqueKeys) {
             this.uniqueKeys = uniqueKeys;
             return this;
         }
 
-        public Builder inMemory(boolean inMemory) {
-            this.inMemory = inMemory;
-            return this;
-        }
-
-        public Builder inMemory() {
-            return inMemory(true);
-        }
-
-        public <K, V> BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
+        public BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
             if (maxLeafKeys == NOT_SPECIFIED) {
                 if (maxInnerKeys == NOT_SPECIFIED) {
                     maxLeafKeys = DEFAULT_NUM_KEYS;
@@ -89,11 +77,12 @@ public class BPlusTree<K, V> {
                 maxInnerKeys = maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, inMemory);
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
         }
 
-        public <K extends Comparable<K>, V> BPlusTree<K, V> naturalOrder() {
-            return comparator(Comparator.naturalOrder());
+        @SuppressWarnings("unchecked")
+        public  BPlusTree<K, V> naturalOrder() {
+            return comparator((Comparator<K>)(Comparator<?>)Comparator.naturalOrder());
         }
     }
 
