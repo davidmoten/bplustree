@@ -22,8 +22,8 @@ public interface Leaf<K, V> extends Node<K, V> {
     default Split<K, V> insert(K key, V value) {
         // Simple linear search
         int i = getLocation(key);
-        if (numKeys() == options().maxLeafKeys) { // The node was full. We must split it
-            int mid = (options().maxLeafKeys + 1) / 2;
+        if (numKeys() == options().maxLeafKeys()) { // The node was full. We must split it
+            int mid = (options().maxLeafKeys() + 1) / 2;
             int len = numKeys() - mid;
             Leaf<K, V> sibling = factory().createLeaf();
             move(mid, sibling, len);
@@ -50,7 +50,7 @@ public interface Leaf<K, V> extends Node<K, V> {
     }
 
     default void insertNonfull(K key, V value, int idx) {
-        if (idx < numKeys() && options().uniqueKeys && key(idx).equals(key)) {
+        if (idx < numKeys() && options().uniqueKeys() && key(idx).equals(key)) {
             // We are inserting a duplicate value, simply overwrite the old one
             setValue(idx, value);
         } else {
@@ -69,7 +69,7 @@ public interface Leaf<K, V> extends Node<K, V> {
         // be faster for larger M / N
         int numKeys = numKeys();
         for (int i = 0; i < numKeys; i++) {
-            if (options().comparator.compare(key(i), key) >= 0) {
+            if (options().comparator().compare(key(i), key) >= 0) {
                 return i;
             }
         }

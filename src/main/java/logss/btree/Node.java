@@ -3,7 +3,7 @@ package logss.btree;
 import java.util.ArrayList;
 import java.util.List;
 
-interface Node<K, V> {
+public interface Node<K, V> {
 
     // returns null if no split, otherwise returns split info
     Split<K, V> insert(K key, V value);
@@ -11,10 +11,10 @@ interface Node<K, V> {
     K key(int i);
 
     int numKeys();
-    
-    Options<K,V> options();
-    
-    Factory<K,V> factory();
+
+    Options<K, V> options();
+
+    Factory<K, V> factory();
 
     default List<K> keys() {
         List<K> list = new ArrayList<K>();
@@ -23,5 +23,5 @@ interface Node<K, V> {
         }
         return list;
     }
-    
+
 }

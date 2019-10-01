@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import logss.btree.memory.FactoryMemory;
+
 public class BPlusTree<K, V> {
 
     private final Options<K, V> options;
@@ -21,7 +23,7 @@ public class BPlusTree<K, V> {
             Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
         this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
                 factoryProvider);
-        this.factory = options.factoryProvider.createFactory(options);
+        this.factory = options.factoryProvider().createFactory(options);
         this.root = factory.createLeaf();
     }
 
@@ -185,7 +187,7 @@ public class BPlusTree<K, V> {
                             if (leaf == null) {
                                 return;
                             } else if (idx < leaf.numKeys()) {
-                                int c = options.comparator.compare(leaf.key(idx), finish);
+                                int c = options.comparator().compare(leaf.key(idx), finish);
                                 if (c < 0 || (c == 0 && finishInclusive)) {
                                     value = leaf.value(idx);
                                     idx++;

@@ -2,19 +2,19 @@ package logss.btree;
 
 import java.util.Comparator;
 
-final class Options<K, V> {
+public final class Options<K, V> {
 
     /** the maximum number of keys in the leaf node, M must be > 0 */
-    final int maxLeafKeys;
+    private final int maxLeafKeys;
 
     /**
      * the maximum number of keys in inner node, the number of pointer is N+1, N
      * must be > 2
      */
-    final int maxNonLeafKeys;
-    final Comparator<? super K> comparator;
-    final boolean uniqueKeys;
-    final FactoryProvider<K,V> factoryProvider;
+    private final int maxNonLeafKeys;
+    private final Comparator<? super K> comparator;
+    private final boolean uniqueKeys;
+    private final FactoryProvider<K, V> factoryProvider;
 
     Options(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
             FactoryProvider<K, V> factoryProvider) {
@@ -23,6 +23,26 @@ final class Options<K, V> {
         this.comparator = comparator;
         this.uniqueKeys = uniqueKeys;
         this.factoryProvider = factoryProvider;
+    }
+
+    public int maxLeafKeys() {
+        return maxLeafKeys;
+    }
+
+    public int maxNonLeafKeys() {
+        return maxNonLeafKeys;
+    }
+
+    public Comparator<? super K> comparator() {
+        return comparator;
+    }
+
+    public boolean uniqueKeys() {
+        return uniqueKeys;
+    }
+
+    public FactoryProvider<K, V> factoryProvider() {
+        return factoryProvider;
     }
 
 }

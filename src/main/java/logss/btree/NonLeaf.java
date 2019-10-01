@@ -20,8 +20,8 @@ public interface NonLeaf<K, V> extends Node<K, V> {
 
     @Override
     default Split<K, V> insert(K key, V value) {
-        if (numKeys() == options().maxNonLeafKeys) { // Split
-            int mid = options().maxNonLeafKeys/ 2 + 1;
+        if (numKeys() == options().maxNonLeafKeys()) { // Split
+            int mid = options().maxNonLeafKeys()/ 2 + 1;
             int len = numKeys() - mid;
             NonLeaf<K, V> sibling = factory().createNonLeaf();
             move(mid, sibling, len);
@@ -30,7 +30,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
             Split<K, V> result = new Split<>(key(mid - 1), this, sibling);
 
             // Now insert in the appropriate sibling
-            if (options().comparator.compare(key, result.key) < 0) {
+            if (options().comparator().compare(key, result.key) < 0) {
                 insertNonfull(key, value);
             } else {
                 sibling.insertNonfull(key, value);
@@ -74,7 +74,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
         // be faster for larger M / N
         int numKeys = numKeys();
         for (int i = 0; i < numKeys; i++) {
-            if (options().comparator.compare(key(i), key) >0) {
+            if (options().comparator().compare(key(i), key) >0) {
                 return i;
             }
         }

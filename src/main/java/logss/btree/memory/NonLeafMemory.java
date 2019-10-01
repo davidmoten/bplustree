@@ -1,4 +1,9 @@
-package logss.btree;
+package logss.btree.memory;
+
+import logss.btree.Factory;
+import logss.btree.Node;
+import logss.btree.NonLeaf;
+import logss.btree.Options;
 
 public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
 
@@ -9,11 +14,11 @@ public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
     private int numKeys; // number of keys
 
     @SuppressWarnings("unchecked")
-    NonLeafMemory(Options<K,V> options, Factory<K,V> factory) {
+    NonLeafMemory(Options<K, V> options, Factory<K, V> factory) {
         this.options = options;
         this.factory = factory;
-        this.children = (Node<K, V>[]) new Node[options.maxNonLeafKeys + 1];
-        this.keys = (K[]) new Object[options.maxLeafKeys];
+        this.children = (Node<K, V>[]) new Node[options.maxNonLeafKeys() + 1];
+        this.keys = (K[]) new Object[options.maxLeafKeys()];
     }
 
     @Override
