@@ -1,6 +1,6 @@
 package logss.btree;
 
-public interface Factory<K, V> {
+public interface Factory<K, V> extends AutoCloseable {
 
     Leaf<K, V> createLeaf();
 
