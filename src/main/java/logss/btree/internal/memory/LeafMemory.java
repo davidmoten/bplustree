@@ -1,8 +1,8 @@
-package logss.btree.memory;
+package logss.btree.internal.memory;
 
 import logss.btree.Factory;
 import logss.btree.Leaf;
-import logss.btree.internal.Options;
+import logss.btree.Options;
 
 public final class LeafMemory<K, V> implements Leaf<K, V> {
 

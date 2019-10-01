@@ -1,11 +1,11 @@
-package logss.btree.file;
+package logss.btree.internal.file;
 
 import java.io.File;
 
 import logss.btree.Factory;
 import logss.btree.Leaf;
 import logss.btree.NonLeaf;
-import logss.btree.internal.Options;
+import logss.btree.Options;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
 

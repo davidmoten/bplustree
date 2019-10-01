@@ -5,8 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import logss.btree.internal.Options;
-import logss.btree.memory.FactoryMemory;
+import logss.btree.internal.memory.FactoryMemory;
 
 public class BPlusTree<K, V> {
 

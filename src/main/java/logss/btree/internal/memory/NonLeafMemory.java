@@ -1,9 +1,9 @@
-package logss.btree.memory;
+package logss.btree.internal.memory;
 
 import logss.btree.Factory;
 import logss.btree.Node;
 import logss.btree.NonLeaf;
-import logss.btree.internal.Options;
+import logss.btree.Options;
 
 public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
 

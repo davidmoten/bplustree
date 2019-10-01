@@ -3,8 +3,6 @@ package logss.btree;
 import java.util.ArrayList;
 import java.util.List;
 
-import logss.btree.internal.Options;
-
 public interface Node<K, V> {
 
     // returns null if no split, otherwise returns split info

@@ -1,8 +1,6 @@
-package logss.btree.internal;
+package logss.btree;
 
 import java.util.Comparator;
-
-import logss.btree.FactoryProvider;
 
 public final class Options<K, V> {
 
