@@ -3,13 +3,15 @@ package logss.btree;
 public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
 
     private final Options<K, V> options;
+    private final Factory<K, V> factory;
     private final Node<K, V>[] children;
     private final K[] keys;
     private int numKeys; // number of keys
 
     @SuppressWarnings("unchecked")
-    NonLeafMemory(Options<K,V> options) {
+    NonLeafMemory(Options<K,V> options, Factory<K,V> factory) {
         this.options = options;
+        this.factory = factory;
         this.children = (Node<K, V>[]) new Node[options.maxNonLeafKeys + 1];
         this.keys = (K[]) new Object[options.maxLeafKeys];
     }
@@ -64,6 +66,11 @@ public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
     @Override
     public Options<K, V> options() {
         return options;
+    }
+
+    @Override
+    public Factory<K, V> factory() {
+        return factory;
     }
 
 }

@@ -13,6 +13,8 @@ interface Node<K, V> {
     int numKeys();
     
     Options<K,V> options();
+    
+    Factory<K,V> factory();
 
     default List<K> keys() {
         List<K> list = new ArrayList<K>();

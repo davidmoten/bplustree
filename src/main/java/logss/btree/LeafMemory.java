@@ -2,17 +2,19 @@ package logss.btree;
 
 public final class LeafMemory<K, V> implements Leaf<K, V> {
 
+    private final Options<K, V> options;
+    private final Factory<K, V> factory;
     private final K[] keys;
     private final V[] values;
     private int numKeys;
     private Leaf<K, V> next;
-    private final Options<K, V> options;
 
     @SuppressWarnings("unchecked")
-    public LeafMemory(Options<K,V> options) {
+    public LeafMemory(Options<K,V> options, Factory<K,V> factory) {
         this.options = options;
         keys = (K[]) new Object[options.maxLeafKeys];
         values = (V[]) new Object[options.maxLeafKeys];
+        this.factory = factory;
     }
 
     @Override
@@ -70,6 +72,11 @@ public final class LeafMemory<K, V> implements Leaf<K, V> {
     @Override
     public Options<K, V> options() {
         return options;
+    }
+
+    @Override
+    public Factory<K, V> factory() {
+        return factory;
     }
 
 }

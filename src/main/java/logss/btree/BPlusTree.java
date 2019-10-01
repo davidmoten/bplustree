@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 public class BPlusTree<K, V> {
 
     private final Options<K, V> options;
+    private final FactoryMemory<K, V> factory;
 
     /**
      * Pointer to the root node. It may be a leaf or an inner node, but it is never
@@ -17,10 +18,14 @@ public class BPlusTree<K, V> {
 
     /** Create a new empty tree. */
     private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys,
-            Comparator<? super K> comparator) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
-                new Factory<K, V>());
-        this.root = options.factory.createLeaf(options);
+            Comparator<? super K> comparator, boolean inMemory) {
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator);
+        if (inMemory) {
+            this.factory = new FactoryMemory<K, V>(options);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+        this.root = factory.createLeaf();
     }
 
     public static Builder builder() {
@@ -37,6 +42,7 @@ public class BPlusTree<K, V> {
         private int maxInnerKeys = NOT_SPECIFIED;
 
         private boolean uniqueKeys = false;
+        private boolean inMemory = true;
 
         Builder() {
             // prevent instantiation
@@ -62,6 +68,15 @@ public class BPlusTree<K, V> {
             return this;
         }
 
+        public Builder inMemory(boolean inMemory) {
+            this.inMemory = inMemory;
+            return this;
+        }
+
+        public Builder inMemory() {
+            return inMemory(true);
+        }
+
         public <K, V> BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
             if (maxLeafKeys == NOT_SPECIFIED) {
                 if (maxInnerKeys == NOT_SPECIFIED) {
@@ -73,7 +88,8 @@ public class BPlusTree<K, V> {
             } else if (maxInnerKeys == NOT_SPECIFIED) {
                 maxInnerKeys = maxLeafKeys;
             }
-            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator);
+
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, inMemory);
         }
 
         public <K extends Comparable<K>, V> BPlusTree<K, V> naturalOrder() {
@@ -87,8 +103,8 @@ public class BPlusTree<K, V> {
             // The root is split into two parts.
             // We create a new root pointing to them
             NonLeaf<K, V> node = //
-                    options.factory //
-                            .createNonLeaf(options);
+                    factory //
+                            .createNonLeaf();
             node.setNumKeys(1);
             node.setKey(0, result.key);
             node.setChild(0, result.left);

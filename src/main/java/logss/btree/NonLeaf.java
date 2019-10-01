@@ -23,7 +23,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
         if (numKeys() == options().maxNonLeafKeys) { // Split
             int mid = options().maxNonLeafKeys/ 2 + 1;
             int len = numKeys() - mid;
-            NonLeaf<K, V> sibling = options().factory.createNonLeaf(options());
+            NonLeaf<K, V> sibling = factory().createNonLeaf();
             move(mid, sibling, len);
 
             // Set up the return variable

@@ -25,7 +25,7 @@ public interface Leaf<K, V> extends Node<K, V> {
         if (numKeys() == options().maxLeafKeys) { // The node was full. We must split it
             int mid = (options().maxLeafKeys + 1) / 2;
             int len = numKeys() - mid;
-            Leaf<K, V> sibling = options().factory.createLeaf(options());
+            Leaf<K, V> sibling = factory().createLeaf();
             move(mid, sibling, len);
             // System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
             // System.arraycopy(this.values, mid, sibling.values, 0, sNum);
@@ -59,7 +59,7 @@ public interface Leaf<K, V> extends Node<K, V> {
             insert(idx, key, value);
         }
     }
-    
+
     /**
      * Returns the position where 'key' should be inserted in a leaf node that has
      * the given keys.
@@ -75,6 +75,5 @@ public interface Leaf<K, V> extends Node<K, V> {
         }
         return numKeys;
     }
-
 
 }

@@ -13,16 +13,13 @@ final class Options<K, V> {
      */
     final int maxNonLeafKeys;
     final Comparator<? super K> comparator;
-    final Factory<K, V> factory;
-
     final boolean uniqueKeys;
 
-    Options(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
-            Factory<K, V> factory) {
+    Options(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys,
+            Comparator<? super K> comparator) {
         this.maxLeafKeys = maxLeafKeys;
         this.maxNonLeafKeys = maxInnerKeys;
         this.comparator = comparator;
-        this.factory = factory;
         this.uniqueKeys = uniqueKeys;
     }
 
