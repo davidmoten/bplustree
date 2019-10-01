@@ -14,6 +14,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private final Options<K, V> options;
     private final RandomAccessFile index;
+    private final RandomAccessFile data;
     private final File indexFile;
     private final File dataFile;
 
@@ -22,7 +23,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.indexFile = indexFile;
         this.dataFile = dataFile;
         try {
-            this.index= new RandomAccessFile(indexFile, "rw");
+            this.index = new RandomAccessFile(indexFile, "rw");
+            this.data = new RandomAccessFile(dataFile, "rw");
         } catch (FileNotFoundException e) {
             throw new UncheckedIOException(e);
         }
