@@ -3,7 +3,7 @@ package logss.btree.memory;
 import logss.btree.Factory;
 import logss.btree.Leaf;
 import logss.btree.NonLeaf;
-import logss.btree.Options;
+import logss.btree.internal.Options;
 
 public final class FactoryMemory<K, V> implements Factory<K, V> {
 

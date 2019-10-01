@@ -2,7 +2,7 @@ package logss.btree.memory;
 
 import logss.btree.Factory;
 import logss.btree.Leaf;
-import logss.btree.Options;
+import logss.btree.internal.Options;
 
 public final class LeafMemory<K, V> implements Leaf<K, V> {
 

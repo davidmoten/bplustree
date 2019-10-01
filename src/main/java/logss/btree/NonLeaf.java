@@ -21,7 +21,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
     @Override
     default Split<K, V> insert(K key, V value) {
         if (numKeys() == options().maxNonLeafKeys()) { // Split
-            int mid = options().maxNonLeafKeys()/ 2 + 1;
+            int mid = options().maxNonLeafKeys() / 2 + 1;
             int len = numKeys() - mid;
             NonLeaf<K, V> sibling = factory().createNonLeaf();
             move(mid, sibling, len);
@@ -43,7 +43,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
         }
     }
 
-    //TODO move to another class
+    // TODO move to another class
     default void insertNonfull(K key, V value) {
         // Simple linear search
         int idx = getLocation(key);
@@ -74,7 +74,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
         // be faster for larger M / N
         int numKeys = numKeys();
         for (int i = 0; i < numKeys; i++) {
-            if (options().comparator().compare(key(i), key) >0) {
+            if (options().comparator().compare(key(i), key) > 0) {
                 return i;
             }
         }

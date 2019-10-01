@@ -1,6 +1,8 @@
-package logss.btree;
+package logss.btree.internal;
 
 import java.util.Comparator;
+
+import logss.btree.FactoryProvider;
 
 public final class Options<K, V> {
 
@@ -16,7 +18,7 @@ public final class Options<K, V> {
     private final boolean uniqueKeys;
     private final FactoryProvider<K, V> factoryProvider;
 
-    Options(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
+    public Options(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
             FactoryProvider<K, V> factoryProvider) {
         this.maxLeafKeys = maxLeafKeys;
         this.maxNonLeafKeys = maxInnerKeys;

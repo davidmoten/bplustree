@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import logss.btree.internal.Options;
 import logss.btree.memory.FactoryMemory;
 
 public class BPlusTree<K, V> {
@@ -27,11 +28,11 @@ public class BPlusTree<K, V> {
         this.root = factory.createLeaf();
     }
 
-    public static <K,V> Builder<K,V> builder() {
-        return new Builder<K,V>();
+    public static <K, V> Builder<K, V> builder() {
+        return new Builder<K, V>();
     }
 
-    public static final class Builder<K,V> {
+    public static final class Builder<K, V> {
 
         private static final int NOT_SPECIFIED = -1;
 
@@ -47,22 +48,22 @@ public class BPlusTree<K, V> {
             // prevent instantiation
         }
 
-        public Builder<K,V> maxLeafKeys(int maxLeafKeys) {
+        public Builder<K, V> maxLeafKeys(int maxLeafKeys) {
             this.maxLeafKeys = maxLeafKeys;
             return this;
         }
 
-        public Builder<K,V> maxNonLeafKeys(int maxInnerKeys) {
+        public Builder<K, V> maxNonLeafKeys(int maxInnerKeys) {
             this.maxInnerKeys = maxInnerKeys;
             return this;
         }
 
-        public Builder<K,V> maxKeys(int maxKeys) {
+        public Builder<K, V> maxKeys(int maxKeys) {
             maxLeafKeys(maxKeys);
             return maxNonLeafKeys(maxKeys);
         }
 
-        public Builder<K,V> uniqueKeys(boolean uniqueKeys) {
+        public Builder<K, V> uniqueKeys(boolean uniqueKeys) {
             this.uniqueKeys = uniqueKeys;
             return this;
         }
@@ -79,12 +80,13 @@ public class BPlusTree<K, V> {
                 maxInnerKeys = maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
+                    factoryProvider);
         }
 
         @SuppressWarnings("unchecked")
-        public  BPlusTree<K, V> naturalOrder() {
-            return comparator((Comparator<K>)(Comparator<?>)Comparator.naturalOrder());
+        public BPlusTree<K, V> naturalOrder() {
+            return comparator((Comparator<K>) (Comparator<?>) Comparator.naturalOrder());
         }
     }
 

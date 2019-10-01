@@ -1,5 +1,7 @@
 package logss.btree;
 
+import logss.btree.internal.Options;
+
 public interface Leaf<K, V> extends Node<K, V> {
 
     Options<K, V> options();
