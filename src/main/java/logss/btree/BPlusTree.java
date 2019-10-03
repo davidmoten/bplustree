@@ -87,6 +87,10 @@ public class BPlusTree<K, V> {
         public BPlusTree<K, V> naturalOrder() {
             return comparator((Comparator<K>) (Comparator<?>) Comparator.naturalOrder());
         }
+
+        public Builder<K,V> uniqueKeys() {
+            return uniqueKeys(true);
+        }
     }
 
     public void insert(K key, V value) {

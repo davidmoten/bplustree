@@ -155,4 +155,14 @@ public class BPlusTreeTest {
         assertEquals(Lists.newArrayList(3, 2), toList(t.find(0, 4)));
     }
 
+    @Test
+    public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() {
+        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).uniqueKeys().naturalOrder();
+        t.insert(1, 2);
+        t.insert(1, 3);
+        t.print();
+        assertEquals(Lists.newArrayList(3), toList(t.find(0, 4)));
+    }
+
+    
 }
