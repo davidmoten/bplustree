@@ -6,46 +6,49 @@ import logss.btree.Options;
 
 public class LeafFile<K, V> implements Leaf<K, V> {
 
+    private final FactoryFile<K, V> factory;
+    private long position;
+    private final Options<K, V> options;
+
+    public LeafFile(Options<K,V> options, FactoryFile<K, V> factory, long position) {
+        this.options = options;
+        this.factory = factory;
+        this.position = position;
+    }
+
     @Override
     public K key(int i) {
-        // TODO Auto-generated method stub
-        return null;
+        return factory.key(position, i);
     }
 
     @Override
     public int numKeys() {
-        // TODO Auto-generated method stub
-        return 0;
+        return factory.numKeys(position);
     }
 
     @Override
     public Factory<K, V> factory() {
-        // TODO Auto-generated method stub
-        return null;
+        return factory;
     }
 
     @Override
     public Options<K, V> options() {
-        // TODO Auto-generated method stub
-        return null;
+        return options;
     }
 
     @Override
     public V value(int index) {
-        // TODO Auto-generated method stub
-        return null;
+        return factory.value(position, index);
     }
 
     @Override
     public void setNumKeys(int numKeys) {
-        // TODO Auto-generated method stub
-
+        factory.setNumKeys(position, numKeys);
     }
 
     @Override
     public void setValue(int idx, V value) {
-        // TODO Auto-generated method stub
-
+        factory.setValue(position, idx, value);
     }
 
     @Override

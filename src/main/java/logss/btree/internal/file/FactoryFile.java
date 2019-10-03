@@ -13,38 +13,54 @@ import logss.btree.Options;
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private final Options<K, V> options;
-    private final RandomAccessFile index;
-    private final RandomAccessFile data;
-    private final File indexFile;
-    private final File dataFile;
+    private final File directory;
+    private File indexFile;
+    private File dataFile;
+    
 
-    public FactoryFile(Options<K, V> options, File indexFile, File dataFile) {
+    public FactoryFile(Options<K, V> options, File directory) {
         this.options = options;
-        this.indexFile = indexFile;
-        this.dataFile = dataFile;
-        try {
-            this.index = new RandomAccessFile(indexFile, "rw");
-            this.data = new RandomAccessFile(dataFile, "rw");
-        } catch (FileNotFoundException e) {
-            throw new UncheckedIOException(e);
-        }
+        this.directory = directory;
     }
 
     @Override
     public Leaf<K, V> createLeaf() {
-        // TODO Auto-generated method stub
-        return null;
+        return new LeafFile<K, V>(this);
     }
 
     @Override
     public NonLeaf<K, V> createNonLeaf() {
-        // TODO Auto-generated method stub
-        return null;
+        return new NonLeafFile<K, V>(this);
     }
 
     @Override
     public void close() throws Exception {
         index.close();
+    }
+
+    public K key(long position, int i) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public int numKeys(long position) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public V value(long position, int index) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void setNumKeys(long position, int numKeys) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void setValue(long position, int idx, V value) {
+        // TODO Auto-generated method stub
+        
     }
 
 }
