@@ -32,10 +32,10 @@ public interface Leaf<K, V> extends Node<K, V> {
             setNumKeys(mid);
             if (i < mid) {
                 // Inserted element goes to left sibling
-                insertNonfull(key, value, i);
+                Util.insertNonfull(this, key, value, i);
             } else {
                 // Inserted element goes to right sibling
-                sibling.insertNonfull(key, value, i - mid);
+                Util.insertNonfull(sibling, key, value, i - mid);
             }
             setNext(sibling);
             // Notify the parent about the split
@@ -44,19 +44,8 @@ public interface Leaf<K, V> extends Node<K, V> {
                     this, sibling);
         } else {
             // The node was not full
-            insertNonfull(key, value, i);
+            Util.insertNonfull(this, key, value, i);
             return null;
-        }
-    }
-
-    default void insertNonfull(K key, V value, int idx) {
-        if (idx < numKeys() && options().uniqueKeys() && key(idx).equals(key)) {
-            // We are inserting a duplicate value, simply overwrite the old one
-            setValue(idx, value);
-        } else {
-            // TODO put at end of duplicate keys
-            // The key we are inserting is unique
-            insert(idx, key, value);
         }
     }
 

@@ -1,9 +1,6 @@
 package logss.btree.internal.file;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
-import java.io.UncheckedIOException;
 
 import logss.btree.Factory;
 import logss.btree.Leaf;
@@ -16,7 +13,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final File directory;
     private File indexFile;
     private File dataFile;
-    
 
     public FactoryFile(Options<K, V> options, File directory) {
         this.options = options;
@@ -25,17 +21,27 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public Leaf<K, V> createLeaf() {
-        return new LeafFile<K, V>(this);
+        return new LeafFile<K, V>(options, this, nextLeafPosition());
+    }
+
+    private long nextLeafPosition() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
     @Override
     public NonLeaf<K, V> createNonLeaf() {
-        return new NonLeafFile<K, V>(this);
+        return new NonLeafFile<K, V>(this, nextNonLeafPosition());
+    }
+
+    private long nextNonLeafPosition() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
     @Override
     public void close() throws Exception {
-        index.close();
+        // TODO
     }
 
     public K key(long position, int i) {
@@ -55,12 +61,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     public void setNumKeys(long position, int numKeys) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void setValue(long position, int idx, V value) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }
