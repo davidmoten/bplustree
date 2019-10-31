@@ -83,26 +83,26 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return bb.getInt((int) position);
     }
 
-    public V value(long position, int i) {
+    public V leafValue(long position, int i) {
         int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize())
                 + keySerializer.maxSize());
         bb.position(p);
         return valueSerializer.read(bb);
     }
 
-    public void setNumKeys(long position, int numKeys) {
+    public void setLeafNumKeys(long position, int numKeys) {
         bb.position((int) position);
         bb.putInt(numKeys);
     }
 
-    public void setValue(long position, int i, V value) {
+    public void setLeafValue(long position, int i, V value) {
         int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize())
                 + keySerializer.maxSize());
         bb.position(p);
         valueSerializer.write(bb, value);
     }
 
-    public void insert(long position, int i, K key, V value) {
+    public void leafInsert(long position, int i, K key, V value) {
         int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize()));
         bb.position(p);
         keySerializer.write(bb, key);
@@ -110,7 +110,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         valueSerializer.write(bb, value);
     }
 
-    public void move(long position, int start, int length, LeafFile<K, V> other) {
+    public void leafMove(long position, int start, int length, LeafFile<K, V> other) {
         int p = (int) (position + NUM_KEYS_BYTES + start * (keySerializer.maxSize() + valueSerializer.maxSize()));
         byte[] bytes = new byte[length * (keySerializer.maxSize() + valueSerializer.maxSize())];
         bb.position(p);
@@ -120,13 +120,13 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.put(bytes);
     }
 
-    public void setNext(long position, LeafFile<K, V> sibling) {
+    public void setLeafNext(long position, LeafFile<K, V> sibling) {
         int p = (int) (position + NUM_KEYS_BYTES
                 + options.maxLeafKeys() * (keySerializer.maxSize() + valueSerializer.maxSize()));
         bb.putInt(p, (int) sibling.position());
     }
 
-    public Leaf<K, V> next(long position) {
+    public Leaf<K, V> nextLeaf(long position) {
         return new LeafFile<K, V>(options, this, position);
     }
 
