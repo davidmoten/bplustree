@@ -1,13 +1,12 @@
 package logss.btree;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 public interface Serializer<T> {
 
-    T read(InputStream in, long position);
+    T read(ByteBuffer bb);
 
-    void write(OutputStream out, T t);
+    void write(ByteBuffer bb, T t);
 
     /**
      * Returns the maximum size in bytes of a serialized item. Returns 0 when there

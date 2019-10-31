@@ -4,15 +4,25 @@ public interface Leaf<K, V> extends Node<K, V> {
 
     Options<K, V> options();
 
-    V value(int index);
+    V value(int i);
 
     void setNumKeys(int numKeys);
 
-    void setValue(int idx, V value);
+    void setValue(int i, V value);
 
-    void insert(int idx, K key, V value);
+    void insert(int i, K key, V value);
 
-    void move(int start, Leaf<K, V> other, int length);
+    /**
+     * Copies length KeyValues from index start to the start of {@code newLeaf}.
+     * 
+     * @param start
+     *            start index of Key Value pairs to copy in current Leaf
+     * @param length
+     *            number of Key Value pairs to copy
+     * @param newLeaf
+     *            a new empty Leaf
+     */
+    void move(int start, int length, Leaf<K, V> newLeaf);
 
     void setNext(Leaf<K, V> sibling);
 
@@ -26,7 +36,7 @@ public interface Leaf<K, V> extends Node<K, V> {
             int mid = (options().maxLeafKeys() + 1) / 2;
             int len = numKeys() - mid;
             Leaf<K, V> sibling = factory().createLeaf();
-            move(mid, sibling, len);
+            move(mid, len, sibling);
             // System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
             // System.arraycopy(this.values, mid, sibling.values, 0, sNum);
             setNumKeys(mid);

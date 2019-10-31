@@ -37,7 +37,7 @@ public final class LeafMemory<K, V> implements Leaf<K, V> {
     }
 
     @Override
-    public void move(int start, Leaf<K, V> other, int length) {
+    public void move(int start, int length, Leaf<K, V> other) {
         other.setNumKeys(length);
         System.arraycopy(keys, start, ((LeafMemory<K, V>) other).keys, 0, length);
         System.arraycopy(values, start, ((LeafMemory<K, V>) other).values, 0, length);

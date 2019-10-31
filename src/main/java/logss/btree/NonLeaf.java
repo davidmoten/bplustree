@@ -6,17 +6,17 @@ public interface NonLeaf<K, V> extends Node<K, V> {
 
     int numKeys();
 
-    void setChild(int index, Node<K, V> node);
+    void setChild(int i, Node<K, V> node);
 
-    Node<K, V> child(int index);
+    Node<K, V> child(int i);
 
-    K key(int index);
+    K key(int i);
 
-    void setKey(int index, K key);
+    void setKey(int i, K key);
 
     void move(int mid, NonLeaf<K, V> other, int length);
 
-    void insert(int idx, K key, Node<K, V> left);
+    void insert(int i, K key, Node<K, V> left);
 
     @Override
     default Split<K, V> insert(K key, V value) {
