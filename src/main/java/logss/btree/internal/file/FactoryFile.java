@@ -12,9 +12,9 @@ import logss.btree.Serializer;
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private final Options<K, V> options;
-    private final File directory;
-    private File indexFile;
-    private File dataFile;
+//    private final File directory;
+//    private File indexFile;
+//    private File dataFile;
     private byte[] data = new byte[1024 * 1024];
     private int index = 0;
     private final Serializer<K> keySerializer;
@@ -25,7 +25,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
             Serializer<V> valueSerializer) {
         this.options = options;
-        this.directory = directory;
+//        this.directory = directory;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
     }
