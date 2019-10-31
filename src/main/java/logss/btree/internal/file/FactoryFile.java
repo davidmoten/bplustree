@@ -66,7 +66,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     public K key(long position, int i) {
         int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize()));
-        bb.position((int) position);
+        bb.position((int) p);
         return keySerializer.read(bb);
     }
 
@@ -99,13 +99,16 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         keySerializer.write(bb, key);
         bb.position(p + keySerializer.maxSize());
         valueSerializer.write(bb, value);
-        ;
     }
 
-    public void move(long position, int start, LeafFile<K, V> other, int length) {
+    public void move(long position, int start, int length, LeafFile<K, V> other) {
         int p = (int) (position + NUM_KEYS_BYTES + start * (keySerializer.maxSize() + valueSerializer.maxSize()));
-        // TODO
-
+        byte[] bytes = new byte[length * (keySerializer.maxSize() + valueSerializer.maxSize())];
+        bb.position(p);
+        bb.get(bytes);
+        p = (int) (other.position() + NUM_KEYS_BYTES + start * (keySerializer.maxSize() + valueSerializer.maxSize()));
+        bb.position(p);
+        bb.put(bytes);
     }
 
     public void setNext(long position, LeafFile<K, V> sibling) {
@@ -115,8 +118,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public Leaf<K, V> next(long position) {
-        // TODO Auto-generated method stub
-        return null;
+        return new LeafFile<K,V>(options, this, position);
     }
 
 }

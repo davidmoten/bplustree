@@ -10,7 +10,7 @@ public class LeafFile<K, V> implements Leaf<K, V> {
     private long position;
     private final Options<K, V> options;
 
-    public LeafFile(Options<K,V> options, FactoryFile<K, V> factory, long position) {
+    public LeafFile(Options<K, V> options, FactoryFile<K, V> factory, long position) {
         this.options = options;
         this.factory = factory;
         this.position = position;
@@ -58,12 +58,12 @@ public class LeafFile<K, V> implements Leaf<K, V> {
 
     @Override
     public void move(int start, int length, Leaf<K, V> other) {
-        factory.move(position, start, (LeafFile<K,V>) other, length);
+        factory.move(position, start, length, (LeafFile<K, V>) other);
     }
 
     @Override
     public void setNext(Leaf<K, V> sibling) {
-        factory.setNext(position, (LeafFile<K,V>) sibling);
+        factory.setNext(position, (LeafFile<K, V>) sibling);
     }
 
     @Override
