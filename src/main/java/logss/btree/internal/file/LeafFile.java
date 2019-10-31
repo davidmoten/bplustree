@@ -38,37 +38,37 @@ public class LeafFile<K, V> implements Leaf<K, V> {
 
     @Override
     public V value(int index) {
-        return factory.value(position, index);
+        return factory.leafValue(position, index);
     }
 
     @Override
     public void setNumKeys(int numKeys) {
-        factory.setNumKeys(position, numKeys);
+        factory.setLeafNumKeys(position, numKeys);
     }
 
     @Override
     public void setValue(int idx, V value) {
-        factory.setValue(position, idx, value);
+        factory.setLeafValue(position, idx, value);
     }
 
     @Override
     public void insert(int idx, K key, V value) {
-        factory.insert(position, idx, key, value);
+        factory.leafInsert(position, idx, key, value);
     }
 
     @Override
     public void move(int start, int length, Leaf<K, V> other) {
-        factory.move(position, start, length, (LeafFile<K, V>) other);
+        factory.leafMove(position, start, length, (LeafFile<K, V>) other);
     }
 
     @Override
     public void setNext(Leaf<K, V> sibling) {
-        factory.setNext(position, (LeafFile<K, V>) sibling);
+        factory.setLeafNext(position, (LeafFile<K, V>) sibling);
     }
 
     @Override
     public Leaf<K, V> next() {
-        return factory.next(position);
+        return factory.nextLeaf(position);
     }
 
     public long position() {
