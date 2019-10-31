@@ -39,13 +39,27 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return new LeafFile<K, V>(options, this, nextLeafPosition());
     }
 
+    private int leafBytes() {
+        return relativeLeafKeyPosition(options.maxLeafKeys()) //
+                + POSITION_BYTES // next leaf position
+        ;
+    }
+
+    private int nonLeafBytes() {
+        // TODO check this, it looks wrong
+        return NUM_NODES_BYTES + (2 * options.maxNonLeafKeys() - 1) * (keySerializer.maxSize() + POSITION_BYTES);
+    }
+
     private long nextLeafPosition() {
         int i = index;
         // shift by max size of a leaf node: numKeys, keys, values, next leaf position
         // (b+tree pointer to next leaf node)
-        index += NUM_KEYS_BYTES + options.maxLeafKeys() * (keySerializer.maxSize() + valueSerializer.maxSize())
-                + POSITION_BYTES;
+        index += leafBytes();
         return i;
+    }
+
+    private int relativeLeafKeyPosition(int i) {
+        return NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize());
     }
 
     @Override
@@ -55,17 +69,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private long nextNonLeafPosition() {
         int i = index;
-        index += NUM_NODES_BYTES + (2 * options.maxNonLeafKeys() - 1) * (keySerializer.maxSize() + POSITION_BYTES);
+        index += nonLeafBytes();
         return i;
     }
 
-    @Override
-    public void close() throws Exception {
-        // TODO
-    }
-
-    public K key(long position, int i) {
-        int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize()));
+    public K leafKey(long position, int i) {
+        int p = (int) (position + relativeLeafKeyPosition(i));
         bb.position((int) p);
         return keySerializer.read(bb);
     }
@@ -118,7 +127,11 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public Leaf<K, V> next(long position) {
-        return new LeafFile<K,V>(options, this, position);
+        return new LeafFile<K, V>(options, this, position);
     }
 
+    @Override
+    public void close() throws Exception {
+        // TODO
+    }
 }

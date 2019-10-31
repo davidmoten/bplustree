@@ -18,7 +18,7 @@ public class LeafFile<K, V> implements Leaf<K, V> {
 
     @Override
     public K key(int i) {
-        return factory.key(position, i);
+        return factory.leafKey(position, i);
     }
 
     @Override
