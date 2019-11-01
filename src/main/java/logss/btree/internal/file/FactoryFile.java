@@ -220,9 +220,19 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         nonLeafSetNumKeys(other.position(), length);
     }
 
-    public void nonLeafInsert(long position, K key, Node<K, V> left) {
-        // TODO Auto-generated method stub
-
+    public void nonLeafInsert(long position, int i, K key, NodeFile left) {
+        int numKeys = nonLeafNumKeys(position);
+        int relativeStart = relativePositionNonLeafEntry(i);
+        int relativeEnd = relativePositionNonLeafEntry(numKeys);
+        bb.position((int) (position + relativeStart));
+        byte[] bytes = new byte[relativeEnd - relativeStart];
+        bb.get(bytes);
+        bb.position((int) (position + relativePositionNonLeafEntry(i + 1)));
+        bb.put(bytes);
+        bb.position(relativeStart);
+        bb.putInt((int) left.position());
+        keySerializer.write(bb, key);
+        nonLeafSetNumKeys(position, numKeys + 1);
     }
 
     @Override

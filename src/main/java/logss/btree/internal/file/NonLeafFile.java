@@ -65,7 +65,7 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
 
     @Override
     public void insert(int idx, K key, Node<K, V> left) {
-        factory.nonLeafInsert(position, key, left);
+        factory.nonLeafInsert(position, idx, key, (NodeFile) left);
     }
 
     @Override
