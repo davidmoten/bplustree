@@ -7,72 +7,65 @@ import logss.btree.Options;
 
 public final class NonLeafFile<K, V> implements NonLeaf<K, V> {
 
+    private final Options<K, V> options;
     private final FactoryFile<K, V> factory;
     private final long position;
 
-    public NonLeafFile(FactoryFile<K, V> factory, long position) {
+    public NonLeafFile(Options<K, V> options, FactoryFile<K, V> factory, long position) {
+        this.options = options;
         this.factory = factory;
         this.position = position;
     }
 
     @Override
     public Options<K, V> options() {
-        // TODO Auto-generated method stub
-        return null;
+        return options;
     }
 
     @Override
     public Factory<K, V> factory() {
-        // TODO Auto-generated method stub
-        return null;
+        return factory;
     }
 
     @Override
     public void setNumKeys(int numKeys) {
-        // TODO Auto-generated method stub
-
+        factory.nonLeafSetNumKeys(position, numKeys);
     }
 
     @Override
     public int numKeys() {
-        // TODO Auto-generated method stub
-        return 0;
+        return factory.nonLeafNumKeys(position);
     }
 
     @Override
     public void setChild(int index, Node<K, V> node) {
-        // TODO Auto-generated method stub
-
+        factory.nonLeafSetChild(position, index, node);
     }
 
     @Override
     public Node<K, V> child(int index) {
-        // TODO Auto-generated method stub
-        return null;
+        return factory.nonLeafChild(position, index);
     }
 
     @Override
     public K key(int index) {
-        // TODO Auto-generated method stub
-        return null;
+        return factory.nonLeafKey(position, index);
     }
 
     @Override
     public void setKey(int index, K key) {
-        // TODO Auto-generated method stub
-
+        factory.nonLeafSetKey(position, index, key);
     }
 
     @Override
     public void move(int mid, NonLeaf<K, V> other, int length) {
-        // TODO Auto-generated method stub
+        factory.nonLeafMove(position, mid, length, other);
 
     }
 
     @Override
     public void insert(int idx, K key, Node<K, V> left) {
-        // TODO Auto-generated method stub
-
+        factory.nonLeafInsert(position, key, left);
     }
 
 }

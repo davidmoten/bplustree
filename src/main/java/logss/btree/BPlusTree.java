@@ -46,6 +46,11 @@ public class BPlusTree<K, V> {
         Builder() {
             // prevent instantiation
         }
+        
+        public Builder<K,V> factoryProvider(FactoryProvider<K,V> factoryProvider) {
+            this.factoryProvider = factoryProvider;
+            return this;
+        }
 
         public Builder<K, V> maxLeafKeys(int maxLeafKeys) {
             this.maxLeafKeys = maxLeafKeys;

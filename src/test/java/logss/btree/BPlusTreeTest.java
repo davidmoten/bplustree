@@ -3,6 +3,8 @@ package logss.btree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,21 +16,50 @@ import org.junit.Test;
 
 import com.github.davidmoten.guavamini.Lists;
 
+import logss.btree.internal.file.FactoryFile;
+
 public class BPlusTreeTest {
-    
-    private static <K,V> BPlusTree<K, V> create(int maxKeys) {
-        return BPlusTree.<K,V>builder().maxKeys(maxKeys).naturalOrder();
+
+    private static BPlusTree<Integer, Integer> create(int maxKeys) {
+        Serializer<Integer> serializer = new Serializer<Integer>() {
+
+            @Override
+            public Integer read(ByteBuffer bb) {
+                return bb.getInt();
+            }
+
+            @Override
+            public void write(ByteBuffer bb, Integer t) {
+                bb.putInt(t);
+            }
+
+            @Override
+            public int maxSize() {
+                return Integer.BYTES;
+            }};
+            
+        return BPlusTree.<Integer, Integer>builder().factoryProvider(
+                options -> new FactoryFile<Integer, Integer>( //
+                        options, //
+                        new File("target"), //
+                        serializer, serializer))
+                .maxKeys(maxKeys) //
+                .naturalOrder();
+    }
+
+    private static BPlusTree<Integer, String> createWithStringValue(int maxKeys) {
+        return BPlusTree.<Integer, String>builder().maxKeys(maxKeys).naturalOrder();
     }
 
     @Test
     public void testFindOnEmptyTree() {
-        BPlusTree<Integer, String> t = create(4);
+        BPlusTree<Integer, String> t = createWithStringValue(4);
         assertNull(t.findFirst(1));
     }
 
     @Test
     public void testAddElementAndFind() {
-        BPlusTree<Integer, String> t = create(4);
+        BPlusTree<Integer, String> t = createWithStringValue(4);
         t.insert(1, "boo");
         assertEquals("boo", t.findFirst(1));
     }
@@ -36,7 +67,7 @@ public class BPlusTreeTest {
     @Test
     public void testAddManyAndFind() {
         for (int m = 4; m <= 10; m++) {
-            BPlusTree<Integer, String> t = create(m);
+            BPlusTree<Integer, String> t = createWithStringValue(m);
             for (int n = 1; n < 1000; n++) {
                 for (int i = 0; i < n; i++) {
                     t.insert(i, "a" + i);
@@ -51,7 +82,7 @@ public class BPlusTreeTest {
     @Test
     public void testAddManyShuffledAndFind() {
         for (int m = 4; m <= 10; m++) {
-            BPlusTree<Integer, String> t = create(m);
+            BPlusTree<Integer, String> t = createWithStringValue(m);
             for (int n = 1; n <= 1000; n++) {
                 List<Integer> list = IntStream.range(0, n).boxed().collect(Collectors.toList());
                 Collections.shuffle(list);
@@ -168,5 +199,4 @@ public class BPlusTreeTest {
         assertEquals(Lists.newArrayList(3), toList(t.find(0, 4)));
     }
 
-    
 }

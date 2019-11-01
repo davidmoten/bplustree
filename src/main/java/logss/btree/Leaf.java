@@ -10,10 +10,20 @@ public interface Leaf<K, V> extends Node<K, V> {
 
     void setValue(int i, V value);
 
+    /**
+     * Inserts a key and value at the given index in the node and increments the
+     * number of keys in the node.
+     * 
+     * @param i
+     * @param key
+     * @param value
+     */
     void insert(int i, K key, V value);
 
     /**
-     * Copies length KeyValues from index start to the start of {@code newLeaf}.
+     * Copies length KeyValues from index start to the start of {@code newLeaf},
+     * sets the number of keys in the new Leaf to be {@code length}, sets the number
+     * of keys in source Leaf to be {@code start}.
      * 
      * @param start
      *            start index of Key Value pairs to copy in current Leaf

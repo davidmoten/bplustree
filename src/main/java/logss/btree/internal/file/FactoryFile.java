@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 
 import logss.btree.Factory;
 import logss.btree.Leaf;
+import logss.btree.Node;
 import logss.btree.NonLeaf;
 import logss.btree.Options;
 import logss.btree.Serializer;
@@ -12,9 +13,9 @@ import logss.btree.Serializer;
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private final Options<K, V> options;
-//    private final File directory;
-//    private File indexFile;
-//    private File dataFile;
+    // private final File directory;
+    // private File indexFile;
+    // private File dataFile;
     private byte[] data = new byte[1024 * 1024];
     private int index = 0;
     private final Serializer<K> keySerializer;
@@ -25,7 +26,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
             Serializer<V> valueSerializer) {
         this.options = options;
-//        this.directory = directory;
+        // this.directory = directory;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
     }
@@ -46,8 +47,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private int nonLeafBytes() {
-        // TODO check this, it looks wrong
-        return NUM_NODES_BYTES + (2 * options.maxNonLeafKeys() - 1) * (keySerializer.maxSize() + POSITION_BYTES);
+        // every key has a child node to the left and the final key has a child node to
+        // the right as well as the left
+        return NUM_NODES_BYTES + options.maxNonLeafKeys() * (keySerializer.maxSize() + POSITION_BYTES) + POSITION_BYTES;
     }
 
     private long nextLeafPosition() {
@@ -64,7 +66,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public NonLeaf<K, V> createNonLeaf() {
-        return new NonLeafFile<K, V>(this, nextNonLeafPosition());
+        return new NonLeafFile<K, V>(options, this, nextNonLeafPosition());
     }
 
     private long nextNonLeafPosition() {
@@ -79,7 +81,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return keySerializer.read(bb);
     }
 
-    public int numKeys(long position) {
+    public int leafNumKeys(long position) {
         return bb.getInt((int) position);
     }
 
@@ -90,12 +92,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return valueSerializer.read(bb);
     }
 
-    public void setLeafNumKeys(long position, int numKeys) {
+    public void leafSetNumKeys(long position, int numKeys) {
         bb.position((int) position);
         bb.putInt(numKeys);
     }
 
-    public void setLeafValue(long position, int i, V value) {
+    public void leafSetValue(long position, int i, V value) {
         int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize())
                 + keySerializer.maxSize());
         bb.position(p);
@@ -108,6 +110,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         keySerializer.write(bb, key);
         bb.position(p + keySerializer.maxSize());
         valueSerializer.write(bb, value);
+        // increment number of keys in leaf node
+        bb.position((int) position);
+        bb.putInt(leafNumKeys(position) + 1);
     }
 
     public void leafMove(long position, int start, int length, LeafFile<K, V> other) {
@@ -118,20 +123,66 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         p = (int) (other.position() + NUM_KEYS_BYTES + start * (keySerializer.maxSize() + valueSerializer.maxSize()));
         bb.position(p);
         bb.put(bytes);
+        // set the number of keys in source node to be `start`
+        bb.position((int) position);
+        bb.putInt(start);
+
+        bb.position((int) other.position());
+        bb.putInt(length);
     }
 
-    public void setLeafNext(long position, LeafFile<K, V> sibling) {
+    public void leafSetNext(long position, LeafFile<K, V> sibling) {
         int p = (int) (position + NUM_KEYS_BYTES
                 + options.maxLeafKeys() * (keySerializer.maxSize() + valueSerializer.maxSize()));
         bb.putInt(p, (int) sibling.position());
     }
 
-    public Leaf<K, V> nextLeaf(long position) {
+    public Leaf<K, V> leafNext(long position) {
         return new LeafFile<K, V>(options, this, position);
     }
 
     @Override
     public void close() throws Exception {
         // TODO
+    }
+
+    public void nonLeafSetNumKeys(long position, int numKeys) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public int nonLeafNumKeys(long position) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public void nonLeafSetChild(long position, int index2, Node<K, V> node) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public Node<K, V> nonLeafChild(long position, int index2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public K nonLeafKey(long position, int index2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void nonLeafSetKey(long position, int index2, K key) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void nonLeafMove(long position, int mid, int length, NonLeaf<K, V> other) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void nonLeafInsert(long position, K key, Node<K, V> left) {
+        // TODO Auto-generated method stub
+        
     }
 }
