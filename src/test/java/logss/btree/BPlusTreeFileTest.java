@@ -44,9 +44,9 @@ public class BPlusTreeFileTest {
     public void testInsertOne() {
         BPlusTree<Integer, Integer> tree = create(2);
         tree.insert(3, 10);
-        LeafFile<Integer, Integer> leaf = (LeafFile<Integer,Integer>)tree.root();
+        LeafFile<Integer, Integer> leaf = (LeafFile<Integer, Integer>) tree.root();
         System.out.println(leaf.position());
-        FactoryFile<Integer,Integer> factory = leaf.factory();
+        FactoryFile<Integer, Integer> factory = leaf.factory();
         byte[] bytes = Arrays.copyOf(factory.data(), 100);
         System.out.println(Arrays.toString(bytes));
         assertEquals(1, leaf.numKeys());
@@ -57,15 +57,15 @@ public class BPlusTreeFileTest {
         assertEquals(10, (int) tree.findFirst(3));
         assertNull(tree.findFirst(4));
     }
-    
+
     @Test
     public void testInsertTwo() {
         BPlusTree<Integer, Integer> tree = create(2);
         tree.insert(3, 10);
         tree.insert(5, 20);
-        LeafFile<Integer, Integer> leaf = (LeafFile<Integer,Integer>)tree.root();
+        LeafFile<Integer, Integer> leaf = (LeafFile<Integer, Integer>) tree.root();
         System.out.println(leaf.position());
-        FactoryFile<Integer,Integer> factory = leaf.factory();
+        FactoryFile<Integer, Integer> factory = leaf.factory();
         byte[] bytes = Arrays.copyOf(factory.data(), 100);
         System.out.println(Arrays.toString(bytes));
         assertEquals(2, leaf.numKeys());
@@ -77,6 +77,16 @@ public class BPlusTreeFileTest {
         assertEquals(Arrays.asList(3, 5), t.keys());
         assertEquals(10, (int) tree.findFirst(3));
         assertEquals(20, (int) tree.findFirst(5));
+    }
+
+    @Test
+    public void testInsertThreeWithMaxLeafKeysTwo() {
+        BPlusTree<Integer, Integer> tree = create(2);
+        tree.insert(3, 10);
+        tree.insert(5, 20);
+        tree.insert(7, 30);
+        NodeWrapper<Integer, Integer> t = NodeWrapper.root(tree);
+        assertEquals(2, t.children().size());
     }
 
 }
