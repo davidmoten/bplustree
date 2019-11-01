@@ -99,7 +99,19 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafInsert(long position, int i, K key, V value) {
-        int p = (int) (position + relativeLeafKeyPosition(i));
+        int relativeStart = relativeLeafKeyPosition(i);
+        int relativeFinish = relativeLeafKeyPosition(leafNumKeys(position));
+
+        bb.position((int) (position + relativeStart));
+        byte[] bytes = new byte[relativeFinish - relativeStart];
+        bb.get(bytes);
+
+        // copy bytes across one key
+        bb.position((int) (position + relativeLeafKeyPosition(i + 1)));
+        bb.put(bytes);
+        
+        // write inserted key and value
+        int p = (int) (position + relativeStart);
         bb.position(p);
         keySerializer.write(bb, key);
         bb.position(p + keySerializer.maxSize());
