@@ -35,6 +35,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int NUM_NODES_BYTES = 4;
     private static final int POSITION_BYTES = 4;
 
+    //////////////////////////////////////////////////
+    // Format of a Leaf
+    // NUM_KEYS (KEY VALUE)* NEXT_LEAF_POSITION
+    // Every Leaf has space allocated for maxLeafKeys key value pairs
+    //////////////////////////////////////////////////
+
     @Override
     public Leaf<K, V> createLeaf() {
         return new LeafFile<K, V>(options, this, nextLeafPosition());
@@ -62,17 +68,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private int relativeLeafKeyPosition(int i) {
         return NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize());
-    }
-
-    @Override
-    public NonLeaf<K, V> createNonLeaf() {
-        return new NonLeafFile<K, V>(options, this, nextNonLeafPosition());
-    }
-
-    private long nextNonLeafPosition() {
-        int i = index;
-        index += nonLeafBytes();
-        return i;
     }
 
     public K leafKey(long position, int i) {
@@ -141,48 +136,66 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return new LeafFile<K, V>(options, this, position);
     }
 
+    //////////////////////////////////////////////////
+    // Format of a NonLeaf
+    // NUM_KEYS (KEY LEFT_CHILD_POSITION)* RIGHT_CHILD_POSITION
+    // Every NonLeaf has space allocated for maxNonLeafKeys keys
+    //////////////////////////////////////////////////
+
+    
+    @Override
+    public NonLeaf<K, V> createNonLeaf() {
+        return new NonLeafFile<K, V>(options, this, nextNonLeafPosition());
+    }
+
+    private long nextNonLeafPosition() {
+        int i = index;
+        index += nonLeafBytes();
+        return i;
+    }
+
+
+    public void nonLeafSetNumKeys(long position, int numKeys) {
+        bb.position((int) position);
+        bb.putInt(numKeys);
+    }
+
+    public int nonLeafNumKeys(long position) {
+        return bb.getInt((int) position);
+    }
+
+    public void nonLeafSetChild(long position, int i, NodeFile node) {
+        //TODO
+    }
+
+    public Node<K, V> nonLeafChild(long position, int i) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public K nonLeafKey(long position, int i) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void nonLeafSetKey(long position, int i, K key) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void nonLeafMove(long position, int mid, int length, NonLeafFile<K, V> other) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void nonLeafInsert(long position, K key, Node<K, V> left) {
+        // TODO Auto-generated method stub
+
+    }
+    
     @Override
     public void close() throws Exception {
         // TODO
     }
 
-    public void nonLeafSetNumKeys(long position, int numKeys) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public int nonLeafNumKeys(long position) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public void nonLeafSetChild(long position, int index2, Node<K, V> node) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public Node<K, V> nonLeafChild(long position, int index2) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public K nonLeafKey(long position, int index2) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void nonLeafSetKey(long position, int index2, K key) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void nonLeafMove(long position, int mid, int length, NonLeaf<K, V> other) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void nonLeafInsert(long position, K key, Node<K, V> left) {
-        // TODO Auto-generated method stub
-        
-    }
 }

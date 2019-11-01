@@ -4,7 +4,7 @@ import logss.btree.Factory;
 import logss.btree.Leaf;
 import logss.btree.Options;
 
-public class LeafFile<K, V> implements Leaf<K, V> {
+public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
 
     private final FactoryFile<K, V> factory;
     private long position;

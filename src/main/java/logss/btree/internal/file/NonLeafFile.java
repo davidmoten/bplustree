@@ -5,7 +5,7 @@ import logss.btree.Node;
 import logss.btree.NonLeaf;
 import logss.btree.Options;
 
-public final class NonLeafFile<K, V> implements NonLeaf<K, V> {
+public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
 
     private final Options<K, V> options;
     private final FactoryFile<K, V> factory;
@@ -39,7 +39,7 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V> {
 
     @Override
     public void setChild(int index, Node<K, V> node) {
-        factory.nonLeafSetChild(position, index, node);
+        factory.nonLeafSetChild(position, index, (NodeFile) node);
     }
 
     @Override
@@ -59,13 +59,18 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V> {
 
     @Override
     public void move(int mid, NonLeaf<K, V> other, int length) {
-        factory.nonLeafMove(position, mid, length, other);
+        factory.nonLeafMove(position, mid, length, (NonLeafFile<K,V>) other);
 
     }
 
     @Override
     public void insert(int idx, K key, Node<K, V> left) {
         factory.nonLeafInsert(position, key, left);
+    }
+
+    @Override
+    public long position() {
+        return position;
     }
 
 }
