@@ -7,20 +7,26 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.github.davidmoten.guavamini.Lists;
 
 import logss.btree.internal.file.FactoryFile;
 
+@RunWith(Parameterized.class)
 public class BPlusTreeTest {
 
-    private static BPlusTree<Integer, Integer> create(int maxKeys) {
+    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorFile = maxKeys -> {
         Serializer<Integer> serializer = new Serializer<Integer>() {
 
             @Override
@@ -36,17 +42,34 @@ public class BPlusTreeTest {
             @Override
             public int maxSize() {
                 return Integer.BYTES;
-            }};
-            
-        return BPlusTree.<Integer, Integer>builder().factoryProvider(
-                options -> new FactoryFile<Integer, Integer>( //
-                        options, //
-                        new File("target"), //
-                        serializer, serializer))
-                .maxKeys(maxKeys) //
+            }
+        };
+
+        return BPlusTree.<Integer, Integer>builder().factoryProvider(options -> new FactoryFile<Integer, Integer>( //
+                options, //
+                new File("target"), //
+                serializer, serializer)).maxKeys(maxKeys) //
                 .naturalOrder();
+    };
+
+    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorObject = maxKeys -> BPlusTree
+            .<Integer, Integer>builder().maxKeys(maxKeys).naturalOrder();
+
+    @Parameters
+    public static Collection<Object[]> creators() {
+        return Arrays.asList(new Object[][] { { creatorObject }, { creatorFile } });
     }
 
+    private final Function<Integer, BPlusTree<Integer, Integer>> creator;
+
+    public BPlusTreeTest(Function<Integer, BPlusTree<Integer, Integer>> creator) {
+        this.creator = creator;
+    }
+
+    private BPlusTree<Integer, Integer> create(int maxKeys) {
+        return creator.apply(maxKeys);
+    }
+    
     private static BPlusTree<Integer, String> createWithStringValue(int maxKeys) {
         return BPlusTree.<Integer, String>builder().maxKeys(maxKeys).naturalOrder();
     }
