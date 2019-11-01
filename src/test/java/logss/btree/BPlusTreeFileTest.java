@@ -1,6 +1,7 @@
 package logss.btree;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -53,6 +54,8 @@ public class BPlusTreeFileTest {
         assertEquals(10, (int) leaf.value(0));
         NodeWrapper<Integer, Integer> t = NodeWrapper.root(tree);
         assertEquals(Arrays.asList(3), t.keys());
+        assertEquals(10, (int) tree.findFirst(3));
+        assertNull(tree.findFirst(4));
     }
     
     @Test
@@ -72,6 +75,8 @@ public class BPlusTreeFileTest {
         assertEquals(20, (int) leaf.value(1));
         NodeWrapper<Integer, Integer> t = NodeWrapper.root(tree);
         assertEquals(Arrays.asList(3, 5), t.keys());
+        assertEquals(10, (int) tree.findFirst(3));
+        assertEquals(20, (int) tree.findFirst(5));
     }
 
 }
