@@ -1,5 +1,7 @@
 package logss.btree;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -46,6 +48,7 @@ public class BPlusTreeFileTest {
         FactoryFile<Integer,Integer> factory = leaf.factory();
         byte[] bytes = Arrays.copyOf(factory.data(), 100);
         System.out.println(Arrays.toString(bytes));
+        assertEquals(1, leaf.numKeys());
     }
 
 }

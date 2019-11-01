@@ -79,7 +79,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public int leafNumKeys(long position) {
-        return bb.getInt((int) position);
+        return bb.getInt((int) position + NODE_TYPE_BYTES);
     }
 
     public V leafValue(long position, int i) {
@@ -105,8 +105,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position(p + keySerializer.maxSize());
         valueSerializer.write(bb, value);
         // increment number of keys in leaf node
-        bb.position((int) position);
-        bb.putInt(leafNumKeys(position) + 1);
+        leafSetNumKeys(position, leafNumKeys(position) + 1);
     }
 
     public void leafMove(long position, int start, int length, LeafFile<K, V> other) {
@@ -118,11 +117,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position(p);
         bb.put(bytes);
         // set the number of keys in source node to be `start`
-        bb.position((int) position);
-        bb.putInt(start);
-
-        bb.position((int) other.position());
-        bb.putInt(length);
+        leafSetNumKeys(position, start);
+        leafSetNumKeys(other.position(), length);
     }
 
     public void leafSetNext(long position, LeafFile<K, V> sibling) {
