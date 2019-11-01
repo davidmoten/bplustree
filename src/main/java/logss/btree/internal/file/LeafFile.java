@@ -1,6 +1,5 @@
 package logss.btree.internal.file;
 
-import logss.btree.Factory;
 import logss.btree.Leaf;
 import logss.btree.Options;
 
@@ -27,7 +26,7 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
     }
 
     @Override
-    public Factory<K, V> factory() {
+    public FactoryFile<K, V> factory() {
         return factory;
     }
 

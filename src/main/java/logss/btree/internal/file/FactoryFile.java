@@ -61,6 +61,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private long leafNextPosition() {
         int i = index;
+        bb.put(index, (byte) Leaf.TYPE);
         // shift by max size of a leaf node: numKeys, keys, values, next leaf position
         // (b+tree pointer to next leaf node)
         index += leafBytes();
@@ -159,6 +160,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private long nextNonLeafPosition() {
         int i = index;
+        bb.put(index, (byte) NonLeaf.TYPE);
         index += nonLeafBytes();
         return i;
     }
@@ -238,6 +240,11 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     @Override
     public void close() throws Exception {
         // TODO
+    }
+
+    // visible for testing
+    public byte[] data() {
+        return data;
     }
 
 }
