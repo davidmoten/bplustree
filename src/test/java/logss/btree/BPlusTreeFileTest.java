@@ -42,13 +42,36 @@ public class BPlusTreeFileTest {
     @Test
     public void testInsertOne() {
         BPlusTree<Integer, Integer> tree = create(2);
-        tree.insert(1, 10);
+        tree.insert(3, 10);
         LeafFile<Integer, Integer> leaf = (LeafFile<Integer,Integer>)tree.root();
         System.out.println(leaf.position());
         FactoryFile<Integer,Integer> factory = leaf.factory();
         byte[] bytes = Arrays.copyOf(factory.data(), 100);
         System.out.println(Arrays.toString(bytes));
         assertEquals(1, leaf.numKeys());
+        assertEquals(3, (int) leaf.key(0));
+        assertEquals(10, (int) leaf.value(0));
+        NodeWrapper<Integer, Integer> t = NodeWrapper.root(tree);
+        assertEquals(Arrays.asList(3), t.keys());
+    }
+    
+    @Test
+    public void testInsertTwo() {
+        BPlusTree<Integer, Integer> tree = create(2);
+        tree.insert(3, 10);
+        tree.insert(5, 20);
+        LeafFile<Integer, Integer> leaf = (LeafFile<Integer,Integer>)tree.root();
+        System.out.println(leaf.position());
+        FactoryFile<Integer,Integer> factory = leaf.factory();
+        byte[] bytes = Arrays.copyOf(factory.data(), 100);
+        System.out.println(Arrays.toString(bytes));
+        assertEquals(2, leaf.numKeys());
+        assertEquals(3, (int) leaf.key(0));
+        assertEquals(10, (int) leaf.value(0));
+        assertEquals(5, (int) leaf.key(1));
+        assertEquals(20, (int) leaf.value(1));
+        NodeWrapper<Integer, Integer> t = NodeWrapper.root(tree);
+        assertEquals(Arrays.asList(3, 5), t.keys());
     }
 
 }
