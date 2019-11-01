@@ -1,6 +1,8 @@
 package logss.btree;
 
 public interface Leaf<K, V> extends Node<K, V> {
+    
+    public static final int TYPE = 0;
 
     Options<K, V> options();
 

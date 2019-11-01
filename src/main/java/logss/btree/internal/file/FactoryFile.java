@@ -31,19 +31,26 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.valueSerializer = valueSerializer;
     }
 
+    private static final int NODE_TYPE_BYTES = 1;
     private static final int NUM_KEYS_BYTES = 4;
     private static final int NUM_NODES_BYTES = 4;
     private static final int POSITION_BYTES = 4;
 
     //////////////////////////////////////////////////
     // Format of a Leaf
-    // NUM_KEYS (KEY VALUE)* NEXT_LEAF_POSITION
+    // NODE_TYPE NUM_KEYS (KEY VALUE)* NEXT_LEAF_POSITION
+    // where
+    // NODE_TYPE is one byte (0 = Leaf, 1 = NonLeaf)
+    // NUM_KEYS is 4 bytes signed int
+    // KEY is a byte array of fixed size
+    // VALUE is a byte array of fixed size
+    // NEXT_LEAF_POSITION is 4 bytes signed int
     // Every Leaf has space allocated for maxLeafKeys key value pairs
     //////////////////////////////////////////////////
 
     @Override
     public Leaf<K, V> createLeaf() {
-        return new LeafFile<K, V>(options, this, nextLeafPosition());
+        return new LeafFile<K, V>(options, this, leafNextPosition());
     }
 
     private int leafBytes() {
@@ -52,13 +59,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         ;
     }
 
-    private int nonLeafBytes() {
-        // every key has a child node to the left and the final key has a child node to
-        // the right as well as the left
-        return NUM_NODES_BYTES + options.maxNonLeafKeys() * (keySerializer.maxSize() + POSITION_BYTES) + POSITION_BYTES;
-    }
-
-    private long nextLeafPosition() {
+    private long leafNextPosition() {
         int i = index;
         // shift by max size of a leaf node: numKeys, keys, values, next leaf position
         // (b+tree pointer to next leaf node)
@@ -67,7 +68,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private int relativeLeafKeyPosition(int i) {
-        return NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize());
+        return NODE_TYPE_BYTES + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize());
     }
 
     public K leafKey(long position, int i) {
@@ -81,26 +82,23 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public V leafValue(long position, int i) {
-        int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize())
-                + keySerializer.maxSize());
+        int p = (int) (position + relativeLeafKeyPosition(i) + keySerializer.maxSize());
         bb.position(p);
         return valueSerializer.read(bb);
     }
 
     public void leafSetNumKeys(long position, int numKeys) {
-        bb.position((int) position);
-        bb.putInt(numKeys);
+        bb.putInt((int) position + NODE_TYPE_BYTES, numKeys);
     }
 
     public void leafSetValue(long position, int i, V value) {
-        int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize())
-                + keySerializer.maxSize());
+        int p = (int) (position + relativeLeafKeyPosition(i) + keySerializer.maxSize() + keySerializer.maxSize());
         bb.position(p);
         valueSerializer.write(bb, value);
     }
 
     public void leafInsert(long position, int i, K key, V value) {
-        int p = (int) (position + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize()));
+        int p = (int) (position + relativeLeafKeyPosition(i));
         bb.position(p);
         keySerializer.write(bb, key);
         bb.position(p + keySerializer.maxSize());
@@ -111,11 +109,11 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafMove(long position, int start, int length, LeafFile<K, V> other) {
-        int p = (int) (position + NUM_KEYS_BYTES + start * (keySerializer.maxSize() + valueSerializer.maxSize()));
+        int p = (int) (position + relativeLeafKeyPosition(start));
         byte[] bytes = new byte[length * (keySerializer.maxSize() + valueSerializer.maxSize())];
         bb.position(p);
         bb.get(bytes);
-        p = (int) (other.position() + NUM_KEYS_BYTES + start * (keySerializer.maxSize() + valueSerializer.maxSize()));
+        p = (int) (other.position() + relativeLeafKeyPosition(0));
         bb.position(p);
         bb.put(bytes);
         // set the number of keys in source node to be `start`
@@ -127,8 +125,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetNext(long position, LeafFile<K, V> sibling) {
-        int p = (int) (position + NUM_KEYS_BYTES
-                + options.maxLeafKeys() * (keySerializer.maxSize() + valueSerializer.maxSize()));
+        int p = (int) (position + relativeLeafKeyPosition(options.maxLeafKeys()));
         bb.putInt(p, (int) sibling.position());
     }
 
@@ -138,14 +135,26 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     //////////////////////////////////////////////////
     // Format of a NonLeaf
-    // NUM_KEYS (KEY LEFT_CHILD_POSITION)* RIGHT_CHILD_POSITION
+    // NODE_TYPE NUM_KEYS (LEFT_CHILD_POSITION KEY)* RIGHT_CHILD_POSITION
+    // where
+    // NODE_TYPE is one byte (0 = Leaf, 1 = NonLeaf)
+    // NUM_KEYS is 4 bytes signed int
+    // LEFT_CHILD_POSITION is 4 bytes signed int
+    // KEY is a fixed size byte array
+    // RIGHT_CHILD_POSITION is 4 bytes signed int
     // Every NonLeaf has space allocated for maxNonLeafKeys keys
     //////////////////////////////////////////////////
 
-    
     @Override
     public NonLeaf<K, V> createNonLeaf() {
         return new NonLeafFile<K, V>(options, this, nextNonLeafPosition());
+    }
+
+    private int nonLeafBytes() {
+        // every key has a child node to the left and the final key has a child node to
+        // the right as well as the left
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+                + POSITION_BYTES;
     }
 
     private long nextNonLeafPosition() {
@@ -154,10 +163,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return i;
     }
 
-
     public void nonLeafSetNumKeys(long position, int numKeys) {
-        bb.position((int) position);
-        bb.putInt(numKeys);
+        bb.putInt((int) position + NODE_TYPE_BYTES, numKeys);
     }
 
     public int nonLeafNumKeys(long position) {
@@ -165,22 +172,38 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void nonLeafSetChild(long position, int i, NodeFile node) {
-        //TODO
+        int p = (int) (position + relativePositionNonLeafEntry(i));
+        bb.putInt(p, (int) node.position());
+    }
+
+    private int relativePositionNonLeafEntry(int i) {
+        return NODE_TYPE_BYTES + NUM_KEYS_BYTES + i * (POSITION_BYTES + keySerializer.maxSize());
     }
 
     public Node<K, V> nonLeafChild(long position, int i) {
-        // TODO Auto-generated method stub
-        return null;
+        bb.position((int) (position + relativePositionNonLeafEntry(i)));
+        int pos = bb.getInt();
+        return readNode(pos);
+    }
+
+    private Node<K, V> readNode(int pos) {
+        bb.position(pos);
+        int type = bb.get();
+        if (type == Leaf.TYPE) {
+            return new LeafFile<>(options, this, pos);
+        } else {
+            return new NonLeafFile<>(options, this, pos);
+        }
     }
 
     public K nonLeafKey(long position, int i) {
-        // TODO Auto-generated method stub
-        return null;
+        bb.position((int) (position + relativePositionNonLeafEntry(i) + POSITION_BYTES));
+        return keySerializer.read(bb);
     }
 
     public void nonLeafSetKey(long position, int i, K key) {
-        // TODO Auto-generated method stub
-
+        bb.position((int) (position + relativePositionNonLeafEntry(i) + POSITION_BYTES));
+        keySerializer.write(bb, key);
     }
 
     public void nonLeafMove(long position, int mid, int length, NonLeafFile<K, V> other) {
@@ -192,7 +215,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         // TODO Auto-generated method stub
 
     }
-    
+
     @Override
     public void close() throws Exception {
         // TODO
