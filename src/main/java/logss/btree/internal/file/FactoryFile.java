@@ -109,7 +109,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         // copy bytes across one key
         bb.position((int) (position + relativeLeafKeyPosition(i + 1)));
         bb.put(bytes);
-        
+
         // write inserted key and value
         int p = (int) (position + relativeStart);
         bb.position(p);
@@ -121,11 +121,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafMove(long position, int start, int length, LeafFile<K, V> other) {
-        int p = (int) (position + relativeLeafKeyPosition(start));
-        byte[] bytes = new byte[length * (keySerializer.maxSize() + valueSerializer.maxSize())];
-        bb.position(p);
+        int relativeStart = relativeLeafKeyPosition(start);
+        int relativeEnd = relativeLeafKeyPosition(start + length);
+        byte[] bytes = new byte[relativeEnd - relativeStart];
+        bb.position((int) (position + relativeStart));
         bb.get(bytes);
-        p = (int) (other.position() + relativeLeafKeyPosition(0));
+        int p = (int) (other.position() + relativeLeafKeyPosition(0));
         bb.position(p);
         bb.put(bytes);
         // set the number of keys in source node to be `start`
