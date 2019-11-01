@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -86,7 +87,14 @@ public class BPlusTreeFileTest {
         tree.insert(5, 20);
         tree.insert(7, 30);
         NodeWrapper<Integer, Integer> t = NodeWrapper.root(tree);
-        assertEquals(2, t.children().size());
+        assertEquals(Arrays.asList(5), t.keys());
+        List<NodeWrapper<Integer, Integer>> children = t.children();
+        assertEquals(2, children.size());
+        assertEquals(Arrays.asList(3),  children.get(0).keys());
+        assertEquals(Arrays.asList(5, 7),  children.get(1).keys());
+        assertEquals(10, (int) tree.findFirst(3));
+        assertEquals(20, (int) tree.findFirst(5));
+        assertEquals(30, (int) tree.findFirst(7));
     }
 
 }

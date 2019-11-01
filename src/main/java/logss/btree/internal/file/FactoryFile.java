@@ -166,7 +166,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public int nonLeafNumKeys(long position) {
-        return bb.getInt((int) position);
+        return bb.getInt((int) position + NODE_TYPE_BYTES);
     }
 
     public void nonLeafSetChild(long position, int i, NodeFile node) {
