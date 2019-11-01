@@ -207,8 +207,17 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void nonLeafMove(long position, int mid, int length, NonLeafFile<K, V> other) {
-        // TODO Auto-generated method stub
-
+        // read array corresponding to latter half of source node and put at beginning
+        // of other node
+        int relativeStart = relativePositionNonLeafEntry(mid);
+        int size = relativePositionNonLeafEntry(mid + length) - relativeStart;
+        bb.position((int) (position + relativeStart));
+        byte[] bytes = new byte[size];
+        bb.get(bytes);
+        bb.position((int) (other.position() + relativePositionNonLeafEntry(0)));
+        bb.put(bytes);
+        nonLeafSetNumKeys(position, mid);
+        nonLeafSetNumKeys(other.position(), length);
     }
 
     public void nonLeafInsert(long position, K key, Node<K, V> left) {
