@@ -1,7 +1,9 @@
 package logss.btree;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -9,11 +11,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -184,8 +188,21 @@ public class BPlusTreeTest {
         }
         t.print();
     }
+    
+    @Test
+    public void testNext() {
+        BPlusTree<Integer, Integer> t = create(2);
+        for (int i = 1; i <= 10; i++) {
+            t.insert(i, i);
+        }
+        Iterator<Integer> it = t.find(1, 2).iterator();
+        assertTrue(it.hasNext());
+        assertEquals(1, (int) it.next());
+        assertFalse(it.hasNext());
+    }
 
     @Test
+    @Ignore
     public void testFindRange() {
         BPlusTree<Integer, Integer> t = create(2);
         for (int i = 1; i <= 10; i++) {
@@ -205,6 +222,7 @@ public class BPlusTreeTest {
     }
 
     @Test
+    @Ignore
     public void testDuplicateSupportedAndInReverseOrderOfInsert() {
         BPlusTree<Integer, Integer> t = create(2);
         t.insert(1, 2);

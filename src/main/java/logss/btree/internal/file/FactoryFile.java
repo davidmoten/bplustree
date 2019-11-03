@@ -12,6 +12,7 @@ import logss.btree.Serializer;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
+    private static final int NEXT_NOT_PRESENT = -1;
     private final Options<K, V> options;
     // private final File directory;
     // private File indexFile;
@@ -137,13 +138,22 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetNext(long position, LeafFile<K, V> sibling) {
-        int p = (int) (position + relativeLeafKeyPosition(options.maxLeafKeys()));
+        final int p;
+        if (sibling == null) {
+            p = NEXT_NOT_PRESENT;
+        } else {
+            p = (int) (position + relativeLeafKeyPosition(options.maxLeafKeys()));
+        }
         bb.putInt(p, (int) sibling.position());
     }
 
     public Leaf<K, V> leafNext(long position) {
         int p = bb.getInt((int) position);
-        return new LeafFile<K, V>(options, this, p);
+        if (p == NEXT_NOT_PRESENT) {
+            return null;
+        } else {
+            return new LeafFile<K, V>(options, this, p);
+        }
     }
 
     //////////////////////////////////////////////////
