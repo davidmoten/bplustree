@@ -43,7 +43,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
                     StandardOpenOption.CREATE, //
                     StandardOpenOption.READ, //
                     StandardOpenOption.WRITE));
-            bb = channel.map(FileChannel.MapMode.READ_WRITE, 0, 1024*1024);
+            bb = channel.map(FileChannel.MapMode.READ_WRITE, 0, 1024 * 1024);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
