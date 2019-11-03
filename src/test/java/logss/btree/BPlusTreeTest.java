@@ -53,7 +53,10 @@ public class BPlusTreeTest {
                 .factoryProvider(options -> new FactoryFile<Integer, Integer>( //
                         options, //
                         new File("target"), //
-                        serializer, serializer))
+                        serializer, //
+                        serializer, //
+                        1024 * 1024, //
+                        1024 * 1024))
                 .maxKeys(maxKeys) //
                 .naturalOrder();
     };

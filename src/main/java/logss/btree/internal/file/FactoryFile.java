@@ -2,6 +2,7 @@ package logss.btree.internal.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -31,19 +32,21 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final ByteBuffer bb;
 
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
-            Serializer<V> valueSerializer) {
+            Serializer<V> valueSerializer, int initialFileSize, int mappedSize) {
         this.options = options;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
         File file = new File(directory, "data.bin");
         file.delete();
         try {
-            file.createNewFile();
+            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+                raf.setLength(initialFileSize);
+            }
             channel = (FileChannel) Files.newByteChannel(file.toPath(), EnumSet.of( //
                     StandardOpenOption.CREATE, //
                     StandardOpenOption.READ, //
                     StandardOpenOption.WRITE));
-            bb = channel.map(FileChannel.MapMode.READ_WRITE, 0, 1024 * 1024);
+            bb = channel.map(FileChannel.MapMode.READ_WRITE, 0, mappedSize);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -34,10 +34,15 @@ public final class BPlusTreeFileTest {
             }
         };
 
-        return BPlusTree.<Integer, Integer>builder().factoryProvider(options -> new FactoryFile<Integer, Integer>( //
-                options, //
-                new File("target"), //
-                serializer, serializer)).maxKeys(maxKeys) //
+        return BPlusTree.<Integer, Integer>builder()
+                .factoryProvider(options -> new FactoryFile<Integer, Integer>( //
+                        options, //
+                        new File("target"), //
+                        serializer, //
+                        serializer, //
+                        1024 * 1024, //
+                        1024 * 1024))
+                .maxKeys(maxKeys) //
                 .naturalOrder();
     }
 
