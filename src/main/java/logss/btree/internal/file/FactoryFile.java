@@ -235,7 +235,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         // read array corresponding to latter half of source node and put at beginning
         // of other node
         int relativeStart = relativePositionNonLeafEntry(mid);
-        int size = relativePositionNonLeafEntry(mid + length) - relativeStart;
+        int size = relativePositionNonLeafEntry(mid + length + 1) - relativeStart;
         bb.position((int) (position + relativeStart));
         byte[] bytes = new byte[size];
         bb.get(bytes);
