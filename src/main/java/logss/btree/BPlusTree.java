@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 
 import logss.btree.internal.memory.FactoryMemory;
 
-public class BPlusTree<K, V> {
+public class BPlusTree<K, V> implements AutoCloseable {
 
     private final Options<K, V> options;
     private final Factory<K, V> factory;
@@ -279,6 +279,11 @@ public class BPlusTree<K, V> {
 
     public Node<K, V> root() {
         return root;
+    }
+
+    @Override
+    public void close() throws Exception {
+        factory.close();
     }
 
 }

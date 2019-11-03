@@ -1,7 +1,13 @@
 package logss.btree.internal.file;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.EnumSet;
 
 import logss.btree.Factory;
 import logss.btree.Leaf;
@@ -17,19 +23,30 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     // private final File directory;
     // private File indexFile;
     // private File dataFile;
-    private byte[] data = new byte[1024 * 1024];
     private int index = 0;
     private final Serializer<K> keySerializer;
     private final Serializer<V> valueSerializer;
 
-    private final ByteBuffer bb = ByteBuffer.wrap(data);
+    private final FileChannel channel;
+    private final ByteBuffer bb;
 
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
             Serializer<V> valueSerializer) {
         this.options = options;
-        // this.directory = directory;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
+        File file = new File(directory, "data.bin");
+        file.delete();
+        try {
+            file.createNewFile();
+            channel = (FileChannel) Files.newByteChannel(file.toPath(), EnumSet.of( //
+                    StandardOpenOption.CREATE, //
+                    StandardOpenOption.READ, //
+                    StandardOpenOption.WRITE));
+            bb = channel.map(FileChannel.MapMode.READ_WRITE, 0, channel.size());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private static final int NODE_TYPE_BYTES = 1;
@@ -263,12 +280,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public void close() throws Exception {
-        // TODO
+        channel.close();
     }
 
     // visible for testing
     public byte[] data() {
-        return data;
+        return bb.array();
     }
 
 }
