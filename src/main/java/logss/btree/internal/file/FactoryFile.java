@@ -148,7 +148,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public Leaf<K, V> leafNext(long position) {
-        int p = bb.getInt((int) position);
+        int p = bb.getInt((int) position + relativeLeafKeyPosition(options.maxLeafKeys()));
         if (p == NEXT_NOT_PRESENT) {
             return null;
         } else {
