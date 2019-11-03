@@ -24,7 +24,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
     default Split<K, V> insert(K key, V value) {
         if (numKeys() == options().maxNonLeafKeys()) { // Split
             int mid = options().maxNonLeafKeys() / 2 + 1;
-            int len = numKeys() - mid;
+            int len = options().maxNonLeafKeys() - mid;
             NonLeaf<K, V> sibling = factory().createNonLeaf();
             move(mid, sibling, len);
 
