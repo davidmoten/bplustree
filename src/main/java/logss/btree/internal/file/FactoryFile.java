@@ -241,7 +241,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.get(bytes);
         bb.position((int) (other.position() + relativePositionNonLeafEntry(0)));
         bb.put(bytes);
-        nonLeafSetNumKeys(position, mid);
+        nonLeafSetNumKeys(position, mid - 1);
         nonLeafSetNumKeys(other.position(), length);
     }
 

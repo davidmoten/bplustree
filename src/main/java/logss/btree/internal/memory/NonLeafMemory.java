@@ -56,7 +56,7 @@ public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
         other.setNumKeys(length);
         System.arraycopy(this.keys, mid, ((NonLeafMemory<K, V>) other).keys, 0, length);
         System.arraycopy(this.children, mid, ((NonLeafMemory<K, V>) other).children, 0, length + 1);
-        numKeys = mid - 1;// this is important, so the middle one elevate to next
+        numKeys = mid - 1;// this is important, so the middle one elevates to next
         // depth(height), inner node's key don't repeat itself
     }
 
