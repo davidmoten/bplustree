@@ -49,10 +49,12 @@ public class BPlusTreeTest {
             }
         };
 
-        return BPlusTree.<Integer, Integer>builder().factoryProvider(options -> new FactoryFile<Integer, Integer>( //
-                options, //
-                new File("target"), //
-                serializer, serializer)).maxKeys(maxKeys) //
+        return BPlusTree.<Integer, Integer>builder()
+                .factoryProvider(options -> new FactoryFile<Integer, Integer>( //
+                        options, //
+                        new File("target"), //
+                        serializer, serializer))
+                .maxKeys(maxKeys) //
                 .naturalOrder();
     };
 
@@ -73,7 +75,7 @@ public class BPlusTreeTest {
     private BPlusTree<Integer, Integer> create(int maxKeys) {
         return creator.apply(maxKeys);
     }
-    
+
     private static BPlusTree<Integer, String> createWithStringValue(int maxKeys) {
         return BPlusTree.<Integer, String>builder().maxKeys(maxKeys).naturalOrder();
     }
@@ -124,7 +126,40 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testSplitsCorrect() {
+    public void testSplitsCorrect3Entries() {
+        // verified with
+        // https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
+        BPlusTree<Integer, Integer> t = create(2);
+        for (int i = 1; i <= 3; i++) {
+            t.insert(i, i);
+        }
+        NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
+        assertEquals(Arrays.asList(2), root.keys());
+        List<NodeWrapper<Integer, Integer>> children = root.children();
+        assertEquals(2, children.size());
+        assertEquals(Arrays.asList(1), children.get(0).keys());
+        assertEquals(Arrays.asList(2, 3), children.get(1).keys());
+    }
+
+    @Test
+    public void testSplitsCorrect4Entries() {
+        // verified with
+        // https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
+        BPlusTree<Integer, Integer> t = create(2);
+        for (int i = 1; i <= 4; i++) {
+            t.insert(i, i);
+        }
+        NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
+        assertEquals(Arrays.asList(2, 3), root.keys());
+        List<NodeWrapper<Integer, Integer>> children = root.children();
+        assertEquals(3, children.size());
+        assertEquals(Arrays.asList(1), children.get(0).keys());
+        assertEquals(Arrays.asList(2), children.get(1).keys());
+        assertEquals(Arrays.asList(3, 4), children.get(2).keys());
+    }
+
+    @Test
+    public void testSplitsCorrect5Entries() {
         // verified with
         // https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
         BPlusTree<Integer, Integer> t = create(2);
@@ -188,7 +223,7 @@ public class BPlusTreeTest {
         }
         t.print();
     }
-    
+
     @Test
     public void testNext() {
         BPlusTree<Integer, Integer> t = create(2);
@@ -233,7 +268,8 @@ public class BPlusTreeTest {
 
     @Test
     public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() {
-        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).uniqueKeys().naturalOrder();
+        BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2)
+                .uniqueKeys().naturalOrder();
         t.insert(1, 2);
         t.insert(1, 3);
         t.print();
