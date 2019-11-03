@@ -44,14 +44,12 @@ public interface Leaf<K, V> extends Node<K, V> {
     default Split<K, V> insert(K key, V value) {
         // Simple linear search
         int i = getLocation(key);
-        if (numKeys() == options().maxLeafKeys()) { // The node was full. We must split it
+        if (numKeys() == options().maxLeafKeys()) { 
+            // The node is full. We must split it
             int mid = (options().maxLeafKeys() + 1) / 2;
             int len = numKeys() - mid;
             Leaf<K, V> sibling = factory().createLeaf();
             move(mid, len, sibling);
-            // System.arraycopy(this.keys, mid, sibling.keys, 0, sNum);
-            // System.arraycopy(this.values, mid, sibling.values, 0, sNum);
-            setNumKeys(mid);
             if (i < mid) {
                 // Inserted element goes to left sibling
                 Util.insertNonfull(this, key, value, i);

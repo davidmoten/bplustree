@@ -167,6 +167,7 @@ public class BPlusTreeTest {
             t.insert(i, i);
         }
         NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
+        t.print();
         assertEquals(Arrays.asList(3), root.keys());
         List<NodeWrapper<Integer, Integer>> children = root.children();
         assertEquals(2, children.size());
