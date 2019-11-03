@@ -227,7 +227,7 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testNext() {
+    public void testNextWithFindOneAtStart() {
         BPlusTree<Integer, Integer> t = create(2);
         for (int i = 1; i <= 10; i++) {
             t.insert(i, i);
@@ -235,6 +235,48 @@ public class BPlusTreeTest {
         Iterator<Integer> it = t.find(1, 2).iterator();
         assertTrue(it.hasNext());
         assertEquals(1, (int) it.next());
+        assertFalse(it.hasNext());
+    }
+    
+    @Test
+    public void testNextWithFindTwoAtStart() {
+        BPlusTree<Integer, Integer> t = create(2);
+        for (int i = 1; i <= 10; i++) {
+            t.insert(i, i);
+        }
+        Iterator<Integer> it = t.find(1, 3).iterator();
+        assertTrue(it.hasNext());
+        assertEquals(1, (int) it.next());
+        assertTrue(it.hasNext());
+        assertEquals(2, (int) it.next());
+        assertFalse(it.hasNext());
+    }
+    
+    @Test
+    public void testNextWithFindTwoOverlappingEnd() {
+        BPlusTree<Integer, Integer> t = create(2);
+        for (int i = 1; i <= 10; i++) {
+            t.insert(i, i);
+        }
+        Iterator<Integer> it = t.find(9,11).iterator();
+        assertTrue(it.hasNext());
+        assertEquals(9, (int) it.next());
+        assertTrue(it.hasNext());
+        assertEquals(10, (int) it.next());
+        assertFalse(it.hasNext());
+    }
+    
+    @Test
+    public void testNextWithFind2() {
+        BPlusTree<Integer, Integer> t = create(2);
+        for (int i = 1; i <= 10; i++) {
+            t.insert(i, i);
+        }
+        Iterator<Integer> it = t.find(1, 3).iterator();
+        assertTrue(it.hasNext());
+        assertEquals(1, (int) it.next());
+        assertTrue(it.hasNext());
+        assertEquals(2, (int) it.next());
         assertFalse(it.hasNext());
     }
 
@@ -259,7 +301,6 @@ public class BPlusTreeTest {
     }
 
     @Test
-    @Ignore
     public void testDuplicateSupportedAndInReverseOrderOfInsert() {
         BPlusTree<Integer, Integer> t = create(2);
         t.insert(1, 2);

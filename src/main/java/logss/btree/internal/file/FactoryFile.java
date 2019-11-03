@@ -63,6 +63,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private long leafNextPosition() {
         int i = index;
         bb.put(index, (byte) Leaf.TYPE);
+        bb.putInt(index + leafBytes() - POSITION_BYTES, NEXT_NOT_PRESENT);
         // shift by max size of a leaf node: numKeys, keys, values, next leaf position
         // (b+tree pointer to next leaf node)
         index += leafBytes();
