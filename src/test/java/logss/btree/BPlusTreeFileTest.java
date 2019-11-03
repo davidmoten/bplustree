@@ -9,14 +9,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import logss.btree.internal.file.FactoryFile;
 import logss.btree.internal.file.LeafFile;
 
-@RunWith(Parameterized.class)
-public class BPlusTreeFileTest {
+public final class BPlusTreeFileTest {
 
     private static BPlusTree<Integer, Integer> create(int maxKeys) {
         Serializer<Integer> serializer = new Serializer<Integer>() {

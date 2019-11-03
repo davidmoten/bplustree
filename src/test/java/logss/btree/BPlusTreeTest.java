@@ -52,12 +52,12 @@ public class BPlusTreeTest {
                 .naturalOrder();
     };
 
-    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorObject = maxKeys -> BPlusTree
+    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree
             .<Integer, Integer>builder().maxKeys(maxKeys).naturalOrder();
 
     @Parameters
     public static Collection<Object[]> creators() {
-        return Arrays.asList(new Object[][] { { creatorObject }, { creatorFile } });
+        return Arrays.asList(new Object[][] { { creatorMemory }, { creatorFile } });
     }
 
     private final Function<Integer, BPlusTree<Integer, Integer>> creator;
