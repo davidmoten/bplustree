@@ -1,9 +1,9 @@
-package logss.btree.internal.memory;
+package com.github.davidmoten.bplustree.internal.memory;
 
-import logss.btree.Factory;
-import logss.btree.Node;
-import logss.btree.NonLeaf;
-import logss.btree.Options;
+import com.github.davidmoten.bplustree.Factory;
+import com.github.davidmoten.bplustree.Node;
+import com.github.davidmoten.bplustree.NonLeaf;
+import com.github.davidmoten.bplustree.Options;
 
 public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
 

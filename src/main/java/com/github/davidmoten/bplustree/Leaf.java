@@ -1,4 +1,4 @@
-package logss.btree;
+package com.github.davidmoten.bplustree;
 
 public interface Leaf<K, V> extends Node<K, V> {
     

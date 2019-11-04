@@ -1,4 +1,4 @@
-package logss.btree.internal.file;
+package com.github.davidmoten.bplustree.internal.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,13 +10,13 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.EnumSet;
 
-import logss.btree.Factory;
-import logss.btree.FactoryProvider;
-import logss.btree.Leaf;
-import logss.btree.Node;
-import logss.btree.NonLeaf;
-import logss.btree.Options;
-import logss.btree.Serializer;
+import com.github.davidmoten.bplustree.Factory;
+import com.github.davidmoten.bplustree.FactoryProvider;
+import com.github.davidmoten.bplustree.Leaf;
+import com.github.davidmoten.bplustree.Node;
+import com.github.davidmoten.bplustree.NonLeaf;
+import com.github.davidmoten.bplustree.Options;
+import com.github.davidmoten.bplustree.Serializer;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
     

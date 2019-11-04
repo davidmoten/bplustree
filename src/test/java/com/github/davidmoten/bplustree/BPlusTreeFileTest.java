@@ -1,4 +1,4 @@
-package logss.btree;
+package com.github.davidmoten.bplustree;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -9,7 +9,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import logss.btree.internal.file.LeafFile;
+import com.github.davidmoten.bplustree.BPlusTree;
+import com.github.davidmoten.bplustree.FactoryProvider;
+import com.github.davidmoten.bplustree.Serializer;
+import com.github.davidmoten.bplustree.internal.file.LeafFile;
 
 public final class BPlusTreeFileTest {
 

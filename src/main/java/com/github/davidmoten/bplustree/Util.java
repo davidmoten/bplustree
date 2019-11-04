@@ -1,4 +1,4 @@
-package logss.btree;
+package com.github.davidmoten.bplustree;
 
 final class Util {
 

@@ -1,11 +1,11 @@
-package logss.btree;
+package com.github.davidmoten.bplustree;
 
 import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import logss.btree.internal.memory.FactoryMemory;
+import com.github.davidmoten.bplustree.internal.memory.FactoryMemory;
 
 public class BPlusTree<K, V> implements AutoCloseable {
 

@@ -1,4 +1,4 @@
-package logss.btree;
+package com.github.davidmoten.bplustree;
 
 public interface Factory<K, V> extends AutoCloseable {
 

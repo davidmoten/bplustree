@@ -1,6 +1,6 @@
-package logss.btree;
+package com.github.davidmoten.bplustree;
 
-import logss.btree.internal.file.FactoryFile;
+import com.github.davidmoten.bplustree.internal.file.FactoryFile;
 
 public interface FactoryProvider<K, V> {
 

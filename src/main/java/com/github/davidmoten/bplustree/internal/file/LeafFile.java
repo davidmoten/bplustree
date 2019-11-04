@@ -1,7 +1,7 @@
-package logss.btree.internal.file;
+package com.github.davidmoten.bplustree.internal.file;
 
-import logss.btree.Leaf;
-import logss.btree.Options;
+import com.github.davidmoten.bplustree.Leaf;
+import com.github.davidmoten.bplustree.Options;
 
 public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
 

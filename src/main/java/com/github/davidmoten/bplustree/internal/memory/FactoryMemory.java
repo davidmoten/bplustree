@@ -1,9 +1,9 @@
-package logss.btree.internal.memory;
+package com.github.davidmoten.bplustree.internal.memory;
 
-import logss.btree.Factory;
-import logss.btree.Leaf;
-import logss.btree.NonLeaf;
-import logss.btree.Options;
+import com.github.davidmoten.bplustree.Factory;
+import com.github.davidmoten.bplustree.Leaf;
+import com.github.davidmoten.bplustree.NonLeaf;
+import com.github.davidmoten.bplustree.Options;
 
 public final class FactoryMemory<K, V> implements Factory<K, V> {
 

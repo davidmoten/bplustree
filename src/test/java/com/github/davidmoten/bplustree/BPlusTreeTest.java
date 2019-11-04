@@ -1,4 +1,4 @@
-package logss.btree;
+package com.github.davidmoten.bplustree;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -23,9 +23,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.github.davidmoten.bplustree.BPlusTree;
+import com.github.davidmoten.bplustree.FactoryProvider;
+import com.github.davidmoten.bplustree.Serializer;
+import com.github.davidmoten.bplustree.internal.file.FactoryFile;
 import com.github.davidmoten.guavamini.Lists;
-
-import logss.btree.internal.file.FactoryFile;
 
 @RunWith(Parameterized.class)
 public class BPlusTreeTest {
