@@ -1,14 +1,53 @@
 package com.github.davidmoten.bplustree;
 
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.TreeMap;
 
 public final class LargeMappedByteBuffer {
+
+    private final int segmentSizeBytes;
+
+    private final TreeMap<Long, Segment> map = new TreeMap<>();
+    private final File directory;
+
+    public LargeMappedByteBuffer(File directory, int segmentSizeBytes) {
+        this.directory = directory;
+        this.segmentSizeBytes = segmentSizeBytes;
+    }
+
+    private static final class Segment {
+        final FileChannel channel;
+        final MappedByteBuffer bb;
+
+        Segment(FileChannel channel, MappedByteBuffer bb) {
+            this.channel = channel;
+            this.bb = bb;
+        }
+
+    }
 
     private long position;
 
     private MappedByteBuffer bb(long position) {
-        return null;
+        long num = position % segmentSizeBytes;
+        Segment segment = map.get(num);
+        if (segment == null) {
+            File file = new File(directory, "data-" + num);
+            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+                raf.setLength(segmentSizeBytes);
+            }
+            FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+            MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, 1024*1024);
+            map.put(num, new Segment(channel, bb));
+            return bb;
+        }
     }
 
     public void position(long newPosition) {
