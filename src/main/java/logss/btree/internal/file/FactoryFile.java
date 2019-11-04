@@ -19,28 +19,45 @@ import logss.btree.Serializer;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
+    private static final int NODE_TYPE_BYTES = 1;
+    private static final int NUM_KEYS_BYTES = 4;
+    private static final int NUM_NODES_BYTES = 4;
+    private static final int POSITION_BYTES = 4;
     private static final int NEXT_NOT_PRESENT = -1;
+    private static final int THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE = 100 * 1024
+            * 1024;
+    private static final int LINEAR_INCREASE_IN_FILE_SIZE_BYTES = THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE;
+
     private final Options<K, V> options;
-    // private final File directory;
-    // private File indexFile;
-    // private File dataFile;
     private int index = 0;
     private final Serializer<K> keySerializer;
     private final Serializer<V> valueSerializer;
+    private final int mappedSize;
+    private final File file;
 
-    private final FileChannel channel;
-    private final ByteBuffer bb;
+    private int size;
+    private FileChannel channel;
+    private ByteBuffer bb;
 
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
             Serializer<V> valueSerializer, int initialFileSize, int mappedSize) {
         this.options = options;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
-        File file = new File(directory, "data.bin");
+        this.mappedSize = mappedSize;
+        this.size = initialFileSize;
+        file = new File(directory, "data.bin");
         file.delete();
+        map(size);
+    }
+
+    private void map(int size) {
         try {
+            if (channel != null) {
+                channel.close();
+            }
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-                raf.setLength(initialFileSize);
+                raf.setLength(size);
             }
             channel = (FileChannel) Files.newByteChannel(file.toPath(), EnumSet.of( //
                     StandardOpenOption.CREATE, //
@@ -51,11 +68,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
             throw new UncheckedIOException(e);
         }
     }
-
-    private static final int NODE_TYPE_BYTES = 1;
-    private static final int NUM_KEYS_BYTES = 4;
-    private static final int NUM_NODES_BYTES = 4;
-    private static final int POSITION_BYTES = 4;
 
     //////////////////////////////////////////////////
     // Format of a Leaf
@@ -76,11 +88,11 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private int leafBytes() {
         return relativeLeafKeyPosition(options.maxLeafKeys()) //
-                + POSITION_BYTES // next leaf position
-        ;
+                + POSITION_BYTES; // next leaf position
     }
 
     private long leafNextPosition() {
+        checkSize();
         int i = index;
         bb.put(index, (byte) Leaf.TYPE);
         bb.putInt(index + leafBytes() - POSITION_BYTES, NEXT_NOT_PRESENT);
@@ -88,6 +100,20 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         // (b+tree pointer to next leaf node)
         index += leafBytes();
         return i;
+    }
+
+    private void checkSize() {
+        if (index > size - 2 * (leafBytes() + nonLeafBytes())) {
+            final int increaseBy;
+            if (size >= THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE) {
+                increaseBy = LINEAR_INCREASE_IN_FILE_SIZE_BYTES;
+            } else {
+                increaseBy = size;
+            }
+            size += increaseBy;
+            map(size);
+        }
+
     }
 
     private int relativeLeafKeyPosition(int i) {
