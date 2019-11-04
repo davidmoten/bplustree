@@ -11,6 +11,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.EnumSet;
 
 import logss.btree.Factory;
+import logss.btree.FactoryProvider;
 import logss.btree.Leaf;
 import logss.btree.Node;
 import logss.btree.NonLeaf;
@@ -18,6 +19,72 @@ import logss.btree.Options;
 import logss.btree.Serializer;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        File directory;
+        int initialFileSize = 1024 * 1024;
+        int thresholdBytesToSwitchToLinearIncreaseInFileSize = 100 * 1024 * 1024;
+        int linearIncreaseBytes = 100 * 1024 * 1024;
+        int mappedSize = 1024 * 1024;
+
+        Builder() {
+            // reduce visibility
+        }
+        
+        public Builder directory(String directory) {
+            return directory(new File(directory));
+        }
+
+        public Builder directory(File directory) {
+            this.directory = directory;
+            return this;
+        }
+
+        public Builder initialFileSizeBytes(int size) {
+            this.initialFileSize = size;
+            return this;
+        }
+
+        public Builder thresholdBytesToSwitchToLinearIncreaseInFileSize(int thresholdBytes) {
+            this.thresholdBytesToSwitchToLinearIncreaseInFileSize = thresholdBytes;
+            return this;
+        }
+
+        public Builder linearIncreaseBytes(int sizeBytes) {
+            this.linearIncreaseBytes = sizeBytes;
+            return this;
+        }
+
+        public Builder mappedSizeBytes(int sizeBytes) {
+            this.mappedSize = sizeBytes;
+            return this;
+        }
+
+        public <K> Builder2<K> keySerializer(Serializer<K> serializer) {
+            return new Builder2<K>(this, serializer);
+        }
+    }
+
+    public static final class Builder2<K> {
+
+        private final Builder b;
+        private final Serializer<K> keySerializer;
+
+        public Builder2(Builder builder, Serializer<K> keySerializer) {
+            this.b = builder;
+            this.keySerializer = keySerializer;
+        }
+
+        public <V> FactoryProvider<K, V> valueSerializer(Serializer<V> valueSerializer) {
+            return options -> new FactoryFile<K, V>(options, b.directory, keySerializer,
+                    valueSerializer, b.initialFileSize, b.mappedSize);
+        }
+
+    }
 
     private static final int NODE_TYPE_BYTES = 1;
     private static final int NUM_KEYS_BYTES = 4;

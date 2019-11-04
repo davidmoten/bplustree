@@ -50,13 +50,8 @@ public class BPlusTreeTest {
         };
 
         return BPlusTree.<Integer, Integer>builder()
-                .factoryProvider(options -> new FactoryFile<Integer, Integer>( //
-                        options, //
-                        new File("target"), //
-                        serializer, //
-                        serializer, //
-                        1024 * 1024, //
-                        1024 * 1024))
+                .factoryProvider(FactoryProvider.file().directory("target")
+                        .keySerializer(serializer).valueSerializer(serializer))
                 .maxKeys(maxKeys) //
                 .naturalOrder();
     };

@@ -3,14 +3,12 @@ package logss.btree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
-import logss.btree.internal.file.FactoryFile;
 import logss.btree.internal.file.LeafFile;
 
 public final class BPlusTreeFileTest {
@@ -34,14 +32,12 @@ public final class BPlusTreeFileTest {
             }
         };
 
-        return BPlusTree.<Integer, Integer>builder()
-                .factoryProvider(options -> new FactoryFile<Integer, Integer>( //
-                        options, //
-                        new File("target"), //
-                        serializer, //
-                        serializer, //
-                        1024 * 1024, //
-                        1024 * 1024))
+        return BPlusTree.<Integer, Integer>builder() //
+                .factoryProvider(FactoryProvider //
+                        .file() //
+                        .directory("target") //
+                        .keySerializer(serializer) //
+                        .valueSerializer(serializer)) //
                 .maxKeys(maxKeys) //
                 .naturalOrder();
     }
