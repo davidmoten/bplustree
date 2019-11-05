@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
-public final class LargeMappedByteBuffer {
+public final class LargeMappedByteBuffer implements AutoCloseable {
 
     private final int segmentSizeBytes;
 
@@ -22,18 +22,25 @@ public final class LargeMappedByteBuffer {
     private byte[] temp4Bytes = new byte[4];
     private byte[] temp8Bytes = new byte[8];
 
-    public LargeMappedByteBuffer(File directory, int segmentSizeBytes) {
+    private final int segmentBufferSizeBytes;
+
+    public LargeMappedByteBuffer(File directory, int segmentSizeBytes, int segmentBufferSizeBytes) {
         this.directory = directory;
         this.segmentSizeBytes = segmentSizeBytes;
+        this.segmentBufferSizeBytes = segmentBufferSizeBytes;
     }
 
     private static final class Segment {
-        final FileChannel channel;
+        private final FileChannel channel;
         final MappedByteBuffer bb;
 
         Segment(FileChannel channel, MappedByteBuffer bb) {
             this.channel = channel;
             this.bb = bb;
+        }
+
+        public void close() throws IOException {
+            channel.close();
         }
 
     }
@@ -44,23 +51,28 @@ public final class LargeMappedByteBuffer {
         long num = segmentNumber(position);
         Segment segment = map.get(num);
         if (segment == null) {
-            File file = new File(directory, "data-" + num);
-            try {
-                try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-                    raf.setLength(segmentSizeBytes);
-                }
-                FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE,
-                        StandardOpenOption.READ, StandardOpenOption.WRITE);
-                MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, 1024 * 1024);
-                segment = new Segment(channel, bb);
-                map.put(num, segment);
-                return bb;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            segment = createSegment(num);
         }
         segment.bb.position((int) (position % segmentSizeBytes));
         return segment.bb;
+    }
+
+    private Segment createSegment(long num) {
+        File file = new File(directory, "data-" + num);
+        file.delete();
+        try {
+            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+                raf.setLength(segmentSizeBytes);
+            }
+            FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE,
+                    StandardOpenOption.READ, StandardOpenOption.WRITE);
+            MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, segmentBufferSizeBytes);
+            Segment segment = new Segment(channel, bb);
+            map.put(num, segment);
+            return segment;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private long segmentNumber(long position) {
@@ -82,7 +94,6 @@ public final class LargeMappedByteBuffer {
     public void get(byte[] dst) {
         long p = position;
         if (segmentNumber(p) == segmentNumber(p + dst.length)) {
-            position += dst.length;
             bb(p).get(dst);
         } else {
             int i = 0;
@@ -96,8 +107,8 @@ public final class LargeMappedByteBuffer {
                 i += length;
                 p = p2;
             }
-            position += dst.length;
         }
+        position += dst.length;
     }
 
     private long segmentPosition(long segmentNumber) {
@@ -107,7 +118,6 @@ public final class LargeMappedByteBuffer {
     public void put(byte[] src) {
         long p = position;
         if (segmentNumber(p) == segmentNumber(p + src.length)) {
-            position += src.length;
             bb(p).put(src);
         } else {
             int i = 0;
@@ -122,6 +132,7 @@ public final class LargeMappedByteBuffer {
                 p = p2;
             }
         }
+        position += src.length;
     }
 
     public int getInt() {
@@ -192,8 +203,10 @@ public final class LargeMappedByteBuffer {
         return result;
     }
 
-    public void close() {
-        //TODO
+    public void close() throws IOException {
+        for (Segment segment : map.values()) {
+            segment.close();
+        }
     }
 
 }
