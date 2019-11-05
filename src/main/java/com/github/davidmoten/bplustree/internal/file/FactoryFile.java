@@ -19,7 +19,7 @@ import com.github.davidmoten.bplustree.Options;
 import com.github.davidmoten.bplustree.Serializer;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
-    
+
     public static Builder builder() {
         return new Builder();
     }
@@ -34,7 +34,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         Builder() {
             // reduce visibility
         }
-        
+
         public Builder directory(String directory) {
             return directory(new File(directory));
         }
@@ -80,8 +80,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         }
 
         public <V> FactoryProvider<K, V> valueSerializer(Serializer<V> valueSerializer) {
-            return options -> new FactoryFile<K, V>(options, b.directory, keySerializer,
-                    valueSerializer, b.initialFileSize, b.mappedSize);
+            return options -> new FactoryFile<K, V>(options, b.directory, keySerializer, valueSerializer,
+                    b.initialFileSize, b.mappedSize);
         }
 
     }
@@ -91,8 +91,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int NUM_NODES_BYTES = 4;
     private static final int POSITION_BYTES = 4;
     private static final int NEXT_NOT_PRESENT = -1;
-    private static final int THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE = 100 * 1024
-            * 1024;
+    private static final int THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE = 100 * 1024 * 1024;
     private static final int LINEAR_INCREASE_IN_FILE_SIZE_BYTES = THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE;
 
     private final Options<K, V> options;
@@ -161,8 +160,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private long leafNextPosition() {
         checkSize();
         int i = index;
-        bb.put(index, (byte) Leaf.TYPE);
-        bb.putInt(index + leafBytes() - POSITION_BYTES, NEXT_NOT_PRESENT);
+        bb.position(index);
+        bb.put((byte) Leaf.TYPE);
+        bb.position(index + leafBytes() - POSITION_BYTES);
+        bb.putInt(NEXT_NOT_PRESENT);
         // shift by max size of a leaf node: numKeys, keys, values, next leaf position
         // (b+tree pointer to next leaf node)
         index += leafBytes();
@@ -184,8 +185,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private int relativeLeafKeyPosition(int i) {
-        return NODE_TYPE_BYTES + NUM_KEYS_BYTES
-                + i * (keySerializer.maxSize() + valueSerializer.maxSize());
+        return NODE_TYPE_BYTES + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize());
     }
 
     public K leafKey(long position, int i) {
@@ -195,7 +195,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public int leafNumKeys(long position) {
-        return bb.getInt((int) position + NODE_TYPE_BYTES);
+        bb.position((int) position + NODE_TYPE_BYTES);
+        return bb.getInt();
     }
 
     public V leafValue(long position, int i) {
@@ -205,12 +206,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetNumKeys(long position, int numKeys) {
-        bb.putInt((int) position + NODE_TYPE_BYTES, numKeys);
+        bb.position((int) position + NODE_TYPE_BYTES);
+        bb.putInt(numKeys);
     }
 
     public void leafSetValue(long position, int i, V value) {
-        int p = (int) (position + relativeLeafKeyPosition(i) + keySerializer.maxSize()
-                + keySerializer.maxSize());
+        int p = (int) (position + relativeLeafKeyPosition(i) + keySerializer.maxSize() + keySerializer.maxSize());
         bb.position(p);
         valueSerializer.write(bb, value);
     }
@@ -258,11 +259,13 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         } else {
             p = (int) (position + relativeLeafKeyPosition(options.maxLeafKeys()));
         }
-        bb.putInt(p, (int) sibling.position());
+        bb.position(p);
+        bb.putInt((int) sibling.position());
     }
 
     public Leaf<K, V> leafNext(long position) {
-        int p = bb.getInt((int) position + relativeLeafKeyPosition(options.maxLeafKeys()));
+        bb.position((int) position + relativeLeafKeyPosition(options.maxLeafKeys()));
+        int p = bb.getInt();
         if (p == NEXT_NOT_PRESENT) {
             return null;
         } else {
@@ -290,29 +293,32 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES
-                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 
     private long nextNonLeafPosition() {
         int i = index;
-        bb.put(index, (byte) NonLeaf.TYPE);
+        bb.position(index);
+        bb.put((byte) NonLeaf.TYPE);
         index += nonLeafBytes();
         return i;
     }
 
     public void nonLeafSetNumKeys(long position, int numKeys) {
-        bb.putInt((int) position + NODE_TYPE_BYTES, numKeys);
+        bb.position((int) position + NODE_TYPE_BYTES);
+        bb.putInt(numKeys);
     }
 
     public int nonLeafNumKeys(long position) {
-        return bb.getInt((int) position + NODE_TYPE_BYTES);
+        bb.position((int) position + NODE_TYPE_BYTES);
+        return bb.getInt();
     }
 
     public void nonLeafSetChild(long position, int i, NodeFile node) {
         int p = (int) (position + relativePositionNonLeafEntry(i));
-        bb.putInt(p, (int) node.position());
+        bb.position(p);
+        bb.putInt((int) node.position());
     }
 
     private int relativePositionNonLeafEntry(int i) {

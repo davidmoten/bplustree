@@ -19,6 +19,9 @@ public final class LargeMappedByteBuffer {
     private final TreeMap<Long, Segment> map = new TreeMap<>();
     private final File directory;
 
+    private byte[] temp4Bytes = new byte[4];
+    private byte[] temp8Bytes = new byte[8];
+
     public LargeMappedByteBuffer(File directory, int segmentSizeBytes) {
         this.directory = directory;
         this.segmentSizeBytes = segmentSizeBytes;
@@ -49,15 +52,15 @@ public final class LargeMappedByteBuffer {
                 FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE,
                         StandardOpenOption.READ, StandardOpenOption.WRITE);
                 MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, 1024 * 1024);
-
-                map.put(num, new Segment(channel, bb));
+                segment = new Segment(channel, bb);
+                map.put(num, segment);
                 return bb;
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-        } else {
-            return segment.bb;
         }
+        segment.bb.position((int) (position % segmentSizeBytes));
+        return segment.bb;
     }
 
     private long segmentNumber(long position) {
@@ -76,74 +79,117 @@ public final class LargeMappedByteBuffer {
         bb(position++).put(b);
     }
 
-    public byte get(long index) {
-        return bb(index).get();
-    }
-
-    public void put(long index, byte b) {
-        bb(index).put(b);
-    }
-
     public void get(byte[] dst) {
-        // TODO handle crossing multiple bb
         long p = position;
-        position += Integer.SIZE;
-        bb(p).get(dst);
+        if (segmentNumber(p) == segmentNumber(p + dst.length)) {
+            position += dst.length;
+            bb(p).get(dst);
+        } else {
+            int i = 0;
+            while (true) {
+                long p2 = Math.min(segmentPosition(segmentNumber(p) + 1), position + dst.length);
+                int length = (int) (p2 - p);
+                if (length == 0) {
+                    break;
+                }
+                bb(p).get(dst, i, length);
+                i += length;
+                p = p2;
+            }
+            position += dst.length;
+        }
+    }
+
+    private long segmentPosition(long segmentNumber) {
+        return segmentSizeBytes * segmentNumber;
     }
 
     public void put(byte[] src) {
-        // TODO handle crossing multiple bb
         long p = position;
-        position += Integer.SIZE;
-        bb(p).put(src);
+        if (segmentNumber(p) == segmentNumber(p + src.length)) {
+            position += src.length;
+            bb(p).put(src);
+        } else {
+            int i = 0;
+            while (true) {
+                long p2 = Math.min(segmentPosition(segmentNumber(p) + 1), position + src.length);
+                int length = (int) (p2 - p);
+                if (length == 0) {
+                    break;
+                }
+                bb(p).put(src, i, length);
+                i += length;
+                p = p2;
+            }
+        }
     }
 
     public int getInt() {
-        // TODO handlel crossing multiple bb
         long p = position;
-        position += Integer.SIZE;
-        return bb(p).getInt();
+        if (segmentNumber(p) == segmentNumber(p + Integer.BYTES)) {
+            position += Integer.BYTES;
+            return bb(p).getInt();
+        } else {
+            get(temp4Bytes);
+            return toInt(temp4Bytes);
+        }
     }
 
     public void putInt(int value) {
-        // TODO handle crossing multiple bb
         long p = position;
-        position += Integer.SIZE;
-        bb(p).putInt(value);
-    }
-
-    public int getInt(long index) {
-        // TODO handle crossing multiple bb
-        return bb(index).getInt();
-    }
-
-    public void putInt(long index, int value) {
-        // TODO handle crossing multiple bb
-        bb(index).putInt(value);
+        if (segmentNumber(p) == segmentNumber(p + Integer.BYTES)) {
+            bb(p).putInt(value);
+            position += Integer.BYTES;
+        } else {
+            put(toBytes(value));
+        }
     }
 
     public long getLong() {
-        // TODO handle crossing multiple bb
         long p = position;
-        position += Long.SIZE;
-        return bb(p).getLong();
+        if (segmentNumber(p) == segmentNumber(p + Long.BYTES)) {
+            position += Long.BYTES;
+            return bb(p).getLong();
+        } else {
+            get(temp8Bytes);
+            return toLong(temp8Bytes);
+        }
     }
 
     public void putLong(long value) {
-        // TODO handle crossing multiple bb
         long p = position;
-        position += Long.SIZE;
-        bb(p).putLong(value);
+        if (segmentNumber(p) == segmentNumber(p + Long.BYTES)) {
+            position += Long.BYTES;
+            bb(p).putLong(value);
+        } else {
+            put(toBytes(value));
+        }
     }
 
-    public long getLong(long index) {
-        // TODO handle crossing multiple bb
-        return bb(index).getLong();
+    private static byte[] toBytes(int n) {
+        return ByteBuffer.allocate(Integer.BYTES).putInt(n).array();
     }
 
-    public void putLong(long index, long value) {
-        // TODO handle crossing multiple bb
-        bb(index).putLong(value);
+    private static byte[] toBytes(long n) {
+        return ByteBuffer.allocate(Long.BYTES).putLong(n).array();
+    }
+
+    private static int toInt(byte[] bytes) {
+        int ret = 0;
+        for (int i = 0; i < 4 && i < bytes.length; i++) {
+            ret <<= 8;
+            ret |= (int) bytes[i] & 0xFF;
+        }
+        return ret;
+    }
+
+    private static long toLong(byte[] b) {
+        long result = 0;
+        for (int i = 0; i < 8; i++) {
+            result <<= 8;
+            result |= (b[i] & 0xFF);
+        }
+        return result;
     }
 
 }
