@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,10 +22,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.github.davidmoten.bplustree.BPlusTree;
-import com.github.davidmoten.bplustree.FactoryProvider;
-import com.github.davidmoten.bplustree.Serializer;
-import com.github.davidmoten.bplustree.internal.file.FactoryFile;
 import com.github.davidmoten.guavamini.Lists;
 
 @RunWith(Parameterized.class)

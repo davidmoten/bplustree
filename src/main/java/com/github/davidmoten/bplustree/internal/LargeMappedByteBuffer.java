@@ -1,4 +1,4 @@
-package com.github.davidmoten.bplustree;
+package com.github.davidmoten.bplustree.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,32 +22,15 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
     private byte[] temp4Bytes = new byte[4];
     private byte[] temp8Bytes = new byte[8];
 
-    private final int segmentBufferSizeBytes;
-
-    public LargeMappedByteBuffer(File directory, int segmentSizeBytes, int segmentBufferSizeBytes) {
+    public LargeMappedByteBuffer(File directory, int segmentSizeBytes) {
         this.directory = directory;
         this.segmentSizeBytes = segmentSizeBytes;
-        this.segmentBufferSizeBytes = segmentBufferSizeBytes;
-    }
-
-    private static final class Segment {
-        private final FileChannel channel;
-        final MappedByteBuffer bb;
-
-        Segment(FileChannel channel, MappedByteBuffer bb) {
-            this.channel = channel;
-            this.bb = bb;
-        }
-
-        public void close() throws IOException {
-            channel.close();
-        }
-
     }
 
     private long position;
 
     private MappedByteBuffer bb(long position) {
+        // TODO close segments when map gets too big
         long num = segmentNumber(position);
         Segment segment = map.get(num);
         if (segment == null) {
@@ -64,19 +47,15 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                 raf.setLength(segmentSizeBytes);
             }
-            FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE,
-                    StandardOpenOption.READ, StandardOpenOption.WRITE);
-            MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, segmentBufferSizeBytes);
+            FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(),
+                    StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+            MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, segmentSizeBytes);
             Segment segment = new Segment(channel, bb);
             map.put(num, segment);
             return segment;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private long segmentNumber(long position) {
-        return position % segmentSizeBytes;
     }
 
     public void position(long newPosition) {
@@ -109,10 +88,6 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
             }
         }
         position += dst.length;
-    }
-
-    private long segmentPosition(long segmentNumber) {
-        return segmentSizeBytes * segmentNumber;
     }
 
     public void put(byte[] src) {
@@ -177,6 +152,14 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         }
     }
 
+    private long segmentNumber(long position) {
+        return position % segmentSizeBytes;
+    }
+
+    private long segmentPosition(long segmentNumber) {
+        return segmentSizeBytes * segmentNumber;
+    }
+    
     private static byte[] toBytes(int n) {
         return ByteBuffer.allocate(Integer.BYTES).putInt(n).array();
     }
@@ -207,6 +190,22 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         for (Segment segment : map.values()) {
             segment.close();
         }
+        map.clear();
+    }
+
+    private static final class Segment {
+        private final FileChannel channel;
+        final MappedByteBuffer bb;
+
+        Segment(FileChannel channel, MappedByteBuffer bb) {
+            this.channel = channel;
+            this.bb = bb;
+        }
+
+        public void close() throws IOException {
+            channel.close();
+        }
+
     }
 
 }
