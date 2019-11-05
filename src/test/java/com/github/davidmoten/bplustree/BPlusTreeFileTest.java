@@ -39,6 +39,7 @@ public final class BPlusTreeFileTest {
                 .factoryProvider(FactoryProvider //
                         .file() //
                         .directory("target") //
+                        .mappedSizeBytes(1024*1024*1024)
                         .keySerializer(serializer) //
                         .valueSerializer(serializer)) //
                 .maxKeys(maxKeys) //
@@ -110,14 +111,16 @@ public final class BPlusTreeFileTest {
         assertEquals(30, (int) tree.findFirst(7));
     }
 
-    public static void main(String[] args) {
+    @Test
+    public void testInsertMany() {
         long t = System.currentTimeMillis();
-        BPlusTree<Integer,Integer> tree = create(4);
-        int n = 100000;
-        for (int i= 1; i<= n; i++) {
-            tree.insert(i,  i);
+        BPlusTree<Integer, Integer> tree = create(4);
+        int n = 1000000;
+        for (int i = 1; i <= n; i++) {
+            tree.insert(i, i);
         }
-        System.out.println("insert rate = " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+        System.out.println(
+                "insert rate = " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
     }
-    
+
 }

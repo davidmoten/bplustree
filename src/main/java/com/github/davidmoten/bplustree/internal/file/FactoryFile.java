@@ -298,6 +298,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private long nextNonLeafPosition() {
+        checkSize();
         int i = index;
         bb.position(index);
         bb.put((byte) NonLeaf.TYPE);
@@ -359,7 +360,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position((int) (position + relativeStart));
         byte[] bytes = new byte[size];
         bb.get(bytes);
-        bb.position((int) (other.position() + relativePositionNonLeafEntry(0)));
+        int newPosition = (int) (other.position() + relativePositionNonLeafEntry(0));
+        bb.position(newPosition);
         bb.put(bytes);
         nonLeafSetNumKeys(position, mid - 1);
         nonLeafSetNumKeys(other.position(), length);
