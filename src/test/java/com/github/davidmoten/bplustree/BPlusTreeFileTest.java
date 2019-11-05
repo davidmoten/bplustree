@@ -113,7 +113,7 @@ public final class BPlusTreeFileTest {
     public static void main(String[] args) {
         long t = System.currentTimeMillis();
         BPlusTree<Integer,Integer> tree = create(4);
-        int n = 1000000;
+        int n = 100000;
         for (int i= 1; i<= n; i++) {
             tree.insert(i,  i);
         }
