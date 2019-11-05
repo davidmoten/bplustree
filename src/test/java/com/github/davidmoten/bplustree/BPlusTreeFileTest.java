@@ -39,7 +39,6 @@ public final class BPlusTreeFileTest {
                 .factoryProvider(FactoryProvider //
                         .file() //
                         .directory("target") //
-                        .mappedSizeBytes(1024*1024*1024)
                         .keySerializer(serializer) //
                         .valueSerializer(serializer)) //
                 .maxKeys(maxKeys) //
