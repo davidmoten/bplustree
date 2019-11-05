@@ -192,4 +192,8 @@ public final class LargeMappedByteBuffer {
         return result;
     }
 
+    public void close() {
+        //TODO
+    }
+
 }
