@@ -61,6 +61,22 @@ public class LargeMappedByteBufferTest {
     }
 
     @Test
+    public void testWriteAndReadShortValuesAcrossSegments() throws IOException {
+        for (int size = 1; size <= 3 * Short.BYTES + 1; size++) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size, "index-")) {
+                b.putShort((short) 10);
+                b.putShort((short) 11);
+                b.putShort((short) 12);
+                // now read what we've just written
+                b.position(0);
+                assertEquals(10, b.getShort());
+                assertEquals(11, b.getShort());
+                assertEquals(12, b.getShort());
+            }
+        }
+    }
+
+    @Test
     public void testWriteAndReadLongValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Long.BYTES + 1; size++) {
             try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size, "index-")) {
@@ -76,5 +92,4 @@ public class LargeMappedByteBufferTest {
         }
     }
 
-    
 }

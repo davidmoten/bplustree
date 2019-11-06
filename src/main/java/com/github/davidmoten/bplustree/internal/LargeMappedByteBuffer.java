@@ -22,6 +22,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     private final File directory;
     private final String segmentNamePrefix;
 
+    private byte[] temp2Bytes = new byte[2];
     private byte[] temp4Bytes = new byte[4];
     private byte[] temp8Bytes = new byte[8];
 
@@ -174,6 +175,29 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         return position;
     }
 
+    @Override
+    public short getShort() {
+        long p = position;
+        if (segmentNumber(p) == segmentNumber(p + Short.BYTES)) {
+            position += Short.BYTES;
+            return bb(p).getShort();
+        } else {
+            get(temp2Bytes);
+            return toShort(temp2Bytes);
+        }
+    }
+
+    @Override
+    public void putShort(short value) {
+        long p = position;
+        if (segmentNumber(p) == segmentNumber(p + Short.BYTES)) {
+            bb(p).putShort(value);
+            position += Short.BYTES;
+        } else {
+            put(toBytes(value));
+        }
+    }
+
     private long segmentNumber(long position) {
         return position / segmentSizeBytes;
     }
@@ -182,12 +206,25 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         return segmentSizeBytes * segmentNumber;
     }
 
+    private static byte[] toBytes(short n) {
+        return ByteBuffer.allocate(Short.BYTES).putShort(n).array();
+    }
+
     private static byte[] toBytes(int n) {
         return ByteBuffer.allocate(Integer.BYTES).putInt(n).array();
     }
 
     private static byte[] toBytes(long n) {
         return ByteBuffer.allocate(Long.BYTES).putLong(n).array();
+    }
+
+    private short toShort(byte[] bytes) {
+        short ret = 0;
+        for (int i = 0; i < 2; i++) {
+            ret <<= 8;
+            ret |= bytes[i] & 0xFF;
+        }
+        return ret;
     }
 
     private static int toInt(byte[] bytes) {
@@ -207,7 +244,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         }
         return result;
     }
-    
+
     @Override
     public void commit() {
         for (Segment segment : map.values()) {

@@ -25,6 +25,10 @@ public interface LargeByteBuffer {
     int getInt();
 
     void putInt(int value);
+    
+    short getShort();
+    
+    void putShort(short value);
 
     long getLong();
 
