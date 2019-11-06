@@ -93,10 +93,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     // NODE_TYPE NUM_KEYS (KEY VALUE)* NEXT_LEAF_POSITION
     // where
     // NODE_TYPE is one byte (0 = Leaf, 1 = NonLeaf)
-    // NUM_KEYS is 4 bytes signed int
+    // NUM_KEYS is one byte unsigned
     // KEY is a byte array of fixed size
     // VALUE is a byte array of fixed size
-    // NEXT_LEAF_POSITION is 4 bytes signed int
+    // NEXT_LEAF_POSITION is 8 bytes signed long
     // Every Leaf has space allocated for maxLeafKeys key value pairs
     //////////////////////////////////////////////////
 
@@ -225,10 +225,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     // NODE_TYPE NUM_KEYS (LEFT_CHILD_POSITION KEY)* RIGHT_CHILD_POSITION
     // where
     // NODE_TYPE is one byte (0 = Leaf, 1 = NonLeaf)
-    // NUM_KEYS is 4 bytes signed int
-    // LEFT_CHILD_POSITION is 4 bytes signed int
+    // NUM_KEYS is 1 byte unsigned
+    // LEFT_CHILD_POSITION is 8 bytes signed long
     // KEY is a fixed size byte array
-    // RIGHT_CHILD_POSITION is 4 bytes signed int
+    // RIGHT_CHILD_POSITION is 8 bytes signed long
     // Every NonLeaf has space allocated for maxNonLeafKeys keys
     //////////////////////////////////////////////////
 
