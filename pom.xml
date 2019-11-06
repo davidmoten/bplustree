@@ -7,10 +7,10 @@
         <artifactId>sonatype-parent</artifactId>
         <version>0.1</version>
     </parent>
-    <artifactId>logss</artifactId>
+    <artifactId>bplustree</artifactId>
     <version>0.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
-    <description>B-Tree with log-structured storage</description>
+    <description>B+-tree using Memory Mapped Files</description>
     <packaging>jar</packaging>
 
     <url>http://github.com/davidmoten/logss</url>
