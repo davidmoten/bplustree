@@ -132,18 +132,18 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public K leafKey(long position, int i) {
-        int p = (int) (position + relativeLeafKeyPosition(i));
+        long p = position + relativeLeafKeyPosition(i);
         bb.position(p);
         return keySerializer.read(bb);
     }
 
     public int leafNumKeys(long position) {
-        bb.position((int) position + NODE_TYPE_BYTES);
+        bb.position(position + NODE_TYPE_BYTES);
         return bb.getInt();
     }
 
     public V leafValue(long position, int i) {
-        int p = (int) (position + relativeLeafKeyPosition(i) + keySerializer.maxSize());
+        long p = position + relativeLeafKeyPosition(i) + keySerializer.maxSize();
         bb.position(p);
         return valueSerializer.read(bb);
     }
