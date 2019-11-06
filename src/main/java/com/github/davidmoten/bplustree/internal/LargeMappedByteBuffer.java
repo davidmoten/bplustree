@@ -97,11 +97,13 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         } else {
             int i = 0;
             while (true) {
+                System.out.println("p2 = min("+ segmentPosition(segmentNumber(p) + 1) +  ", " + position + src.length +")");
                 long p2 = Math.min(segmentPosition(segmentNumber(p) + 1), position + src.length);
                 int length = (int) (p2 - p);
                 if (length == 0) {
                     break;
                 }
+                System.out.println("about to put into segment=" + segmentNumber(p) + ", position=" + i + ", length=" + length);
                 bb(p).put(src, i, length);
                 i += length;
                 p = p2;
