@@ -29,12 +29,11 @@ import com.github.davidmoten.guavamini.Lists;
 public class BPlusTreeTest {
 
     private static final Function<Integer, BPlusTree<Integer, Integer>> creatorFile = maxKeys -> {
-        String directoryName = "target/"+ UUID.randomUUID().toString().substring(0,6);
-        new File(directoryName).mkdirs();
+        
         return BPlusTree.<Integer, Integer>builder() //
                 .factoryProvider(FactoryProvider //
                         .file() //
-                        .directory(directoryName) //
+                        .directory(Testing.newDirectory()) //
                         .keySerializer(Serializer.INTEGER) //
                         .valueSerializer(Serializer.INTEGER))
                 .maxKeys(maxKeys) //

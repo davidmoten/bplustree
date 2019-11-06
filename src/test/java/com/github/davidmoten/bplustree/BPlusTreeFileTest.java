@@ -3,8 +3,10 @@ package com.github.davidmoten.bplustree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,30 +17,13 @@ import com.github.davidmoten.bplustree.internal.file.LeafFile;
 public final class BPlusTreeFileTest {
 
     private static BPlusTree<Integer, Integer> create(int maxKeys) {
-        Serializer<Integer> serializer = new Serializer<Integer>() {
-
-            @Override
-            public Integer read(LargeByteBuffer bb) {
-                return bb.getInt();
-            }
-
-            @Override
-            public void write(LargeByteBuffer bb, Integer t) {
-                bb.putInt(t);
-            }
-
-            @Override
-            public int maxSize() {
-                return Integer.BYTES;
-            }
-        };
-
+        
         return BPlusTree.<Integer, Integer>builder() //
                 .factoryProvider(FactoryProvider //
                         .file() //
-                        .directory("target") //
-                        .keySerializer(serializer) //
-                        .valueSerializer(serializer)) //
+                        .directory(Testing.newDirectory()) //
+                        .keySerializer(Serializer.INTEGER) //
+                        .valueSerializer(Serializer.INTEGER)) //
                 .maxKeys(maxKeys) //
                 .naturalOrder();
     }
@@ -133,14 +118,14 @@ public final class BPlusTreeFileTest {
             }
         }
     }
-    
+
     @Test
     public void testRegexSpeed() {
         String s = "2019-11-06 23:13:00.427 DEBUG com.zaxxer.hikari.pool.HikariPool [HikariPool-2 housekeeper] - HikariPool-2 - Before cleanup stats (total=5, active=3, idle=2, waiting=0)";
         Pattern p = Pattern.compile("^.*com.zaxxer.hikari.pool.HikariPool.*Before cleanup stats.*, active=([0-9]+).*$");
         long t = System.currentTimeMillis();
         int n = 100000;
-        for (int i = 0; i< n; i++) {
+        for (int i = 0; i < n; i++) {
             Matcher m = p.matcher(s);
             if (m.find()) {
                 if (m.group(1).equals("blah")) {
