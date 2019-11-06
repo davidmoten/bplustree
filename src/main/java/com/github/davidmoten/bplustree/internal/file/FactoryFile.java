@@ -186,9 +186,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         int relativeStart = relativeLeafKeyPosition(start);
         int relativeEnd = relativeLeafKeyPosition(start + length);
         byte[] bytes = new byte[relativeEnd - relativeStart];
-        bb.position((int) (position + relativeStart));
+        bb.position(position + relativeStart);
         bb.get(bytes);
-        int p = (int) (other.position() + relativeLeafKeyPosition(0));
+        long p = other.position() + relativeLeafKeyPosition(0);
         bb.position(p);
         bb.put(bytes);
         // set the number of keys in source node to be `start`
@@ -197,14 +197,15 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetNext(long position, LeafFile<K, V> sibling) {
-        final int p;
+        long p = position + relativeLeafKeyPosition(options.maxLeafKeys());
+        int v;
         if (sibling == null) {
-            p = NEXT_NOT_PRESENT;
+            v = NEXT_NOT_PRESENT;
         } else {
-            p = (int) (position + relativeLeafKeyPosition(options.maxLeafKeys()));
+            v = (int) sibling.position();
         }
         bb.position(p);
-        bb.putInt((int) sibling.position());
+        bb.putInt(v);
     }
 
     public Leaf<K, V> leafNext(long position) {
