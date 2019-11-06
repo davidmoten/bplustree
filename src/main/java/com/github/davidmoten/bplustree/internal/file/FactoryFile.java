@@ -133,7 +133,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     public K leafKey(long position, int i) {
         int p = (int) (position + relativeLeafKeyPosition(i));
-        bb.position((int) p);
+        bb.position(p);
         return keySerializer.read(bb);
     }
 

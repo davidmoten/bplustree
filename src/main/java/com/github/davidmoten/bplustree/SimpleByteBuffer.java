@@ -2,6 +2,8 @@ package com.github.davidmoten.bplustree;
 
 public interface SimpleByteBuffer {
 
+    long position();
+
     void position(long newPosition);
 
     byte get();

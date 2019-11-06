@@ -13,10 +13,12 @@ public final class FactoryMemory<K, V> implements Factory<K, V> {
         this.options = options;
     }
 
+    @Override
     public Leaf<K, V> createLeaf() {
         return new LeafMemory<K, V>(options, this);
     }
 
+    @Override
     public NonLeaf<K, V> createNonLeaf() {
         return new NonLeafMemory<K, V>(options, this);
     }

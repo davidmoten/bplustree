@@ -17,7 +17,7 @@ public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
     NonLeafMemory(Options<K, V> options, Factory<K, V> factory) {
         this.options = options;
         this.factory = factory;
-        this.children = (Node<K, V>[]) new Node[options.maxNonLeafKeys() + 1];
+        this.children = new Node[options.maxNonLeafKeys() + 1];
         this.keys = (K[]) new Object[options.maxLeafKeys()];
     }
 

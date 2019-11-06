@@ -167,6 +167,11 @@ public final class LargeMappedByteBuffer implements AutoCloseable, SimpleByteBuf
         }
     }
 
+    @Override
+    public long position() {
+        return position;
+    }
+
     private long segmentNumber(long position) {
         return position / segmentSizeBytes;
     }
@@ -187,7 +192,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, SimpleByteBuf
         int ret = 0;
         for (int i = 0; i < 4; i++) {
             ret <<= 8;
-            ret |= (int) bytes[i] & 0xFF;
+            ret |= bytes[i] & 0xFF;
         }
         return ret;
     }
@@ -201,6 +206,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, SimpleByteBuf
         return result;
     }
 
+    @Override
     public void close() throws IOException {
         for (Segment segment : map.values()) {
             segment.close();
