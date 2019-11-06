@@ -39,6 +39,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
             this.segmentSizeBytes = size;
             return this;
         }
+        
+        public Builder segmentSizeMB(int size) {
+            return segmentSizeBytes(size * 1024 * 1024);
+        }
 
         public <K> Builder2<K> keySerializer(Serializer<K> serializer) {
             return new Builder2<K>(this, serializer);

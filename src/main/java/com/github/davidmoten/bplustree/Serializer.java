@@ -35,6 +35,24 @@ public interface Serializer<T> {
         }
     };
 
+    public static Serializer<Long> LONG = new Serializer<Long>() {
+
+        @Override
+        public Long read(LargeByteBuffer bb) {
+            return bb.getLong();
+        }
+
+        @Override
+        public void write(LargeByteBuffer bb, Long t) {
+            bb.putLong(t);
+        }
+
+        @Override
+        public int maxSize() {
+            return Long.BYTES;
+        }
+    };
+
     public static Serializer<String> utf8(int maxSize) {
         return new Serializer<String>() {
 

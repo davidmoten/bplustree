@@ -13,30 +13,12 @@ import com.github.davidmoten.bplustree.internal.file.LeafFile;
 public final class BPlusTreeFileTest {
 
     private static BPlusTree<Integer, Integer> create(int maxKeys) {
-        Serializer<Integer> serializer = new Serializer<Integer>() {
-
-            @Override
-            public Integer read(LargeByteBuffer bb) {
-                return bb.getInt();
-            }
-
-            @Override
-            public void write(LargeByteBuffer bb, Integer t) {
-                bb.putInt(t);
-            }
-
-            @Override
-            public int maxSize() {
-                return Integer.BYTES;
-            }
-        };
-
         return BPlusTree.<Integer, Integer>builder() //
                 .factoryProvider(FactoryProvider //
                         .file() //
                         .directory("target") //
-                        .keySerializer(serializer) //
-                        .valueSerializer(serializer)) //
+                        .keySerializer(Serializer.INTEGER) //
+                        .valueSerializer(Serializer.INTEGER)) //
                 .maxKeys(maxKeys) //
                 .naturalOrder();
     }
@@ -104,6 +86,26 @@ public final class BPlusTreeFileTest {
         assertEquals(10, (int) tree.findFirst(3));
         assertEquals(20, (int) tree.findFirst(5));
         assertEquals(30, (int) tree.findFirst(7));
+    }
+
+    @Test
+    public void testIntegerKeyStringValue() throws Exception {
+        try (BPlusTree<Long, String> t = BPlusTree.<Long, String>builder().maxKeys(4) //
+                .factoryProvider( //
+                        FactoryProvider //
+                                .file() //
+                                .directory("target") //
+                                .segmentSizeMB(10) //
+                                .keySerializer(Serializer.LONG) //
+                                .valueSerializer(Serializer.utf8(0)))
+                .naturalOrder()) {
+            t.insert(1L, "hi");
+            t.insert(3L, "ambulance");
+            t.insert(2L, "under the stars");
+            assertEquals("hi", t.findFirst(1L));
+            assertEquals("under the stars", t.findFirst(2L));
+            assertEquals("ambulance", t.findFirst(3L));
+        }
     }
 
     @Test

@@ -27,27 +27,12 @@ import com.github.davidmoten.guavamini.Lists;
 public class BPlusTreeTest {
 
     private static final Function<Integer, BPlusTree<Integer, Integer>> creatorFile = maxKeys -> {
-        Serializer<Integer> serializer = new Serializer<Integer>() {
-
-            @Override
-            public Integer read(LargeByteBuffer bb) {
-                return bb.getInt();
-            }
-
-            @Override
-            public void write(LargeByteBuffer bb, Integer t) {
-                bb.putInt(t);
-            }
-
-            @Override
-            public int maxSize() {
-                return Integer.BYTES;
-            }
-        };
-
-        return BPlusTree.<Integer, Integer>builder()
-                .factoryProvider(FactoryProvider.file().directory("target")
-                        .keySerializer(serializer).valueSerializer(serializer))
+        return BPlusTree.<Integer, Integer>builder() //
+                .factoryProvider(FactoryProvider //
+                        .file() //
+                        .directory("target") //
+                        .keySerializer(Serializer.INTEGER) //
+                        .valueSerializer(Serializer.INTEGER))
                 .maxKeys(maxKeys) //
                 .naturalOrder();
     };
@@ -327,22 +312,6 @@ public class BPlusTreeTest {
             t.insert(1, 3);
             t.print();
             assertEquals(Lists.newArrayList(3), toList(t.find(0, 4)));
-        }
-    }
-
-    @Test
-    public void testIntegerKeyStringValue() throws Exception {
-        try (BPlusTree<Integer, String> t = BPlusTree.<Integer, String>builder().maxKeys(4) //
-                .factoryProvider(FactoryProvider.file().directory("target")
-                        .segmentSizeBytes(10 * 1024 * 1024).keySerializer(Serializer.INTEGER)
-                        .valueSerializer(Serializer.utf8(0)))
-                .naturalOrder()) {
-            t.insert(1, "hi");
-            t.insert(3, "ambulance");
-            t.insert(2, "under the stars");
-            assertEquals("hi", t.findFirst(1));
-            assertEquals("under the stars", t.findFirst(2));
-            assertEquals("ambulance", t.findFirst(3));
         }
     }
 
