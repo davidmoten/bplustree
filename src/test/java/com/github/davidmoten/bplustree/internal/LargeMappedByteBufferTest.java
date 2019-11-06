@@ -15,8 +15,11 @@ public class LargeMappedByteBufferTest {
         for (int size = 1; size <= 3 * Integer.BYTES + 1; size++) {
             try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size)) {
                 b.putInt(10);
+                assertEquals(4, b.position());
                 b.putInt(11);
+                assertEquals(8, b.position());
                 b.putInt(12);
+                assertEquals(12, b.position());
                 // now read what we've just written
                 b.position(0);
                 assertEquals(10, b.getInt());
