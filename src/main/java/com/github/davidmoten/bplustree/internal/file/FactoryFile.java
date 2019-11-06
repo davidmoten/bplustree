@@ -69,6 +69,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final long NEXT_NOT_PRESENT = -1;
     private final Options<K, V> options;
     private long index = 0;
+    private long valuesIndex = 0;
     private final Serializer<K> keySerializer;
     private final Serializer<V> valueSerializer;
     private final LargeMappedByteBuffer bb;
