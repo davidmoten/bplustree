@@ -43,6 +43,12 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
     private Segment createSegment(long num) {
         File file = new File(directory, "data-" + num);
         file.delete();
+        Segment segment = map(file, segmentSizeBytes);
+        map.put(num, segment);
+        return segment;
+    }
+
+    private static Segment map(File file, int segmentSizeBytes) {
         try {
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                 raf.setLength(segmentSizeBytes);
@@ -50,9 +56,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
             FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE,
                     StandardOpenOption.READ, StandardOpenOption.WRITE);
             MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, segmentSizeBytes);
-            Segment segment = new Segment(channel, bb);
-            map.put(num, segment);
-            return segment;
+            return new Segment(channel, bb);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -170,7 +174,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
 
     private static int toInt(byte[] bytes) {
         int ret = 0;
-        for (int i = 0; i < 4 && i < bytes.length; i++) {
+        for (int i = 0; i < 4; i++) {
             ret <<= 8;
             ret |= (int) bytes[i] & 0xFF;
         }

@@ -1,5 +1,6 @@
 package com.github.davidmoten.bplustree.internal;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
@@ -38,4 +39,39 @@ public class LargeMappedByteBufferTest {
         }
     }
 
+    @Test
+    public void testWriteAndReadArrayWithinSegment() throws IOException {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), 100)) {
+            byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
+            b.put(bytes);
+            b.put(bytes);
+
+            // read
+            b.position(0);
+            byte[] a = new byte[bytes.length];
+            b.get(a);
+            assertArrayEquals(bytes, a);
+            a = new byte[bytes.length];
+            b.get(a);
+            assertArrayEquals(bytes, a);
+        }
+    }
+
+    @Test
+    public void testWriteAndReadLongValuesAcrossSegments() throws IOException {
+        for (int size = 1; size <= 3 * Long.BYTES + 1; size++) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size)) {
+                b.putLong(10);
+                b.putLong(11);
+                b.putLong(12);
+                // now read what we've just written
+                b.position(0);
+                assertEquals(10, b.getLong());
+                assertEquals(11, b.getLong());
+                assertEquals(12, b.getLong());
+            }
+        }
+    }
+
+    
 }
