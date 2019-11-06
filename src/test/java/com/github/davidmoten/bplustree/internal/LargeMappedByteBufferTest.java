@@ -10,7 +10,7 @@ import org.junit.Test;
 public class LargeMappedByteBufferTest {
 
     @Test
-    public void testWriteAndReadAcrossSegments() throws IOException {
+    public void testWriteAndReadIntValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Integer.BYTES + 1; size++) {
             try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size)) {
                 b.putInt(10);
@@ -22,6 +22,19 @@ public class LargeMappedByteBufferTest {
                 assertEquals(11, b.getInt());
                 assertEquals(12, b.getInt());
             }
+        }
+    }
+
+    @Test
+    public void testWriteAndReadBytes() throws IOException {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), 2)) {
+            b.put((byte) 1);
+            b.put((byte) 2);
+            b.put((byte) 3);
+            b.position(0);
+            assertEquals(1, b.get());
+            assertEquals(2, b.get());
+            assertEquals(3, b.get());
         }
     }
 

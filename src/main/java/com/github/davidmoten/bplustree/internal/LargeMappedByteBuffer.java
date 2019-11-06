@@ -30,7 +30,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
     private long position;
 
     private MappedByteBuffer bb(long position) {
-        // TODO close segments when map gets too big
+        // TODO close segments when map gets too many entries
         long num = segmentNumber(position);
         Segment segment = map.get(num);
         if (segment == null) {
@@ -47,8 +47,8 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                 raf.setLength(segmentSizeBytes);
             }
-            FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(),
-                    StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+            FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE,
+                    StandardOpenOption.READ, StandardOpenOption.WRITE);
             MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, segmentSizeBytes);
             Segment segment = new Segment(channel, bb);
             map.put(num, segment);
@@ -97,13 +97,11 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         } else {
             int i = 0;
             while (true) {
-                System.out.println("p2 = min("+ segmentPosition(segmentNumber(p) + 1) +  ", " + position + src.length +")");
                 long p2 = Math.min(segmentPosition(segmentNumber(p) + 1), position + src.length);
                 int length = (int) (p2 - p);
                 if (length == 0) {
                     break;
                 }
-                System.out.println("about to put into segment=" + segmentNumber(p) + ", position=" + i + ", length=" + length);
                 bb(p).put(src, i, length);
                 i += length;
                 p = p2;
@@ -161,7 +159,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
     private long segmentPosition(long segmentNumber) {
         return segmentSizeBytes * segmentNumber;
     }
-    
+
     private static byte[] toBytes(int n) {
         return ByteBuffer.allocate(Integer.BYTES).putInt(n).array();
     }
