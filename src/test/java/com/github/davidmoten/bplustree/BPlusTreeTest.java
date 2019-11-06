@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,12 +30,12 @@ public class BPlusTreeTest {
         Serializer<Integer> serializer = new Serializer<Integer>() {
 
             @Override
-            public Integer read(ByteBuffer bb) {
+            public Integer read(SimpleByteBuffer bb) {
                 return bb.getInt();
             }
 
             @Override
-            public void write(ByteBuffer bb, Integer t) {
+            public void write(SimpleByteBuffer bb, Integer t) {
                 bb.putInt(t);
             }
 

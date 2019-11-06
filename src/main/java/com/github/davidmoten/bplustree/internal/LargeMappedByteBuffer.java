@@ -12,7 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
-public final class LargeMappedByteBuffer implements AutoCloseable {
+import com.github.davidmoten.bplustree.SimpleByteBuffer;
+
+public final class LargeMappedByteBuffer implements AutoCloseable, SimpleByteBuffer {
 
     private final int segmentSizeBytes;
 
@@ -62,18 +64,22 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         }
     }
 
+    @Override
     public void position(long newPosition) {
         this.position = newPosition;
     }
 
+    @Override
     public byte get() {
         return bb(position++).get();
     }
 
+    @Override
     public void put(byte b) {
         bb(position++).put(b);
     }
 
+    @Override
     public void get(byte[] dst) {
         long p = position;
         if (segmentNumber(p) == segmentNumber(p + dst.length)) {
@@ -94,6 +100,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         position += dst.length;
     }
 
+    @Override
     public void put(byte[] src) {
         long p = position;
         if (segmentNumber(p) == segmentNumber(p + src.length)) {
@@ -114,6 +121,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         position += src.length;
     }
 
+    @Override
     public int getInt() {
         long p = position;
         if (segmentNumber(p) == segmentNumber(p + Integer.BYTES)) {
@@ -125,6 +133,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         }
     }
 
+    @Override
     public void putInt(int value) {
         long p = position;
         if (segmentNumber(p) == segmentNumber(p + Integer.BYTES)) {
@@ -135,6 +144,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         }
     }
 
+    @Override
     public long getLong() {
         long p = position;
         if (segmentNumber(p) == segmentNumber(p + Long.BYTES)) {
@@ -146,6 +156,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
         }
     }
 
+    @Override
     public void putLong(long value) {
         long p = position;
         if (segmentNumber(p) == segmentNumber(p + Long.BYTES)) {

@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.github.davidmoten.bplustree.SimpleByteBuffer;
+
 public class LargeMappedByteBufferTest {
 
     @Test

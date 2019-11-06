@@ -1,12 +1,10 @@
 package com.github.davidmoten.bplustree;
 
-import java.nio.ByteBuffer;
-
 public interface Serializer<T> {
 
-    T read(ByteBuffer bb);
+    T read(SimpleByteBuffer bb);
 
-    void write(ByteBuffer bb, T t);
+    void write(SimpleByteBuffer bb, T t);
 
     /**
      * Returns the maximum size in bytes of a serialized item. Returns 0 when there

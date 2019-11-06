@@ -1,14 +1,6 @@
 package com.github.davidmoten.bplustree.internal.file;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.UncheckedIOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.EnumSet;
 
 import com.github.davidmoten.bplustree.Factory;
 import com.github.davidmoten.bplustree.FactoryProvider;
@@ -17,6 +9,7 @@ import com.github.davidmoten.bplustree.Node;
 import com.github.davidmoten.bplustree.NonLeaf;
 import com.github.davidmoten.bplustree.Options;
 import com.github.davidmoten.bplustree.Serializer;
+import com.github.davidmoten.bplustree.internal.LargeMappedByteBuffer;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
@@ -85,47 +78,18 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int NUM_NODES_BYTES = 4;
     private static final int POSITION_BYTES = 4;
     private static final int NEXT_NOT_PRESENT = -1;
-    private static final int THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE = 100 * 1024
-            * 1024;
-    private static final int LINEAR_INCREASE_IN_FILE_SIZE_BYTES = THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE;
-
     private final Options<K, V> options;
     private int index = 0;
     private final Serializer<K> keySerializer;
     private final Serializer<V> valueSerializer;
-    private final File file;
-
-    private int size;
-    private FileChannel channel;
-    private ByteBuffer bb;
+    private final LargeMappedByteBuffer bb;
 
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
-            Serializer<V> valueSerializer, int initialFileSize) {
+            Serializer<V> valueSerializer, int segmentSizeBytes) {
         this.options = options;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
-        this.size = initialFileSize;
-        file = new File(directory, "data.bin");
-        file.delete();
-        map(size);
-    }
-
-    private void map(int size) {
-        try {
-            if (channel != null) {
-                channel.close();
-            }
-            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-                raf.setLength(size);
-            }
-            channel = (FileChannel) Files.newByteChannel(file.toPath(), EnumSet.of( //
-                    StandardOpenOption.CREATE, //
-                    StandardOpenOption.READ, //
-                    StandardOpenOption.WRITE));
-            bb = channel.map(FileChannel.MapMode.READ_WRITE, 0, size);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes);
     }
 
     //////////////////////////////////////////////////
@@ -151,7 +115,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private long leafNextPosition() {
-        checkSize();
         int i = index;
         bb.position(index);
         bb.put((byte) Leaf.TYPE);
@@ -161,20 +124,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         // (b+tree pointer to next leaf node)
         index += leafBytes();
         return i;
-    }
-
-    private void checkSize() {
-        if (index > size - 2 * (leafBytes() + nonLeafBytes())) {
-            final int increaseBy;
-            if (size >= THRESHOLD_BYTES_SWITCH_TO_LINEAR_INCREASE_IN_FILE_SIZE) {
-                increaseBy = LINEAR_INCREASE_IN_FILE_SIZE_BYTES;
-            } else {
-                increaseBy = size;
-            }
-            size += increaseBy;
-            map(size);
-        }
-
     }
 
     private int relativeLeafKeyPosition(int i) {
@@ -294,7 +243,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private long nextNonLeafPosition() {
-        checkSize();
         int i = index;
         bb.position(index);
         bb.put((byte) NonLeaf.TYPE);
@@ -380,12 +328,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public void close() throws Exception {
-        channel.close();
-    }
-
-    // visible for testing
-    public byte[] data() {
-        return bb.array();
+        bb.close();
     }
 
 }

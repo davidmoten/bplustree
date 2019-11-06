@@ -3,15 +3,11 @@ package com.github.davidmoten.bplustree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
-import com.github.davidmoten.bplustree.BPlusTree;
-import com.github.davidmoten.bplustree.FactoryProvider;
-import com.github.davidmoten.bplustree.Serializer;
 import com.github.davidmoten.bplustree.internal.file.LeafFile;
 
 public final class BPlusTreeFileTest {
@@ -20,12 +16,12 @@ public final class BPlusTreeFileTest {
         Serializer<Integer> serializer = new Serializer<Integer>() {
 
             @Override
-            public Integer read(ByteBuffer bb) {
+            public Integer read(SimpleByteBuffer bb) {
                 return bb.getInt();
             }
 
             @Override
-            public void write(ByteBuffer bb, Integer t) {
+            public void write(SimpleByteBuffer bb, Integer t) {
                 bb.putInt(t);
             }
 
