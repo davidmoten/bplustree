@@ -157,8 +157,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * @param finish exclusive end of search
      * @return in-order sequence of values whose keys are >= start and < finish
      */
-    public Iterable<V> find(K start, K finish) {
-        return find(start, finish, false);
+    public Iterable<V> find(K startInclusive, K finishExclusive) {
+        return find(startInclusive, finishExclusive, false);
     }
 
     public Iterable<V> find(K start, K finish, boolean finishInclusive) {

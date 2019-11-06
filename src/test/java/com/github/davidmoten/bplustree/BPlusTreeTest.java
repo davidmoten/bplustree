@@ -330,4 +330,20 @@ public class BPlusTreeTest {
         }
     }
 
+    @Test
+    public void testIntegerKeyStringValue() throws Exception {
+        try (BPlusTree<Integer, String> t = BPlusTree.<Integer, String>builder().maxKeys(4) //
+                .factoryProvider(FactoryProvider.file().directory("target")
+                        .segmentSizeBytes(10 * 1024 * 1024).keySerializer(Serializer.INTEGER)
+                        .valueSerializer(Serializer.utf8(0)))
+                .naturalOrder()) {
+            t.insert(1, "hi");
+            t.insert(3, "ambulance");
+            t.insert(2, "under the stars");
+            assertEquals("hi", t.findFirst(1));
+            assertEquals("under the stars", t.findFirst(2));
+            assertEquals("ambulance", t.findFirst(3));
+        }
+    }
+
 }
