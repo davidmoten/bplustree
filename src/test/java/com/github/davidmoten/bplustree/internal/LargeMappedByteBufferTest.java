@@ -3,7 +3,6 @@ package com.github.davidmoten.bplustree.internal;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
