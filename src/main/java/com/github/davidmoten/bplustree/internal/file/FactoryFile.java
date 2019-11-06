@@ -145,7 +145,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetValue(long position, int i, V value) {
-        long p = position + relativeLeafKeyPosition(i) + keySerializer.maxSize() + keySerializer.maxSize();
+        long p = position + relativeLeafKeyPosition(i) + keySerializer.maxSize();
         bb.position(p);
         valueSerializer.write(bb, value);
     }
