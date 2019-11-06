@@ -1,5 +1,6 @@
 package com.github.davidmoten.bplustree;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public interface Serializer<T> {
@@ -54,6 +55,10 @@ public interface Serializer<T> {
     };
 
     public static Serializer<String> utf8(int maxSize) {
+        return string(StandardCharsets.UTF_8, maxSize);
+    }
+
+    public static Serializer<String> string(Charset charset, int maxSize) {
         return new Serializer<String>() {
 
             @Override
@@ -61,12 +66,12 @@ public interface Serializer<T> {
                 int size = bb.getInt();
                 byte[] bytes = new byte[size];
                 bb.get(bytes);
-                return new String(bytes, StandardCharsets.UTF_8);
+                return new String(bytes, charset);
             }
 
             @Override
             public void write(LargeByteBuffer bb, String s) {
-                byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+                byte[] bytes = s.getBytes(charset);
                 bb.putInt(bytes.length);
                 bb.put(bytes);
             }
@@ -75,6 +80,31 @@ public interface Serializer<T> {
             public int maxSize() {
                 return maxSize;
             }
+        };
+    }
+
+    public static Serializer<byte[]> bytes(int maxSize) {
+        return new Serializer<byte[]>() {
+
+            @Override
+            public byte[] read(LargeByteBuffer bb) {
+                int size = bb.getInt();
+                byte[] bytes = new byte[size];
+                bb.get(bytes);
+                return bytes;
+            }
+
+            @Override
+            public void write(LargeByteBuffer bb, byte[] bytes) {
+                bb.putInt(bytes.length);
+                bb.put(bytes);
+            }
+
+            @Override
+            public int maxSize() {
+                return maxSize;
+            }
+
         };
     }
 }
