@@ -272,12 +272,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public Node<K, V> nonLeafChild(long position, int i) {
-        bb.position((int) (position + relativePositionNonLeafEntry(i)));
+        bb.position(position + relativePositionNonLeafEntry(i));
         int pos = bb.getInt();
         return readNode(pos);
     }
 
-    private Node<K, V> readNode(int pos) {
+    private Node<K, V> readNode(long pos) {
         bb.position(pos);
         int type = bb.get();
         if (type == Leaf.TYPE) {
@@ -288,12 +288,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public K nonLeafKey(long position, int i) {
-        bb.position((int) (position + relativePositionNonLeafEntry(i) + POSITION_BYTES));
+        bb.position(position + relativePositionNonLeafEntry(i) + POSITION_BYTES);
         return keySerializer.read(bb);
     }
 
     public void nonLeafSetKey(long position, int i, K key) {
-        bb.position((int) (position + relativePositionNonLeafEntry(i) + POSITION_BYTES));
+        bb.position(position + relativePositionNonLeafEntry(i) + POSITION_BYTES);
         keySerializer.write(bb, key);
     }
 
@@ -302,10 +302,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         // of other node
         int relativeStart = relativePositionNonLeafEntry(mid);
         int size = relativePositionNonLeafEntry(mid + length + 1) - relativeStart;
-        bb.position((int) (position + relativeStart));
+        bb.position(position + relativeStart);
         byte[] bytes = new byte[size];
         bb.get(bytes);
-        int newPosition = (int) (other.position() + relativePositionNonLeafEntry(0));
+        long newPosition = other.position() + relativePositionNonLeafEntry(0);
         bb.position(newPosition);
         bb.put(bytes);
         nonLeafSetNumKeys(position, mid - 1);
@@ -316,10 +316,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         int numKeys = nonLeafNumKeys(position);
         int relativeStart = relativePositionNonLeafEntry(i);
         int relativeEnd = relativePositionNonLeafEntry(numKeys);
-        bb.position((int) (position + relativeStart));
+        bb.position(position + relativeStart);
         byte[] bytes = new byte[relativeEnd - relativeStart];
         bb.get(bytes);
-        bb.position((int) (position + relativePositionNonLeafEntry(i + 1)));
+        bb.position(position + relativePositionNonLeafEntry(i + 1));
         bb.put(bytes);
         bb.position(relativeStart);
         bb.putInt((int) left.position());
