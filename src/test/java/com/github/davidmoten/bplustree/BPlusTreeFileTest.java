@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 
@@ -108,26 +110,45 @@ public final class BPlusTreeFileTest {
 
     @Test
     public void testInsertMany() {
+        for (int j = 0; j < 1; j++) {
+            long t = System.currentTimeMillis();
+            int n = 1000000;
+            int numKeysPerNode = 32;
+            {
+                BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
+                for (int i = 1; i <= n; i++) {
+                    int v = n - i + 1;
+                    tree.insert(v, v);
+                }
+                System.out.println(
+                        "insert rate desc order= " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+            }
+            {
+                BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
+                for (int i = 1; i <= n; i++) {
+                    tree.insert(i, i);
+                }
+                System.out.println(
+                        "insert rate asc order = " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+            }
+        }
+    }
+    
+    @Test
+    public void testRegexSpeed() {
+        String s = "2019-11-06 23:13:00.427 DEBUG com.zaxxer.hikari.pool.HikariPool [HikariPool-2 housekeeper] - HikariPool-2 - Before cleanup stats (total=5, active=3, idle=2, waiting=0)";
+        Pattern p = Pattern.compile("^.*com.zaxxer.hikari.pool.HikariPool.*Before cleanup stats.*, active=([0-9]+).*$");
         long t = System.currentTimeMillis();
-        int n = 1000000;
-        int numKeysPerNode = 32;
-        {
-            BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
-            for (int i = 1; i <= n; i++) {
-                int v = n - i + 1;
-                tree.insert(v, v);
+        int n = 100000;
+        for (int i = 0; i< n; i++) {
+            Matcher m = p.matcher(s);
+            if (m.find()) {
+                if (m.group(1).equals("blah")) {
+                    System.out.println("hello");
+                }
             }
-            System.out.println(
-                    "insert rate desc order= " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
         }
-        {
-            BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
-            for (int i = 1; i <= n; i++) {
-                tree.insert(i, i);
-            }
-            System.out.println(
-                    "insert rate asc order = " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
-        }
+        System.out.println("regex match rate = " + n * 1000.0 / (System.currentTimeMillis() - t) + " lines per second");
     }
 
 }
