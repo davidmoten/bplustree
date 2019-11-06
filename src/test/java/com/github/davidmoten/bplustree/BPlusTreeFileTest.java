@@ -13,12 +13,30 @@ import com.github.davidmoten.bplustree.internal.file.LeafFile;
 public final class BPlusTreeFileTest {
 
     private static BPlusTree<Integer, Integer> create(int maxKeys) {
+        Serializer<Integer> serializer = new Serializer<Integer>() {
+
+            @Override
+            public Integer read(LargeByteBuffer bb) {
+                return bb.getInt();
+            }
+
+            @Override
+            public void write(LargeByteBuffer bb, Integer t) {
+                bb.putInt(t);
+            }
+
+            @Override
+            public int maxSize() {
+                return Integer.BYTES;
+            }
+        };
+
         return BPlusTree.<Integer, Integer>builder() //
                 .factoryProvider(FactoryProvider //
                         .file() //
                         .directory("target") //
-                        .keySerializer(Serializer.INTEGER) //
-                        .valueSerializer(Serializer.INTEGER)) //
+                        .keySerializer(serializer) //
+                        .valueSerializer(serializer)) //
                 .maxKeys(maxKeys) //
                 .naturalOrder();
     }
@@ -89,36 +107,27 @@ public final class BPlusTreeFileTest {
     }
 
     @Test
-    public void testIntegerKeyStringValue() throws Exception {
-        try (BPlusTree<Long, String> t = BPlusTree.<Long, String>builder().maxKeys(4) //
-                .factoryProvider( //
-                        FactoryProvider //
-                                .file() //
-                                .directory("target") //
-                                .segmentSizeMB(10) //
-                                .keySerializer(Serializer.LONG) //
-                                .valueSerializer(Serializer.utf8(0)))
-                .naturalOrder()) {
-            t.insert(1L, "hi");
-            t.insert(3L, "ambulance");
-            t.insert(2L, "under the stars");
-            t.commit();
-            assertEquals("hi", t.findFirst(1L));
-            assertEquals("under the stars", t.findFirst(2L));
-            assertEquals("ambulance", t.findFirst(3L));
-        }
-    }
-
-    @Test
     public void testInsertMany() {
         long t = System.currentTimeMillis();
-        BPlusTree<Integer, Integer> tree = create(4);
-        int n = 100000;
-        for (int i = n; i >= 1; i--) {
-            tree.insert(i, i);
+        int n = 1000000;
+        int numKeysPerNode = 32;
+        {
+            BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
+            for (int i = 1; i <= n; i++) {
+                int v = n - i + 1;
+                tree.insert(v, v);
+            }
+            System.out.println(
+                    "insert rate desc order= " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
         }
-        System.out.println(
-                "insert rate = " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+        {
+            BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
+            for (int i = 1; i <= n; i++) {
+                tree.insert(i, i);
+            }
+            System.out.println(
+                    "insert rate asc order = " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+        }
     }
 
 }
