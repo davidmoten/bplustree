@@ -155,7 +155,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable {
     }
 
     private long segmentNumber(long position) {
-        return position % segmentSizeBytes;
+        return position / segmentSizeBytes;
     }
 
     private long segmentPosition(long segmentNumber) {
