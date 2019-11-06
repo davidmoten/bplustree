@@ -19,9 +19,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     public static final class Builder {
         File directory;
-        int initialFileSize = 1024 * 1024;
-        int thresholdBytesToSwitchToLinearIncreaseInFileSize = 100 * 1024 * 1024;
-        int linearIncreaseBytes = 100 * 1024 * 1024;
+
+        int segmentSizeBytes = 50 * 1024 * 1024;
 
         Builder() {
             // reduce visibility
@@ -36,18 +35,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
             return this;
         }
 
-        public Builder initialFileSizeBytes(int size) {
-            this.initialFileSize = size;
-            return this;
-        }
-
-        public Builder thresholdBytesToSwitchToLinearIncreaseInFileSize(int thresholdBytes) {
-            this.thresholdBytesToSwitchToLinearIncreaseInFileSize = thresholdBytes;
-            return this;
-        }
-
-        public Builder linearIncreaseBytes(int sizeBytes) {
-            this.linearIncreaseBytes = sizeBytes;
+        public Builder segmentSizeBytes(int size) {
+            this.segmentSizeBytes = size;
             return this;
         }
 
@@ -67,8 +56,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         }
 
         public <V> FactoryProvider<K, V> valueSerializer(Serializer<V> valueSerializer) {
-            return options -> new FactoryFile<K, V>(options, b.directory, keySerializer,
-                    valueSerializer, b.initialFileSize);
+            return options -> new FactoryFile<K, V>(options, b.directory, keySerializer, valueSerializer,
+                    b.segmentSizeBytes);
         }
 
     }
@@ -127,8 +116,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private int relativeLeafKeyPosition(int i) {
-        return NODE_TYPE_BYTES + NUM_KEYS_BYTES
-                + i * (keySerializer.maxSize() + valueSerializer.maxSize());
+        return NODE_TYPE_BYTES + NUM_KEYS_BYTES + i * (keySerializer.maxSize() + valueSerializer.maxSize());
     }
 
     public K leafKey(long position, int i) {
@@ -154,8 +142,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetValue(long position, int i, V value) {
-        long p = position + relativeLeafKeyPosition(i) + keySerializer.maxSize()
-                + keySerializer.maxSize();
+        long p = position + relativeLeafKeyPosition(i) + keySerializer.maxSize() + keySerializer.maxSize();
         bb.position(p);
         valueSerializer.write(bb, value);
     }
@@ -238,8 +225,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES
-                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 
