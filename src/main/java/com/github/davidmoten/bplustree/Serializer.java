@@ -2,9 +2,9 @@ package com.github.davidmoten.bplustree;
 
 public interface Serializer<T> {
 
-    T read(SimpleByteBuffer bb);
+    T read(LargeByteBuffer bb);
 
-    void write(SimpleByteBuffer bb, T t);
+    void write(LargeByteBuffer bb, T t);
 
     /**
      * Returns the maximum size in bytes of a serialized item. Returns 0 when there

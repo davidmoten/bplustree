@@ -30,12 +30,12 @@ public class BPlusTreeTest {
         Serializer<Integer> serializer = new Serializer<Integer>() {
 
             @Override
-            public Integer read(SimpleByteBuffer bb) {
+            public Integer read(LargeByteBuffer bb) {
                 return bb.getInt();
             }
 
             @Override
-            public void write(SimpleByteBuffer bb, Integer t) {
+            public void write(LargeByteBuffer bb, Integer t) {
                 bb.putInt(t);
             }
 

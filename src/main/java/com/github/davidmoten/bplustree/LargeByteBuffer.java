@@ -1,6 +1,14 @@
 package com.github.davidmoten.bplustree;
 
-public interface SimpleByteBuffer {
+import java.nio.ByteBuffer;
+
+/**
+ * Similar to {@link ByteBuffer} but supports {@code long} positions instead of
+ * {@code int} positions. Does not include those methods in ByteBuffer that
+ * include the position as a parameter (for simplicity).
+ *
+ */
+public interface LargeByteBuffer {
 
     long position();
 

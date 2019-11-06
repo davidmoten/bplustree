@@ -12,9 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
-import com.github.davidmoten.bplustree.SimpleByteBuffer;
+import com.github.davidmoten.bplustree.LargeByteBuffer;
 
-public final class LargeMappedByteBuffer implements AutoCloseable, SimpleByteBuffer {
+public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuffer {
 
     private final int segmentSizeBytes;
 
