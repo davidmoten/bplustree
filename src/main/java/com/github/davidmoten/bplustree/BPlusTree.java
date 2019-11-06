@@ -153,22 +153,22 @@ public class BPlusTree<K, V> implements AutoCloseable {
     /**
      * Returns an in-order sequence of values whose keys are >= start and < finish.
      * 
-     * @param start  inclusive end of search
-     * @param finish exclusive end of search
+     * @param startInclusive  inclusive end of search
+     * @param finishExclusive exclusive end of search
      * @return in-order sequence of values whose keys are >= start and < finish
      */
     public Iterable<V> find(K startInclusive, K finishExclusive) {
         return find(startInclusive, finishExclusive, false);
     }
 
-    public Iterable<V> find(K start, K finish, boolean finishInclusive) {
+    public Iterable<V> find(K startInclusive, K finish, boolean finishInclusive) {
         return new Iterable<V>() {
 
             @Override
             public Iterator<V> iterator() {
                 return new Iterator<V>() {
-                    Leaf<K, V> leaf = findFirstLeaf(start);
-                    int idx = leaf.getLocation(start);
+                    Leaf<K, V> leaf = findFirstLeaf(startInclusive);
+                    int idx = leaf.getLocation(startInclusive);
                     V value;
 
                     @Override
