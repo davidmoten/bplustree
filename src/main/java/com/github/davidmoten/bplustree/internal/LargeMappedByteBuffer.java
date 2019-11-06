@@ -20,13 +20,15 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     private final TreeMap<Long, Segment> map = new TreeMap<>();
     private final File directory;
+    private final String segmentNamePrefix;
 
     private byte[] temp4Bytes = new byte[4];
     private byte[] temp8Bytes = new byte[8];
 
-    public LargeMappedByteBuffer(File directory, int segmentSizeBytes) {
+    public LargeMappedByteBuffer(File directory, int segmentSizeBytes, String segmentNamePrefix) {
         this.directory = directory;
         this.segmentSizeBytes = segmentSizeBytes;
+        this.segmentNamePrefix = segmentNamePrefix;
     }
 
     private long position;
@@ -43,7 +45,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     }
 
     private Segment createSegment(long num) {
-        File file = new File(directory, "data-" + num);
+        File file = new File(directory, segmentNamePrefix + num);
         file.delete();
         Segment segment = map(file, segmentSizeBytes);
         map.put(num, segment);

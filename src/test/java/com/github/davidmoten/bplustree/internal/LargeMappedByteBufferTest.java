@@ -13,7 +13,7 @@ public class LargeMappedByteBufferTest {
     @Test
     public void testWriteAndReadIntValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Integer.BYTES + 1; size++) {
-            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size)) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size, "index-")) {
                 b.putInt(10);
                 assertEquals(4, b.position());
                 b.putInt(11);
@@ -31,7 +31,7 @@ public class LargeMappedByteBufferTest {
 
     @Test
     public void testWriteAndReadBytes() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), 2)) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), 2, "index-")) {
             b.put((byte) 1);
             b.put((byte) 2);
             b.put((byte) 3);
@@ -44,7 +44,7 @@ public class LargeMappedByteBufferTest {
 
     @Test
     public void testWriteAndReadArrayWithinSegment() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), 100)) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), 100, "index-")) {
             byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
             b.put(bytes);
             b.put(bytes);
@@ -63,7 +63,7 @@ public class LargeMappedByteBufferTest {
     @Test
     public void testWriteAndReadLongValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Long.BYTES + 1; size++) {
-            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size)) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(new File("target"), size, "index-")) {
                 b.putLong(10);
                 b.putLong(11);
                 b.putLong(12);

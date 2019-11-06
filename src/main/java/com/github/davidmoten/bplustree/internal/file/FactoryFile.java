@@ -72,13 +72,15 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final Serializer<K> keySerializer;
     private final Serializer<V> valueSerializer;
     private final LargeMappedByteBuffer bb;
+    private final LargeMappedByteBuffer values;
 
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
             Serializer<V> valueSerializer, int segmentSizeBytes) {
         this.options = options;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
-        this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes);
+        this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes, "index-");
+        this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
     }
 
     //////////////////////////////////////////////////
@@ -316,6 +318,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     @Override
     public void close() throws Exception {
         bb.close();
+        values.close();
     }
 
 }
