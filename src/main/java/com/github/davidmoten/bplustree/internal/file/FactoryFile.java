@@ -79,7 +79,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int POSITION_BYTES = 4;
     private static final int NEXT_NOT_PRESENT = -1;
     private final Options<K, V> options;
-    private int index = 0;
+    private long index = 0;
     private final Serializer<K> keySerializer;
     private final Serializer<V> valueSerializer;
     private final LargeMappedByteBuffer bb;
@@ -115,7 +115,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private long leafNextPosition() {
-        int i = index;
+        long i = index;
         bb.position(index);
         bb.put((byte) Leaf.TYPE);
         bb.position(index + leafBytes() - POSITION_BYTES);
@@ -243,7 +243,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     private long nextNonLeafPosition() {
-        int i = index;
+        long i = index;
         bb.position(index);
         bb.put((byte) NonLeaf.TYPE);
         index += nonLeafBytes();
