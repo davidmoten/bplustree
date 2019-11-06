@@ -39,7 +39,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
             this.segmentSizeBytes = size;
             return this;
         }
-        
+
         public Builder segmentSizeMB(int size) {
             return segmentSizeBytes(size * 1024 * 1024);
         }
@@ -60,14 +60,14 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         }
 
         public <V> FactoryProvider<K, V> valueSerializer(Serializer<V> valueSerializer) {
-            return options -> new FactoryFile<K, V>(options, b.directory, keySerializer,
-                    valueSerializer, b.segmentSizeBytes);
+            return options -> new FactoryFile<K, V>(options, b.directory, keySerializer, valueSerializer,
+                    b.segmentSizeBytes);
         }
 
     }
 
     private static final int NODE_TYPE_BYTES = 1;
-    private static final int NUM_KEYS_BYTES = 4;
+    private static final int NUM_KEYS_BYTES = 1;
     private static final int NUM_NODES_BYTES = 4;
     private static final int POSITION_BYTES = 8;
     private static final long NEXT_NOT_PRESENT = -1;
@@ -134,7 +134,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     public int leafNumKeys(long position) {
         bb.position(position + NODE_TYPE_BYTES);
-        return bb.getInt();
+        return bb.get() & 0xFF;
+    }
+
+    public void leafSetNumKeys(long position, int numKeys) {
+        bb.position(position + NODE_TYPE_BYTES);
+        bb.put((byte) numKeys);
     }
 
     public V leafValue(long position, int i) {
@@ -152,11 +157,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         values.position(valuesIndex);
         valueSerializer.write(values, value);
         valuesIndex = values.position();
-    }
-
-    public void leafSetNumKeys(long position, int numKeys) {
-        bb.position(position + NODE_TYPE_BYTES);
-        bb.putInt(numKeys);
     }
 
     public void leafInsert(long position, int i, K key, V value) {
@@ -240,8 +240,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES
-                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 
@@ -255,12 +254,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     public void nonLeafSetNumKeys(long position, int numKeys) {
         bb.position(position + NODE_TYPE_BYTES);
-        bb.putInt(numKeys);
+        bb.put((byte) numKeys);
     }
 
     public int nonLeafNumKeys(long position) {
         bb.position(position + NODE_TYPE_BYTES);
-        return bb.getInt();
+        return bb.get() & 0xFF;
     }
 
     public void nonLeafSetChild(long position, int i, NodeFile node) {

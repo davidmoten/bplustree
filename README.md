@@ -13,6 +13,7 @@ Disk based B+-tree in java designed for querying of metrics (key-value pairs) fr
 * variable size values
 * very large size storage (>2GB of keys or values)
 * optimized for insert in approximate index order
+* single threaded 
 
 ## Design
 B+-tree index is stored across multiple files (of fixed size). Pointers to values are stored in the tree and the values are stored across a separate set of files (of fixed size).
