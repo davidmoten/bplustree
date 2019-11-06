@@ -20,3 +20,6 @@ B+-tree index is stored across multiple files (of fixed size). Pointers to value
 
 A LargeByteBuffer abstracts access via Memory Mapped Files to a set of files (ByteBuffer only offers int positions which restricts size to 2GB, LargeByteBuffer offers long positions with no effective limit of size (apart from the node capacity).
 
+## Todo 
+* support reopening file based index 
+
