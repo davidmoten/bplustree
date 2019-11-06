@@ -2,6 +2,8 @@ package com.github.davidmoten.bplustree;
 
 import java.util.Comparator;
 
+import com.github.davidmoten.guavamini.Preconditions;
+
 public final class Options<K, V> {
 
     /** the maximum number of keys in the leaf node, M must be > 0 */
@@ -16,10 +18,13 @@ public final class Options<K, V> {
     private final boolean uniqueKeys;
     private final FactoryProvider<K, V> factoryProvider;
 
-    public Options(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
+    public Options(int maxLeafKeys, int maxNonLeafKeys, boolean uniqueKeys, Comparator<? super K> comparator,
             FactoryProvider<K, V> factoryProvider) {
+        // only one byte used to store num keys so check values
+        Preconditions.checkArgument(0 < maxLeafKeys && maxLeafKeys <= 255);
+        Preconditions.checkArgument(0 < maxNonLeafKeys && maxNonLeafKeys <= 255);
         this.maxLeafKeys = maxLeafKeys;
-        this.maxNonLeafKeys = maxInnerKeys;
+        this.maxNonLeafKeys = maxNonLeafKeys;
         this.comparator = comparator;
         this.uniqueKeys = uniqueKeys;
         this.factoryProvider = factoryProvider;
