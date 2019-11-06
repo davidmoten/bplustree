@@ -12,4 +12,5 @@ Disk based B+-tree in java designed for querying of metrics (key-value pairs) fr
 * fixed size keys
 * variable size values
 * very large size storage (>2GB of keys or values)
+* optimized for insert in approximate index order
 
