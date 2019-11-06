@@ -209,8 +209,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public Leaf<K, V> leafNext(long position) {
-        bb.position((int) position + relativeLeafKeyPosition(options.maxLeafKeys()));
-        int p = bb.getInt();
+        bb.position(position + relativeLeafKeyPosition(options.maxLeafKeys()));
+        long p = bb.getInt();
         if (p == NEXT_NOT_PRESENT) {
             return null;
         } else {
@@ -252,17 +252,17 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void nonLeafSetNumKeys(long position, int numKeys) {
-        bb.position((int) position + NODE_TYPE_BYTES);
+        bb.position(position + NODE_TYPE_BYTES);
         bb.putInt(numKeys);
     }
 
     public int nonLeafNumKeys(long position) {
-        bb.position((int) position + NODE_TYPE_BYTES);
+        bb.position(position + NODE_TYPE_BYTES);
         return bb.getInt();
     }
 
     public void nonLeafSetChild(long position, int i, NodeFile node) {
-        int p = (int) (position + relativePositionNonLeafEntry(i));
+        long p = position + relativePositionNonLeafEntry(i);
         bb.position(p);
         bb.putInt((int) node.position());
     }
