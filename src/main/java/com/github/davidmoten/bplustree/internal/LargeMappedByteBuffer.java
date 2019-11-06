@@ -54,15 +54,14 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     private static Segment map(File file, int segmentSizeBytes) {
         try {
-            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-                if (file.exists()) {
-                    if (raf.length() != segmentSizeBytes) {
-                        throw new IllegalStateException("segment file " + file + " should be of size "
-                                + segmentSizeBytes + " but was of size " + file.length());
-                    }
-                } else {
-                    raf.setLength(segmentSizeBytes);
+            if (file.exists()) {
+                if (file.length() != segmentSizeBytes) {
+                    throw new IllegalStateException("segment file " + file + " should be of size "
+                            + segmentSizeBytes + " but was of size " + file.length());
                 }
+            }
+            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+                raf.setLength(segmentSizeBytes);
             }
             FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE,
                     StandardOpenOption.READ, StandardOpenOption.WRITE);

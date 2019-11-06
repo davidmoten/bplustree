@@ -5,12 +5,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,10 +29,12 @@ import com.github.davidmoten.guavamini.Lists;
 public class BPlusTreeTest {
 
     private static final Function<Integer, BPlusTree<Integer, Integer>> creatorFile = maxKeys -> {
+        String directoryName = "target/"+ UUID.randomUUID().toString().substring(0,6);
+        new File(directoryName).mkdirs();
         return BPlusTree.<Integer, Integer>builder() //
                 .factoryProvider(FactoryProvider //
                         .file() //
-                        .directory("target") //
+                        .directory(directoryName) //
                         .keySerializer(Serializer.INTEGER) //
                         .valueSerializer(Serializer.INTEGER))
                 .maxKeys(maxKeys) //
