@@ -149,13 +149,13 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetNumKeys(long position, int numKeys) {
-        bb.position((int) position + NODE_TYPE_BYTES);
+        bb.position(position + NODE_TYPE_BYTES);
         bb.putInt(numKeys);
     }
 
     public void leafSetValue(long position, int i, V value) {
-        int p = (int) (position + relativeLeafKeyPosition(i) + keySerializer.maxSize()
-                + keySerializer.maxSize());
+        long p = position + relativeLeafKeyPosition(i) + keySerializer.maxSize()
+                + keySerializer.maxSize();
         bb.position(p);
         valueSerializer.write(bb, value);
     }
