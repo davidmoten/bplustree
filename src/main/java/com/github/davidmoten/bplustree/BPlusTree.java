@@ -286,4 +286,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
         factory.close();
     }
 
+    public void commit() {
+        factory.commit();
+    }
+
 }

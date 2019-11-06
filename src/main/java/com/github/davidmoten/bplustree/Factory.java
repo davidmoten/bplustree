@@ -6,4 +6,6 @@ public interface Factory<K, V> extends AutoCloseable {
 
     NonLeaf<K, V> createNonLeaf();
 
+    void commit();
+
 }

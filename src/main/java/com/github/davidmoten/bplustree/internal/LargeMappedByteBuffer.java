@@ -207,6 +207,13 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         }
         return result;
     }
+    
+    @Override
+    public void commit() {
+        for (Segment segment : map.values()) {
+            segment.bb.force();
+        }
+    }
 
     @Override
     public void close() throws IOException {

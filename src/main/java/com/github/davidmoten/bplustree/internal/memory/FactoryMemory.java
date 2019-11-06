@@ -27,4 +27,9 @@ public final class FactoryMemory<K, V> implements Factory<K, V> {
     public void close() throws Exception {
         // do nothing
     }
+
+    @Override
+    public void commit() {
+        // do nothing
+    }
 }

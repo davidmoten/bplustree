@@ -102,6 +102,7 @@ public final class BPlusTreeFileTest {
             t.insert(1L, "hi");
             t.insert(3L, "ambulance");
             t.insert(2L, "under the stars");
+            t.commit();
             assertEquals("hi", t.findFirst(1L));
             assertEquals("under the stars", t.findFirst(2L));
             assertEquals("ambulance", t.findFirst(3L));

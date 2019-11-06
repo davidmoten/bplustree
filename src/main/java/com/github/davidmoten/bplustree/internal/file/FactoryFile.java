@@ -335,4 +335,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         values.close();
     }
 
+    @Override
+    public void commit() {
+        bb.commit();
+        values.commit();
+    }
+
 }

@@ -29,5 +29,7 @@ public interface LargeByteBuffer {
     long getLong();
 
     void putLong(long value);
+    
+    void commit();
 
 }
