@@ -37,6 +37,10 @@ public final class FactoryMemory<K, V> implements Factory<K, V> {
     @Override
     public void root(Node<K, V> node) {
         // do nothing
+    }
 
+    @Override
+    public Node<K, V> loadOrCreateRoot() {
+        return createLeaf();
     }
 }

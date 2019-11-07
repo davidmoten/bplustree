@@ -350,4 +350,17 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.putLong(((NodeFile) node).position()); 
     }
 
+    @Override
+    public Node<K, V> loadOrCreateRoot() {
+        bb.position(0);
+        long rootPosition = bb.getLong();
+        if (rootPosition == 0) {
+            bb.position(0);
+            bb.putLong(POSITION_BYTES);
+            return createLeaf();
+        } else {
+            return readNode(rootPosition);
+        }
+    }
+
 }
