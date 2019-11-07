@@ -56,15 +56,21 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         try {
             if (file.exists()) {
                 if (file.length() != segmentSizeBytes) {
-                    throw new IllegalStateException("segment file " + file + " should be of size "
-                            + segmentSizeBytes + " but was of size " + file.length());
+                    throw new IllegalStateException("segment file " + file + " should be of size " + segmentSizeBytes
+                            + " but was of size " + file.length());
                 }
             }
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                 raf.setLength(segmentSizeBytes);
             }
-            FileChannel channel = (FileChannel) Files.newByteChannel(file.toPath(), StandardOpenOption.CREATE,
-                    StandardOpenOption.READ, StandardOpenOption.WRITE);
+            FileChannel channel = (FileChannel) Files //
+                    .newByteChannel(//
+                            file.toPath(), //
+                            StandardOpenOption.CREATE, //
+                            StandardOpenOption.READ, //
+                            StandardOpenOption.WRITE);
+
+            // map the whole file
             MappedByteBuffer bb = channel.map(MapMode.READ_WRITE, 0, segmentSizeBytes);
             return new Segment(channel, bb);
         } catch (IOException e) {
