@@ -25,6 +25,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
                 factoryProvider);
         this.factory = options.factoryProvider().createFactory(options);
         this.root = factory.createLeaf();
+        factory.root(root);
     }
 
     public static <K, V> Builder<K, V> builder() {
@@ -111,6 +112,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
             node.setChild(0, result.left);
             node.setChild(1, result.right);
             root = node;
+            factory.root(root);
         }
     }
 

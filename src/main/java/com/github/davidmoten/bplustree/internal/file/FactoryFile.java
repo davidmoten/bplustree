@@ -72,7 +72,11 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int POSITION_BYTES = 8;
     private static final long NEXT_NOT_PRESENT = -1;
     private final Options<K, V> options;
-    private long index = 0; // position where next node will be written
+
+    // position where next node will be written, first 8 bytes are for the position
+    // of the root node
+    private long index = POSITION_BYTES;
+
     private long valuesIndex = 0; // position where next value will be written
     private final Serializer<K> keySerializer;
     private final Serializer<V> valueSerializer;
@@ -338,6 +342,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public void commit() {
         bb.commit();
         values.commit();
+    }
+
+    @Override
+    public void root(Node<K, V> node) {
+        bb.position(0);
+        bb.putLong(((NodeFile) node).position()); 
     }
 
 }

@@ -2,6 +2,7 @@ package com.github.davidmoten.bplustree.internal.memory;
 
 import com.github.davidmoten.bplustree.Factory;
 import com.github.davidmoten.bplustree.Leaf;
+import com.github.davidmoten.bplustree.Node;
 import com.github.davidmoten.bplustree.NonLeaf;
 import com.github.davidmoten.bplustree.Options;
 
@@ -31,5 +32,11 @@ public final class FactoryMemory<K, V> implements Factory<K, V> {
     @Override
     public void commit() {
         // do nothing
+    }
+
+    @Override
+    public void root(Node<K, V> node) {
+        // do nothing
+
     }
 }
