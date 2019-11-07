@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.github.davidmoten.bplustree.internal.memory.FactoryMemory;
+import com.github.davidmoten.guavamini.annotations.VisibleForTesting;
 
 public class BPlusTree<K, V> implements AutoCloseable {
 
@@ -239,6 +240,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
         return findPreserveInsertOrder(startInclusive, finishExclusive, false);
     }
 
+    private static final int VALUES_MAX_SIZE = 256;
+
     /**
      * For the situation when uniqueness is false, when entries are inserted with
      * the same key they are inserted before the last entry. As a consequence if we
@@ -274,13 +277,13 @@ public class BPlusTree<K, V> implements AutoCloseable {
                     @Override
                     public V next() {
                         load();
-                        System.out.println("valuesIdx="+ valuesIdx + ", values=" + values);
-                        if (valuesIdx >= values.size()) {
+                        int size = values.size();
+                        if (valuesIdx >= size) {
                             throw new NoSuchElementException();
                         } else {
                             // emit in reverse order
                             // clear the value from the list to enable early GC
-                            V v =  values.set(values.size() - valuesIdx -1, null);
+                            V v = values.set(size - valuesIdx - 1, null);
                             valuesIdx++;
                             return v;
                         }
@@ -291,7 +294,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
                             return;
                         }
                         valuesIdx = 0;
-                        values.clear();
+                        values = clear(values, VALUES_MAX_SIZE);
                         // swap values and nextValues
                         List<V> temp = values;
                         values = nextValues;
@@ -310,7 +313,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
                                         values.add(leaf.value(idx));
                                         idx++;
                                     } else {
-                                        //key has changed
+                                        // key has changed
                                         currentKey = key;
                                         nextValues.add(leaf.value(idx));
                                         idx++;
@@ -328,10 +331,23 @@ public class BPlusTree<K, V> implements AutoCloseable {
                             }
                         }
                     }
+
                 };
             }
 
         };
+    }
+
+    @VisibleForTesting
+    static <T> List<T> clear(List<T> values, int maxSize) {
+        if (values.size() > maxSize) {
+            // if values has grown a lot in size we don't want to hang on to that much
+            // memory permanently so we resize values
+            return new ArrayList<>();
+        } else {
+            values.clear();
+            return values;
+        }
     }
 
     public void print() {

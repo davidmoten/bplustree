@@ -354,5 +354,21 @@ public class BPlusTreeTest {
             assertEquals(Lists.newArrayList(3), toList(t.find(0, 4)));
         }
     }
+    
+    @Test
+    public void testClearOversize() {
+        List<Integer> list = Lists.newArrayList(1,2,3);
+        List<Integer> list2 = BPlusTree.clear(list, 2);
+        assertTrue(list2.isEmpty());
+        assertTrue(list != list2);
+    }
+    
+    @Test
+    public void testClearUndersize() {
+        List<Integer> list = Lists.newArrayList(1,2,3);
+        List<Integer> list2 = BPlusTree.clear(list, 3);
+        assertTrue(list2.isEmpty());
+        assertTrue(list == list2);
+    }
 
 }
