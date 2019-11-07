@@ -16,7 +16,7 @@ public final class BPlusTreeFileTest {
 
     private static BPlusTree<Integer, Integer> create(int maxKeys) {
 
-        return BPlusTree.<Integer, Integer>builder() //
+        return BPlusTree.<Integer, Integer>memory() //
                 .factoryProvider(FactoryProvider //
                         .file() //
                         .directory(Testing.newDirectory()) //
@@ -138,7 +138,7 @@ public final class BPlusTreeFileTest {
     }
 
     public static void main(String[] args) {
-        BPlusTree<Long, Long> tree = BPlusTree.<Long, Long>builder() //
+        BPlusTree<Long, Long> tree = BPlusTree.<Long, Long>memory() //
                 .factoryProvider(FactoryProvider //
                         .file() //
                         .directory(Testing.newDirectory()) //

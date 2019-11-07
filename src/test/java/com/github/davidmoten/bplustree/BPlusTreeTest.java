@@ -27,7 +27,7 @@ public class BPlusTreeTest {
 
     private static final Function<Integer, BPlusTree<Integer, Integer>> creatorFile = maxKeys -> {
 
-        return BPlusTree.<Integer, Integer>builder() //
+        return BPlusTree.<Integer, Integer>memory() //
                 .factoryProvider(FactoryProvider //
                         .file() //
                         .directory(Testing.newDirectory()) //
@@ -38,7 +38,7 @@ public class BPlusTreeTest {
     };
 
     private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree
-            .<Integer, Integer>builder().maxKeys(maxKeys).naturalOrder();
+            .memory().maxKeys(maxKeys).naturalOrder();
 
     @Parameters
     public static Collection<Object[]> creators() {
@@ -56,7 +56,7 @@ public class BPlusTreeTest {
     }
 
     private static BPlusTree<Integer, String> createWithStringValue(int maxKeys) {
-        return BPlusTree.<Integer, String>builder().maxKeys(maxKeys).naturalOrder();
+        return BPlusTree.<Integer, String>memory().maxKeys(maxKeys).naturalOrder();
     }
 
     @Test
@@ -346,7 +346,7 @@ public class BPlusTreeTest {
 
     @Test
     public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() throws Exception {
-        try (BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).uniqueKeys()
+        try (BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>memory().maxKeys(2).uniqueKeys()
                 .naturalOrder()) {
             t.insert(1, 2);
             t.insert(1, 3);

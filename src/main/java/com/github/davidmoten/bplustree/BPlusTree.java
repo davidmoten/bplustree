@@ -30,11 +30,11 @@ public class BPlusTree<K, V> implements AutoCloseable {
         factory.root(root);
     }
 
-    public static <K, V> Builder<K, V> builder() {
-        return new Builder<K, V>();
+    public static Builder memory() {
+        return new Builder();
     }
 
-    public static final class Builder<K, V> {
+    public static final class Builder {
 
         private static final int NOT_SPECIFIED = -1;
 
@@ -44,38 +44,42 @@ public class BPlusTree<K, V> implements AutoCloseable {
         private int maxInnerKeys = NOT_SPECIFIED;
 
         private boolean uniqueKeys = false;
-        private FactoryProvider<K, V> factoryProvider = options -> new FactoryMemory<K, V>(options);
 
         Builder() {
             // prevent instantiation
         }
 
-        public Builder<K, V> factoryProvider(FactoryProvider<K, V> factoryProvider) {
-            this.factoryProvider = factoryProvider;
-            return this;
-        }
-
-        public Builder<K, V> maxLeafKeys(int maxLeafKeys) {
+        public Builder maxLeafKeys(int maxLeafKeys) {
             this.maxLeafKeys = maxLeafKeys;
             return this;
         }
 
-        public Builder<K, V> maxNonLeafKeys(int maxInnerKeys) {
+        public Builder maxNonLeafKeys(int maxInnerKeys) {
             this.maxInnerKeys = maxInnerKeys;
             return this;
         }
 
-        public Builder<K, V> maxKeys(int maxKeys) {
+        public Builder maxKeys(int maxKeys) {
             maxLeafKeys(maxKeys);
             return maxNonLeafKeys(maxKeys);
         }
 
-        public Builder<K, V> uniqueKeys(boolean uniqueKeys) {
+        public Builder uniqueKeys(boolean uniqueKeys) {
             this.uniqueKeys = uniqueKeys;
             return this;
         }
 
-        public BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
+        @SuppressWarnings("unchecked")
+        public <K,V> BPlusTree<K, V> naturalOrder() {
+            return comparator((Comparator<K>) (Comparator<?>) Comparator.naturalOrder());
+        }
+
+        public Builder uniqueKeys() {
+            return uniqueKeys(true);
+        }
+
+        public <K,V> BPlusTree<K,V> comparator(Comparator<? super K> comparator) {
+            FactoryProvider<K,V> factoryProvider = options -> new FactoryMemory<K, V>(options);
             if (maxLeafKeys == NOT_SPECIFIED) {
                 if (maxInnerKeys == NOT_SPECIFIED) {
                     maxLeafKeys = DEFAULT_NUM_KEYS;
@@ -90,14 +94,6 @@ public class BPlusTree<K, V> implements AutoCloseable {
             return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
         }
 
-        @SuppressWarnings("unchecked")
-        public BPlusTree<K, V> naturalOrder() {
-            return comparator((Comparator<K>) (Comparator<?>) Comparator.naturalOrder());
-        }
-
-        public Builder<K, V> uniqueKeys() {
-            return uniqueKeys(true);
-        }
     }
 
     public void insert(K key, V value) {
