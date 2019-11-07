@@ -1,8 +1,10 @@
 package com.github.davidmoten.bplustree;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.github.davidmoten.bplustree.internal.memory.FactoryMemory;
@@ -19,10 +21,9 @@ public class BPlusTree<K, V> implements AutoCloseable {
     private Node<K, V> root;
 
     /** Create a new empty tree. */
-    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys,
-            Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
-                factoryProvider);
+    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
+            FactoryProvider<K, V> factoryProvider) {
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
         this.factory = options.factoryProvider().createFactory(options);
         this.root = factory.loadOrCreateRoot();
         factory.root(root);
@@ -47,8 +48,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
         Builder() {
             // prevent instantiation
         }
-        
-        public Builder<K,V> factoryProvider(FactoryProvider<K,V> factoryProvider) {
+
+        public Builder<K, V> factoryProvider(FactoryProvider<K, V> factoryProvider) {
             this.factoryProvider = factoryProvider;
             return this;
         }
@@ -85,8 +86,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
                 maxInnerKeys = maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
-                    factoryProvider);
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
         }
 
         @SuppressWarnings("unchecked")
@@ -94,7 +94,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
             return comparator((Comparator<K>) (Comparator<?>) Comparator.naturalOrder());
         }
 
-        public Builder<K,V> uniqueKeys() {
+        public Builder<K, V> uniqueKeys() {
             return uniqueKeys(true);
         }
     }
@@ -155,15 +155,17 @@ public class BPlusTree<K, V> implements AutoCloseable {
     /**
      * Returns an in-order sequence of values whose keys are >= start and < finish.
      * 
-     * @param startInclusive  inclusive end of search
-     * @param finishExclusive exclusive end of search
+     * @param startInclusive
+     *            inclusive end of search
+     * @param finishExclusive
+     *            exclusive end of search
      * @return in-order sequence of values whose keys are >= start and < finish
      */
     public Iterable<V> find(K startInclusive, K finishExclusive) {
         return find(startInclusive, finishExclusive, false);
     }
 
-    public Iterable<V> find(K startInclusive, K finish, boolean finishInclusive) {
+    public Iterable<V> find(K startInclusive, K finish, boolean isFinishInclusive) {
         return new Iterable<V>() {
 
             @Override
@@ -200,7 +202,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
                                 return;
                             } else if (idx < leaf.numKeys()) {
                                 int c = options.comparator().compare(leaf.key(idx), finish);
-                                if (c < 0 || (c == 0 && finishInclusive)) {
+                                if (c < 0 || (c == 0 && isFinishInclusive)) {
                                     value = leaf.value(idx);
                                     idx++;
                                 } else {
@@ -215,6 +217,115 @@ public class BPlusTree<K, V> implements AutoCloseable {
                         }
                     }
 
+                };
+            }
+
+        };
+    }
+
+    /**
+     * For the situation when uniqueness is false, when entries are inserted with
+     * the same key they are inserted before the last entry. As a consequence if we
+     * want to preserve the insert order in the returned values from a find then we
+     * need to collect entries with the same key and then emit them in reverse
+     * order. If there are a lot of keys with the same value then an
+     * {@link OutOfMemoryError} might be thrown.
+     * 
+     * @param startInclusive
+     * @param finishExclusive
+     * @return values of entries in searched for key range preserving insert order
+     */
+    public Iterable<V> findPreserveDuplicateInsertOrder(K startInclusive, K finishExclusive) {
+        return findPreserveInsertOrder(startInclusive, finishExclusive, false);
+    }
+
+    /**
+     * For the situation when uniqueness is false, when entries are inserted with
+     * the same key they are inserted before the last entry. As a consequence if we
+     * want to preserve the insert order in the returned values from a find then we
+     * need to collect entries with the same key and then emit them in reverse
+     * order. If there are a lot of keys with the same value then an
+     * {@link OutOfMemoryError} might be thrown.
+     * 
+     * @param startInclusive
+     * @param finish
+     * @param isFinishInclusive
+     * @return values of entries in searched for key range preserving insert order
+     */
+    public Iterable<V> findPreserveInsertOrder(K startInclusive, K finish, boolean isFinishInclusive) {
+        return new Iterable<V>() {
+
+            @Override
+            public Iterator<V> iterator() {
+                return new Iterator<V>() {
+                    Leaf<K, V> leaf = findFirstLeaf(startInclusive);
+                    int idx = leaf.getLocation(startInclusive);
+                    K currentKey;
+                    List<V> values = new ArrayList<V>();
+                    int valuesIdx = 0;
+                    List<V> nextValues = new ArrayList<V>();
+
+                    @Override
+                    public boolean hasNext() {
+                        load();
+                        return valuesIdx < values.size();
+                    }
+
+                    @Override
+                    public V next() {
+                        load();
+                        System.out.println("valuesIdx="+ valuesIdx + ", values=" + values);
+                        if (valuesIdx >= values.size()) {
+                            throw new NoSuchElementException();
+                        } else {
+                            // emit in reverse order
+                            // clear the value from the list to enable early GC
+                            V v =  values.set(values.size() - valuesIdx -1, null);
+                            valuesIdx++;
+                            return v;
+                        }
+                    }
+
+                    private void load() {
+                        if (valuesIdx < values.size()) {
+                            return;
+                        }
+                        valuesIdx = 0;
+                        values.clear();
+                        // swap values and nextValues
+                        List<V> temp = values;
+                        values = nextValues;
+                        nextValues = temp;
+                        while (true) {
+                            if (leaf == null) {
+                                return;
+                            } else if (idx < leaf.numKeys()) {
+                                K key = leaf.key(idx);
+                                int c = options.comparator().compare(key, finish);
+                                if (c < 0 || (c == 0 && isFinishInclusive)) {
+                                    if (currentKey == null) {
+                                        currentKey = key;
+                                    }
+                                    if (options.comparator().compare(currentKey, key) == 0) {
+                                        values.add(leaf.value(idx));
+                                        idx++;
+                                    } else {
+                                        nextValues.add(leaf.value(idx));
+                                        idx++;
+                                        // key has changed so we have found the next sequence
+                                        return;
+                                    }
+                                } else {
+                                    // don't search further
+                                    leaf = null;
+                                    return;
+                                }
+                            } else {
+                                leaf = leaf.next();
+                                idx = 0;
+                            }
+                        }
+                    }
                 };
             }
 

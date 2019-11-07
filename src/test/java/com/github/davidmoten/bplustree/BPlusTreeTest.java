@@ -302,6 +302,16 @@ public class BPlusTreeTest {
             assertEquals(Lists.newArrayList(3, 2), toList(t.find(0, 4)));
         }
     }
+    
+    @Test
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethod() throws Exception {
+        try (BPlusTree<Integer, Integer> t = create(2)) {
+            t.insert(1, 2);
+            t.insert(1, 3);
+            t.print();
+            assertEquals(Lists.newArrayList(2, 3), toList(t.findPreserveDuplicateInsertOrder(0, 4)));
+        }
+    }
 
     @Test
     public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() throws Exception {
