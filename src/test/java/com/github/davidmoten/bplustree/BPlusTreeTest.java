@@ -26,7 +26,7 @@ import com.github.davidmoten.guavamini.Lists;
 public class BPlusTreeTest {
 
     private static final Function<Integer, BPlusTree<Integer, Integer>> creatorFile = maxKeys -> {
-        
+
         return BPlusTree.<Integer, Integer>builder() //
                 .factoryProvider(FactoryProvider //
                         .file() //
@@ -299,12 +299,43 @@ public class BPlusTreeTest {
             t.insert(1, 2);
             t.insert(1, 3);
             t.print();
-            assertEquals(Lists.newArrayList(3, 2), toList(t.find(0, 4)));
+            assertEquals(Lists.newArrayList(3, 2), //
+                    toList(t.find(0, 4)));
+        }
+    }
+
+    @Test
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys() throws Exception {
+        try (BPlusTree<Integer, Integer> t = create(2)) {
+            t.insert(1, 12);
+            t.insert(1, 13);
+            t.insert(2, 21);
+            t.insert(2, 22);
+            t.insert(2, 23);
+            t.insert(3, 31);
+            t.print();
+            assertEquals(Lists.newArrayList(12, 13, 21, 22, 23, 31), //
+                    toList(t.findPreserveDuplicateInsertOrder(0, 4)));
         }
     }
     
     @Test
     public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethod() throws Exception {
+        try (BPlusTree<Integer, Integer> t = create(2)) {
+            t.insert(1, 12);
+            t.insert(1, 13);
+            t.insert(2, 21);
+            t.insert(2, 22);
+            t.insert(2, 23);
+            t.insert(3, 31);
+            t.print();
+            assertEquals(Lists.newArrayList(12, 13, 21, 22, 23), //
+                    toList(t.findPreserveDuplicateInsertOrder(0, 3)));
+        }
+    }
+
+    @Test
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame() throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 2);
             t.insert(1, 3);
@@ -315,8 +346,8 @@ public class BPlusTreeTest {
 
     @Test
     public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() throws Exception {
-        try (BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2)
-                .uniqueKeys().naturalOrder()) {
+        try (BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>builder().maxKeys(2).uniqueKeys()
+                .naturalOrder()) {
             t.insert(1, 2);
             t.insert(1, 3);
             t.print();

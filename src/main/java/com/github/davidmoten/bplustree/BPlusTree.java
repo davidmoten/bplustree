@@ -310,9 +310,11 @@ public class BPlusTree<K, V> implements AutoCloseable {
                                         values.add(leaf.value(idx));
                                         idx++;
                                     } else {
+                                        //key has changed
+                                        currentKey = key;
                                         nextValues.add(leaf.value(idx));
                                         idx++;
-                                        // key has changed so we have found the next sequence
+                                        // key has changed so we have found the next key sequence
                                         return;
                                     }
                                 } else {
