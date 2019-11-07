@@ -275,7 +275,6 @@ public class BPlusTreeTest {
     }
 
     @Test
-    @Ignore
     public void testFindRange() throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             for (int i = 1; i <= 10; i++) {

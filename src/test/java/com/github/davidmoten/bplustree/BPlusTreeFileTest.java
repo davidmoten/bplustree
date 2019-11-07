@@ -25,11 +25,12 @@ public final class BPlusTreeFileTest {
                 .maxKeys(maxKeys) //
                 .naturalOrder();
     }
-
+    
     @Test
     public void testInsertOne() {
         BPlusTree<Integer, Integer> tree = create(2);
         tree.insert(3, 10);
+        tree.commit();
         LeafFile<Integer, Integer> leaf = (LeafFile<Integer, Integer>) tree.root();
         assertEquals(1, leaf.numKeys());
         assertEquals(3, (int) leaf.key(0));

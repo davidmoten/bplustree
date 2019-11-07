@@ -53,6 +53,24 @@ public interface Serializer<T> {
             return Long.BYTES;
         }
     };
+    
+    public static Serializer<Short> SHORT = new Serializer<Short>() {
+
+        @Override
+        public Short read(LargeByteBuffer bb) {
+            return bb.getShort();
+        }
+
+        @Override
+        public void write(LargeByteBuffer bb, Short t) {
+            bb.putShort(t);
+        }
+
+        @Override
+        public int maxSize() {
+            return Short.BYTES;
+        }
+    };
 
     public static Serializer<String> utf8(int maxSize) {
         return string(StandardCharsets.UTF_8, maxSize);
