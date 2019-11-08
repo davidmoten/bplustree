@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
  * Similar to {@link ByteBuffer} but supports {@code long} positions instead of
  * {@code int} positions. Does not include those methods in ByteBuffer that
  * include the position as a parameter (for simplicity).
+ * 
+ * <p>Also includes the notion of commit which forces flushing of memory buffers to disk.
  *
  */
 public interface LargeByteBuffer {
