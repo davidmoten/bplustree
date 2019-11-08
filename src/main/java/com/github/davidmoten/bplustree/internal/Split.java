@@ -1,9 +1,9 @@
-package com.github.davidmoten.bplustree;
+package com.github.davidmoten.bplustree.internal;
 
 public final class Split<K, V> {
-    final K key;
-    final Node<K, V> left;
-    final Node<K, V> right;
+    public final K key;
+    public final Node<K, V> left;
+    public final Node<K, V> right;
 
     public Split(K key, Node<K, V> left, Node<K, V> right) {
         this.key = key;

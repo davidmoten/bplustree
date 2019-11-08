@@ -1,4 +1,4 @@
-package com.github.davidmoten.bplustree;
+package com.github.davidmoten.bplustree.internal;
 
 public interface NonLeaf<K, V> extends Node<K, V> {
     

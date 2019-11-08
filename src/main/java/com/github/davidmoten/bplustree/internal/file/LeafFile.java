@@ -1,7 +1,7 @@
 package com.github.davidmoten.bplustree.internal.file;
 
-import com.github.davidmoten.bplustree.Leaf;
-import com.github.davidmoten.bplustree.Options;
+import com.github.davidmoten.bplustree.internal.Leaf;
+import com.github.davidmoten.bplustree.internal.Options;
 
 public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
 

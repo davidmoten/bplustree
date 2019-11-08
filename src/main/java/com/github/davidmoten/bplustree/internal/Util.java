@@ -1,4 +1,4 @@
-package com.github.davidmoten.bplustree;
+package com.github.davidmoten.bplustree.internal;
 
 final class Util {
 

@@ -9,6 +9,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 
+import com.github.davidmoten.bplustree.internal.Factory;
+import com.github.davidmoten.bplustree.internal.FactoryProvider;
+import com.github.davidmoten.bplustree.internal.Leaf;
+import com.github.davidmoten.bplustree.internal.Node;
+import com.github.davidmoten.bplustree.internal.NonLeaf;
+import com.github.davidmoten.bplustree.internal.Options;
+import com.github.davidmoten.bplustree.internal.Split;
 import com.github.davidmoten.bplustree.internal.file.FactoryFile;
 import com.github.davidmoten.bplustree.internal.memory.FactoryMemory;
 import com.github.davidmoten.guavamini.Preconditions;
@@ -566,7 +573,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         return b.toString();
     }
 
-    public Node<K, V> root() {
+    Node<K, V> root() {
         return root;
     }
 

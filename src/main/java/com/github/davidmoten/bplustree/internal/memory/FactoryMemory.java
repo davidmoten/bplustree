@@ -1,10 +1,10 @@
 package com.github.davidmoten.bplustree.internal.memory;
 
-import com.github.davidmoten.bplustree.Factory;
-import com.github.davidmoten.bplustree.Leaf;
-import com.github.davidmoten.bplustree.Node;
-import com.github.davidmoten.bplustree.NonLeaf;
-import com.github.davidmoten.bplustree.Options;
+import com.github.davidmoten.bplustree.internal.Factory;
+import com.github.davidmoten.bplustree.internal.Leaf;
+import com.github.davidmoten.bplustree.internal.Node;
+import com.github.davidmoten.bplustree.internal.NonLeaf;
+import com.github.davidmoten.bplustree.internal.Options;
 
 public final class FactoryMemory<K, V> implements Factory<K, V> {
 
