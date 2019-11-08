@@ -16,13 +16,11 @@ public final class BPlusTreeFileTest {
 
     private static BPlusTree<Integer, Integer> create(int maxKeys) {
 
-        return BPlusTree.<Integer, Integer>memory() //
-                .factoryProvider(FactoryProvider //
-                        .file() //
-                        .directory(Testing.newDirectory()) //
-                        .keySerializer(Serializer.INTEGER) //
-                        .valueSerializer(Serializer.INTEGER)) //
+        return BPlusTree.file() //
+                .directory(Testing.newDirectory()) //
                 .maxKeys(maxKeys) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
                 .naturalOrder();
     }
 
@@ -104,16 +102,16 @@ public final class BPlusTreeFileTest {
                     int v = n - i + 1;
                     tree.insert(v, v);
                 }
-                System.out.println("insert rate desc order= "
-                        + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+                System.out.println(
+                        "insert rate desc order= " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
             }
             {
                 BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
                 for (int i = 1; i <= n; i++) {
                     tree.insert(i, i);
                 }
-                System.out.println("insert rate asc order = "
-                        + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+                System.out.println(
+                        "insert rate asc order = " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
             }
         }
     }
@@ -121,8 +119,7 @@ public final class BPlusTreeFileTest {
     @Test
     public void testRegexSpeed() {
         String s = "2019-11-06 23:13:00.427 DEBUG com.zaxxer.hikari.pool.HikariPool [HikariPool-2 housekeeper] - HikariPool-2 - Before cleanup stats (total=5, active=3, idle=2, waiting=0)";
-        Pattern p = Pattern.compile(
-                "^.*com.zaxxer.hikari.pool.HikariPool.*Before cleanup stats.*, active=([0-9]+).*$");
+        Pattern p = Pattern.compile("^.*com.zaxxer.hikari.pool.HikariPool.*Before cleanup stats.*, active=([0-9]+).*$");
         long t = System.currentTimeMillis();
         int n = 100000;
         for (int i = 0; i < n; i++) {
@@ -133,18 +130,14 @@ public final class BPlusTreeFileTest {
                 }
             }
         }
-        System.out.println("regex match rate = " + n * 1000.0 / (System.currentTimeMillis() - t)
-                + " lines per second");
+        System.out.println("regex match rate = " + n * 1000.0 / (System.currentTimeMillis() - t) + " lines per second");
     }
 
     public static void main(String[] args) {
-        BPlusTree<Long, Long> tree = BPlusTree.<Long, Long>memory() //
-                .factoryProvider(FactoryProvider //
-                        .file() //
-                        .directory(Testing.newDirectory()) //
-                        .keySerializer(Serializer.LONG) //
-                        .valueSerializer(Serializer.LONG)) //
-                .maxKeys(8)
+        BPlusTree<Long, Long> tree = BPlusTree.file() //
+                .directory(Testing.newDirectory()) //
+                .maxKeys(8).keySerializer(Serializer.LONG) //
+                .valueSerializer(Serializer.LONG) //
                 .naturalOrder();
         long i = 1;
         long t = System.currentTimeMillis();
@@ -152,8 +145,7 @@ public final class BPlusTreeFileTest {
             tree.insert(i, i);
             if (i % 1000000 == 0) {
                 long t2 = System.currentTimeMillis();
-                System.out.println(i / 1000000 + "m, insertRate=" + 1000000 * 1000.0 / (t2 - t)
-                        + " per second");
+                System.out.println(i / 1000000 + "m, insertRate=" + 1000000 * 1000.0 / (t2 - t) + " per second");
                 t = t2;
             }
             i++;

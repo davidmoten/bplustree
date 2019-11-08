@@ -27,18 +27,16 @@ public class BPlusTreeTest {
 
     private static final Function<Integer, BPlusTree<Integer, Integer>> creatorFile = maxKeys -> {
 
-        return BPlusTree.<Integer, Integer>memory() //
-                .factoryProvider(FactoryProvider //
-                        .file() //
-                        .directory(Testing.newDirectory()) //
-                        .keySerializer(Serializer.INTEGER) //
-                        .valueSerializer(Serializer.INTEGER))
+        return BPlusTree.file() //
+                .directory(Testing.newDirectory()) //
                 .maxKeys(maxKeys) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
                 .naturalOrder();
     };
 
-    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree
-            .memory().maxKeys(maxKeys).naturalOrder();
+    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree.memory()
+            .maxKeys(maxKeys).naturalOrder();
 
     @Parameters
     public static Collection<Object[]> creators() {
@@ -56,7 +54,7 @@ public class BPlusTreeTest {
     }
 
     private static BPlusTree<Integer, String> createWithStringValue(int maxKeys) {
-        return BPlusTree.<Integer, String>memory().maxKeys(maxKeys).naturalOrder();
+        return BPlusTree.memory().maxKeys(maxKeys).naturalOrder();
     }
 
     @Test
@@ -318,7 +316,7 @@ public class BPlusTreeTest {
                     toList(t.findPreserveDuplicateInsertOrder(0, 4)));
         }
     }
-    
+
     @Test
     public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethod() throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
@@ -346,7 +344,7 @@ public class BPlusTreeTest {
 
     @Test
     public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() throws Exception {
-        try (BPlusTree<Integer, Integer> t = BPlusTree.<Integer, Integer>memory().maxKeys(2).uniqueKeys()
+        try (BPlusTree<Integer, Integer> t = BPlusTree.memory().maxKeys(2).uniqueKeys()
                 .naturalOrder()) {
             t.insert(1, 2);
             t.insert(1, 3);
@@ -354,18 +352,18 @@ public class BPlusTreeTest {
             assertEquals(Lists.newArrayList(3), toList(t.find(0, 4)));
         }
     }
-    
+
     @Test
     public void testClearOversize() {
-        List<Integer> list = Lists.newArrayList(1,2,3);
+        List<Integer> list = Lists.newArrayList(1, 2, 3);
         List<Integer> list2 = BPlusTree.clear(list, 2);
         assertTrue(list2.isEmpty());
         assertTrue(list != list2);
     }
-    
+
     @Test
     public void testClearUndersize() {
-        List<Integer> list = Lists.newArrayList(1,2,3);
+        List<Integer> list = Lists.newArrayList(1, 2, 3);
         List<Integer> list2 = BPlusTree.clear(list, 3);
         assertTrue(list2.isEmpty());
         assertTrue(list == list2);

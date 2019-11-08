@@ -1,5 +1,6 @@
 package com.github.davidmoten.bplustree;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import com.github.davidmoten.bplustree.internal.file.FactoryFile;
 import com.github.davidmoten.bplustree.internal.memory.FactoryMemory;
 import com.github.davidmoten.guavamini.annotations.VisibleForTesting;
 
@@ -34,11 +36,112 @@ public class BPlusTree<K, V> implements AutoCloseable {
         return new Builder();
     }
 
+    public static BuilderFile file() {
+        return new BuilderFile();
+    }
+
+    public static final class BuilderFile {
+        File directory;
+        int segmentSizeBytes = 50 * 1024 * 1024;
+        int maxLeafKeys = NOT_SPECIFIED;
+        int maxNonLeafKeys = NOT_SPECIFIED;
+        boolean uniqueKeys = false;
+
+        public BuilderFile directory(String directory) {
+            return directory(new File(directory));
+        }
+
+        public BuilderFile directory(File directory) {
+            this.directory = directory;
+            return this;
+        }
+
+        public BuilderFile segmentSizeBytes(int size) {
+            this.segmentSizeBytes = size;
+            return this;
+        }
+
+        public BuilderFile segmentSizeMB(int size) {
+            return segmentSizeBytes(size * 1024 * 1024);
+        }
+
+        public BuilderFile maxLeafKeys(int maxLeafKeys) {
+            this.maxLeafKeys = maxLeafKeys;
+            return this;
+        }
+
+        public BuilderFile maxNonLeafKeys(int maxNonLeafKeys) {
+            this.maxNonLeafKeys = maxNonLeafKeys;
+            return this;
+        }
+
+        public BuilderFile maxKeys(int maxKeys) {
+            maxLeafKeys(maxKeys);
+            return maxNonLeafKeys(maxKeys);
+        }
+
+        public <K> BuilderFile2<K> keySerializer(Serializer<K> serializer) {
+            return new BuilderFile2<K>(this, serializer);
+        }
+    }
+
+    public static final class BuilderFile2<K> {
+
+        private BuilderFile b;
+        private final Serializer<K> keySerializer;
+
+        BuilderFile2(BuilderFile b, Serializer<K> serializer) {
+            this.b = b;
+            this.keySerializer = serializer;
+        }
+
+        public <V> BuilderFile3<K, V> valueSerializer(Serializer<V> valueSerializer) {
+            return new BuilderFile3<K, V>(b, keySerializer, valueSerializer);
+        }
+    }
+
+    public static final class BuilderFile3<K, V> {
+
+        private final BuilderFile b;
+        private final Serializer<K> keySerializer;
+        private final Serializer<V> valueSerializer;
+
+        BuilderFile3(BuilderFile b, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
+            this.b = b;
+            this.keySerializer = keySerializer;
+            this.valueSerializer = valueSerializer;
+        }
+
+        @SuppressWarnings("unchecked")
+        public BPlusTree<K, V> naturalOrder() {
+            return comparator((Comparator<K>) (Comparator<?>) Comparator.naturalOrder());
+        }
+
+        public BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
+            FactoryProvider<K, V> factoryProvider = options -> new FactoryFile<K, V>(options, b.directory,
+                    keySerializer, valueSerializer, b.segmentSizeBytes);
+
+            if (b.maxLeafKeys == NOT_SPECIFIED) {
+                if (b.maxNonLeafKeys == NOT_SPECIFIED) {
+                    b.maxLeafKeys = DEFAULT_NUM_KEYS;
+                    b.maxNonLeafKeys = DEFAULT_NUM_KEYS;
+                } else {
+                    b.maxLeafKeys = b.maxNonLeafKeys;
+                }
+            } else if (b.maxNonLeafKeys == NOT_SPECIFIED) {
+                b.maxNonLeafKeys = b.maxLeafKeys;
+            }
+
+            return new BPlusTree<K, V>(b.maxLeafKeys, b.maxNonLeafKeys, b.uniqueKeys, comparator, factoryProvider);
+        }
+
+    }
+
+    private static final int NOT_SPECIFIED = -1;
+
+    private static final int DEFAULT_NUM_KEYS = 4;
+
     public static final class Builder {
-
-        private static final int NOT_SPECIFIED = -1;
-
-        private static final int DEFAULT_NUM_KEYS = 4;
 
         private int maxLeafKeys = NOT_SPECIFIED;
         private int maxInnerKeys = NOT_SPECIFIED;
@@ -70,7 +173,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
         }
 
         @SuppressWarnings("unchecked")
-        public <K,V> BPlusTree<K, V> naturalOrder() {
+        public <K, V> BPlusTree<K, V> naturalOrder() {
             return comparator((Comparator<K>) (Comparator<?>) Comparator.naturalOrder());
         }
 
@@ -78,8 +181,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
             return uniqueKeys(true);
         }
 
-        public <K,V> BPlusTree<K,V> comparator(Comparator<? super K> comparator) {
-            FactoryProvider<K,V> factoryProvider = options -> new FactoryMemory<K, V>(options);
+        public <K, V> BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
+            FactoryProvider<K, V> factoryProvider = options -> new FactoryMemory<K, V>(options);
             if (maxLeafKeys == NOT_SPECIFIED) {
                 if (maxInnerKeys == NOT_SPECIFIED) {
                     maxLeafKeys = DEFAULT_NUM_KEYS;

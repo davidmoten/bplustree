@@ -3,7 +3,6 @@ package com.github.davidmoten.bplustree.internal.file;
 import java.io.File;
 
 import com.github.davidmoten.bplustree.Factory;
-import com.github.davidmoten.bplustree.FactoryProvider;
 import com.github.davidmoten.bplustree.Leaf;
 import com.github.davidmoten.bplustree.Node;
 import com.github.davidmoten.bplustree.NonLeaf;
@@ -12,59 +11,6 @@ import com.github.davidmoten.bplustree.Serializer;
 import com.github.davidmoten.bplustree.internal.LargeMappedByteBuffer;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder {
-        File directory;
-
-        int segmentSizeBytes = 50 * 1024 * 1024;
-
-        Builder() {
-            // reduce visibility
-        }
-
-        public Builder directory(String directory) {
-            return directory(new File(directory));
-        }
-
-        public Builder directory(File directory) {
-            this.directory = directory;
-            return this;
-        }
-
-        public Builder segmentSizeBytes(int size) {
-            this.segmentSizeBytes = size;
-            return this;
-        }
-
-        public Builder segmentSizeMB(int size) {
-            return segmentSizeBytes(size * 1024 * 1024);
-        }
-
-        public <K> Builder2<K> keySerializer(Serializer<K> serializer) {
-            return new Builder2<K>(this, serializer);
-        }
-    }
-
-    public static final class Builder2<K> {
-
-        private final Builder b;
-        private final Serializer<K> keySerializer;
-
-        public Builder2(Builder builder, Serializer<K> keySerializer) {
-            this.b = builder;
-            this.keySerializer = keySerializer;
-        }
-
-        public <V> FactoryProvider<K, V> valueSerializer(Serializer<V> valueSerializer) {
-            return options -> new FactoryFile<K, V>(options, b.directory, keySerializer, valueSerializer,
-                    b.segmentSizeBytes);
-        }
-
-    }
 
     private static final int NODE_TYPE_BYTES = 1;
     private static final int NUM_KEYS_BYTES = 1;
