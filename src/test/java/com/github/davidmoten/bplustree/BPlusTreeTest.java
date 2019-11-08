@@ -313,7 +313,7 @@ public class BPlusTreeTest {
             t.insert(3, 31);
             t.print();
             assertEquals(Lists.newArrayList(12, 13, 21, 22, 23, 31), //
-                    toList(t.findPreserveDuplicateInsertOrder(0, 4)));
+                    toList(t.findOrderPreserving(0, 4)));
         }
     }
 
@@ -328,7 +328,7 @@ public class BPlusTreeTest {
             t.insert(3, 31);
             t.print();
             assertEquals(Lists.newArrayList(12, 13, 21, 22, 23), //
-                    toList(t.findPreserveDuplicateInsertOrder(0, 3)));
+                    toList(t.findOrderPreserving(0, 3)));
         }
     }
 
@@ -338,7 +338,7 @@ public class BPlusTreeTest {
             t.insert(1, 2);
             t.insert(1, 3);
             t.print();
-            assertEquals(Lists.newArrayList(2, 3), toList(t.findPreserveDuplicateInsertOrder(0, 4)));
+            assertEquals(Lists.newArrayList(2, 3), toList(t.findOrderPreserving(0, 4)));
         }
     }
 

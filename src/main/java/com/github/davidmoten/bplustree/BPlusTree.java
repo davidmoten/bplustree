@@ -356,8 +356,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * @param finishExclusive finish of the key range, exclusive
      * @return values of entries in searched for key range preserving insert order
      */
-    public Iterable<V> findPreserveDuplicateInsertOrder(K startInclusive, K finishExclusive) {
-        return findPreserveDuplicateInsertOrder(startInclusive, finishExclusive, false);
+    public Iterable<V> findOrderPreserving(K startInclusive, K finishExclusive) {
+        return findOrderPreserving(startInclusive, finishExclusive, false);
     }
 
     private static final int VALUES_MAX_SIZE = 256;
@@ -375,8 +375,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
      * @return values of entries in searched for key range preserving insert order
      */
-    public Iterable<V> findPreserveDuplicateInsertOrder(K startInclusive, K finish, boolean isFinishInclusive) {
-        return findPreserveDuplicateInsertOrder(startInclusive, finish, isFinishInclusive, (k, v) -> v);
+    public Iterable<V> findOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive) {
+        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive, (k, v) -> v);
     }
 
     /**
@@ -392,8 +392,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
      * @return values of entries in searched for key range preserving insert order
      */
-    public Iterable<Entry<K,V>> findPreserveDuplicateInsertOrderEntries(K startInclusive, K finish, boolean isFinishInclusive) {
-        return findPreserveDuplicateInsertOrder(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k,v));
+    public Iterable<Entry<K,V>> findEntriesOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive) {
+        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k,v));
     }
 
     /**
@@ -411,7 +411,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * @return values of entries in searched for key range preserving insert order
      *            maps the key and value to the streamed result
      */
-    public <R> Iterable<R> findPreserveDuplicateInsertOrder(K startInclusive, K finish, boolean isFinishInclusive,
+    public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive,
             BiFunction<K, V, R> mapper) {
         return new Iterable<R>() {
 

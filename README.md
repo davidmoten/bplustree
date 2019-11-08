@@ -61,10 +61,10 @@ Duplicate keys are allowed by default. You can force overwrite of keyed values b
 Note that for efficiency values with duplicate keys are entered into the tree in reverse insert order so to extract the values retaining insert order a special method is used:
 
 ```java
-tree.findPreserveDuplicateInsertOrder(0, 3000);
+tree.findOrderPreserving(0, 3000);
 ```
 
 ## Design
 B+-tree index is stored across multiple files (of fixed size). Pointers to values are stored in the tree and the values are stored across a separate set of files (of fixed size).
 
-A LargeByteBuffer abstracts access via Memory Mapped Files to a set of files (ByteBuffer only offers int positions which restricts size to 2GB, LargeByteBuffer offers long positions with no effective limit of size (apart from the node capacity).
+A LargeByteBuffer abstracts access via Memory Mapped Files to a set of files (ByteBuffer only offers int positions which restricts size to 2GB, LargeByteBuffer offers long positions with no effective limit of size (apart from available disk).
