@@ -13,7 +13,8 @@ Disk based B+-tree in java designed for querying of metrics (key-value pairs) fr
 * variable size values
 * very large size storage (>2GB of keys or values)
 * optimized for insert in approximate index order
-* single threaded 
+* single threaded (no concurrency support)
+* no transactions
 
 ## Getting started
 Add this to your pom.xml:
@@ -47,7 +48,20 @@ tree.insert(1000L, "hello");
 tree.insert(2000L, "there");
 
 // search the tree for values with keys between 0 and 3000
+// and print out key value pairs
+tree.findEntries(0, 3000).forEach(System.out.println);
+
+// search the tree for values with keys between 0 and 3000
+// and print out values only
 tree.find(0, 3000).forEach(System.out.println);
+```
+## Duplicate keys
+Duplicate keys are allowed by default. You can force overwrite of keyed values by setting `.unique(false)` in the builder.
+
+Note that for efficiency values with duplicate keys are entered into the tree in reverse insert order so to extract the values retaining insert order a special method is used:
+
+```java
+tree.findPreserveDuplicateInsertOrder(0, 3000);
 ```
 
 ## Design
