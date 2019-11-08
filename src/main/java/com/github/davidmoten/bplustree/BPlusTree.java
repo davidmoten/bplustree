@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.BiFunction;
 
 import com.github.davidmoten.bplustree.internal.file.FactoryFile;
 import com.github.davidmoten.bplustree.internal.memory.FactoryMemory;
@@ -277,14 +278,22 @@ public class BPlusTree<K, V> implements AutoCloseable {
     }
 
     public Iterable<V> find(K startInclusive, K finish, boolean isFinishInclusive) {
-        return new Iterable<V>() {
+        return find(startInclusive, finish, isFinishInclusive, (k, v) -> v);
+    }
+
+    public Iterable<Entry<K, V>> findEntries(K startInclusive, K finish, boolean isFinishInclusive) {
+        return find(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k, v));
+    }
+
+    public <R> Iterable<R> find(K startInclusive, K finish, boolean isFinishInclusive, BiFunction<K, V, R> mapper) {
+        return new Iterable<R>() {
 
             @Override
-            public Iterator<V> iterator() {
-                return new Iterator<V>() {
+            public Iterator<R> iterator() {
+                return new Iterator<R>() {
                     Leaf<K, V> leaf = findFirstLeaf(startInclusive);
                     int idx = leaf.getLocation(startInclusive);
-                    V value;
+                    R value;
 
                     @Override
                     public boolean hasNext() {
@@ -293,9 +302,9 @@ public class BPlusTree<K, V> implements AutoCloseable {
                     }
 
                     @Override
-                    public V next() {
+                    public R next() {
                         load();
-                        V v = value;
+                        R v = value;
                         value = null;
                         if (v == null) {
                             throw new NoSuchElementException();
@@ -312,9 +321,10 @@ public class BPlusTree<K, V> implements AutoCloseable {
                             if (leaf == null) {
                                 return;
                             } else if (idx < leaf.numKeys()) {
-                                int c = options.comparator().compare(leaf.key(idx), finish);
+                                K key = leaf.key(idx);
+                                int c = options.comparator().compare(key, finish);
                                 if (c < 0 || (c == 0 && isFinishInclusive)) {
-                                    value = leaf.value(idx);
+                                    value = mapper.apply(key, leaf.value(idx));
                                     idx++;
                                 } else {
                                     // don't search further
@@ -333,7 +343,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
 
         };
     }
-    
+
     /**
      * For the situation when uniqueness is false, when entries are inserted with
      * the same key they are inserted before the last entry. As a consequence if we
@@ -366,17 +376,54 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * @return values of entries in searched for key range preserving insert order
      */
     public Iterable<V> findPreserveDuplicateInsertOrder(K startInclusive, K finish, boolean isFinishInclusive) {
-        return new Iterable<V>() {
+        return findPreserveDuplicateInsertOrder(startInclusive, finish, isFinishInclusive, (k, v) -> v);
+    }
+
+    /**
+     * For the situation when uniqueness is false, when entries are inserted with
+     * the same key they are inserted before the last entry. As a consequence if we
+     * want to preserve the insert order in the returned values from a find then we
+     * need to collect entries with the same key and then emit them in reverse
+     * order. If there are a lot of keys with the same value then an
+     * {@link OutOfMemoryError} might be thrown.
+     * 
+     * @param startInclusive
+     * @param finish
+     * @param isFinishInclusive
+     * @return values of entries in searched for key range preserving insert order
+     */
+    public Iterable<Entry<K,V>> findPreserveDuplicateInsertOrderEntries(K startInclusive, K finish, boolean isFinishInclusive) {
+        return findPreserveDuplicateInsertOrder(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k,v));
+    }
+
+    /**
+     * For the situation when uniqueness is false, when entries are inserted with
+     * the same key they are inserted before the last entry. As a consequence if we
+     * want to preserve the insert order in the returned values from a find then we
+     * need to collect entries with the same key and then emit them in reverse
+     * order. If there are a lot of keys with the same value then an
+     * {@link OutOfMemoryError} might be thrown.
+     * 
+     * @param startInclusive
+     * @param finish
+     * @param isFinishInclusive
+     * @param mapper
+     *            maps the key and value to the streamed result
+     * @return values of entries in searched for key range preserving insert order
+     */
+    public <R> Iterable<R> findPreserveDuplicateInsertOrder(K startInclusive, K finish, boolean isFinishInclusive,
+            BiFunction<K, V, R> mapper) {
+        return new Iterable<R>() {
 
             @Override
-            public Iterator<V> iterator() {
-                return new Iterator<V>() {
+            public Iterator<R> iterator() {
+                return new Iterator<R>() {
                     Leaf<K, V> leaf = findFirstLeaf(startInclusive);
                     int idx = leaf.getLocation(startInclusive);
                     K currentKey;
-                    List<V> values = new ArrayList<V>();
+                    List<R> values = new ArrayList<>();
                     int valuesIdx = 0;
-                    List<V> nextValues = new ArrayList<V>();
+                    List<R> nextValues = new ArrayList<>();
 
                     @Override
                     public boolean hasNext() {
@@ -385,7 +432,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
                     }
 
                     @Override
-                    public V next() {
+                    public R next() {
                         load();
                         int size = values.size();
                         if (valuesIdx >= size) {
@@ -393,7 +440,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
                         } else {
                             // emit in reverse order
                             // clear the value from the list to enable early GC
-                            V v = values.set(size - valuesIdx - 1, null);
+                            R v = values.set(size - valuesIdx - 1, null);
                             valuesIdx++;
                             return v;
                         }
@@ -406,7 +453,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
                         valuesIdx = 0;
                         values = clear(values, VALUES_MAX_SIZE);
                         // swap values and nextValues
-                        List<V> temp = values;
+                        List<R> temp = values;
                         values = nextValues;
                         nextValues = temp;
                         while (true) {
@@ -419,13 +466,14 @@ public class BPlusTree<K, V> implements AutoCloseable {
                                     if (currentKey == null) {
                                         currentKey = key;
                                     }
+                                    R r = mapper.apply(key, leaf.value(idx));
                                     if (options.comparator().compare(currentKey, key) == 0) {
-                                        values.add(leaf.value(idx));
+                                        values.add(r);
                                         idx++;
                                     } else {
                                         // key has changed
                                         currentKey = key;
-                                        nextValues.add(leaf.value(idx));
+                                        nextValues.add(r);
                                         idx++;
                                         // key has changed so we have found the next key sequence
                                         return;
