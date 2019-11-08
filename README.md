@@ -1,11 +1,16 @@
 # bplustree
-Disk based B+-tree in java designed for querying of metrics (key-value pairs) from logs (time-based). 
+Disk based B+-tree in java using memory mapped files.
+
+## Features
+* size only limited by available disk
+* supports range queries
+* optionally supports duplicate keys
+* supports queries preserving insert order on duplicate keys 
 
 ## Requirements
 
 * fast read time for range queries by time and key
 * fast insert time
-* no updates
 * single node implementation (not distributed)
 * support truncate (throw away old stuff) and maintain perf requirements
 * use memory-mapped files for speed
@@ -30,7 +35,7 @@ Add this to your pom.xml:
 
 ## Example
 
-Lets create a file based index of timestamped strings. Timestamps don't have to be unique.
+Lets create a file based index of timestamped strings (for example lines from a log). Timestamps don't have to be unique.
 
 ```java
 BPlusTree<Long, String> tree = 

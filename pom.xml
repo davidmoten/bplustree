@@ -12,7 +12,7 @@
     <artifactId>bplustree</artifactId>
     <version>0.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
-    <description>B+-tree using Memory Mapped Files</description>
+    <description>B+-tree using Memory Mapped Files, supports range queries and duplicate keys</description>
     <packaging>jar</packaging>
 
     <url>http://github.com/davidmoten/logss</url>
