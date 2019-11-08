@@ -18,6 +18,24 @@ public interface Serializer<T> {
      */
     int maxSize();
 
+    public static Serializer<Short> SHORT = new Serializer<Short>() {
+
+        @Override
+        public Short read(LargeByteBuffer bb) {
+            return bb.getShort();
+        }
+
+        @Override
+        public void write(LargeByteBuffer bb, Short t) {
+            bb.putShort(t);
+        }
+
+        @Override
+        public int maxSize() {
+            return Short.BYTES;
+        }
+    };
+
     public static Serializer<Integer> INTEGER = new Serializer<Integer>() {
 
         @Override
@@ -54,21 +72,39 @@ public interface Serializer<T> {
         }
     };
 
-    public static Serializer<Short> SHORT = new Serializer<Short>() {
+    public static Serializer<Float> FLOAT = new Serializer<Float>() {
 
         @Override
-        public Short read(LargeByteBuffer bb) {
-            return bb.getShort();
+        public Float read(LargeByteBuffer bb) {
+            return ((Double) bb.getFloat()).floatValue();
         }
 
         @Override
-        public void write(LargeByteBuffer bb, Short t) {
-            bb.putShort(t);
+        public void write(LargeByteBuffer bb, Float t) {
+            bb.putFloat(t);
         }
 
         @Override
         public int maxSize() {
-            return Short.BYTES;
+            return Float.BYTES;
+        }
+    };
+
+    public static Serializer<Double> DOUBLE = new Serializer<Double>() {
+
+        @Override
+        public Double read(LargeByteBuffer bb) {
+            return bb.getDouble();
+        }
+
+        @Override
+        public void write(LargeByteBuffer bb, Double t) {
+            bb.putDouble(t);
+        }
+
+        @Override
+        public int maxSize() {
+            return Double.BYTES;
         }
     };
 
