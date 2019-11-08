@@ -228,6 +228,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
             node.setChild(1, result.right);
             root = node;
             factory.root(root);
+            // commit changing the root node which shouldn't happen very often
+            factory.commit();
         }
     }
 
@@ -247,13 +249,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
 
     public Iterable<V> find(K key) {
 
-        return new Iterable<V>() {
-
-            @Override
-            public Iterator<V> iterator() {
-                throw new UnsupportedOperationException("not implemented yet");
-            }
-        };
+        return find(key, key, true);
     }
 
     private Leaf<K, V> findFirstLeaf(K key) {
@@ -337,7 +333,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
 
         };
     }
-
+    
     /**
      * For the situation when uniqueness is false, when entries are inserted with
      * the same key they are inserted before the last entry. As a consequence if we
@@ -351,7 +347,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * @return values of entries in searched for key range preserving insert order
      */
     public Iterable<V> findPreserveDuplicateInsertOrder(K startInclusive, K finishExclusive) {
-        return findPreserveInsertOrder(startInclusive, finishExclusive, false);
+        return findPreserveDuplicateInsertOrder(startInclusive, finishExclusive, false);
     }
 
     private static final int VALUES_MAX_SIZE = 256;
@@ -369,7 +365,7 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * @param isFinishInclusive
      * @return values of entries in searched for key range preserving insert order
      */
-    public Iterable<V> findPreserveInsertOrder(K startInclusive, K finish, boolean isFinishInclusive) {
+    public Iterable<V> findPreserveDuplicateInsertOrder(K startInclusive, K finish, boolean isFinishInclusive) {
         return new Iterable<V>() {
 
             @Override
