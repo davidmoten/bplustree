@@ -229,6 +229,14 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         return ByteBuffer.allocate(Long.BYTES).putLong(n).array();
     }
 
+    private static byte[] toBytes(double n) {
+        return ByteBuffer.allocate(Double.BYTES).putDouble(n).array();
+    }
+
+    private static byte[] toBytes(float n) {
+        return ByteBuffer.allocate(Float.BYTES).putFloat(n).array();
+    }
+
     private short toShort(byte[] bytes) {
         short ret = 0;
         for (int i = 0; i < 2; i++) {
@@ -254,6 +262,14 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
             result |= (b[i] & 0xFF);
         }
         return result;
+    }
+
+    private static double toDouble(byte[] b) {
+        return ByteBuffer.wrap(b).getDouble();
+    }
+
+    private static double toFloat(byte[] b) {
+        return ByteBuffer.wrap(b).getFloat();
     }
 
     @Override
@@ -284,6 +300,40 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
             channel.close();
         }
 
+    }
+
+    @Override
+    public double getDouble() {
+        get(temp8Bytes);
+        return toDouble(temp8Bytes);
+    }
+
+    @Override
+    public void putDouble(double value) {
+        long p = position;
+        if (segmentNumber(p) == segmentNumber(p + Double.BYTES)) {
+            bb(p).putDouble(value);
+            position += Double.BYTES;
+        } else {
+            put(toBytes(value));
+        }
+    }
+
+    @Override
+    public double getFloat() {
+        get(temp4Bytes);
+        return toFloat(temp4Bytes);
+    }
+
+    @Override
+    public void putFloat(float value) {
+        long p = position;
+        if (segmentNumber(p) == segmentNumber(p + Float.BYTES)) {
+            bb(p).putFloat(value);
+            position += Float.BYTES;
+        } else {
+            put(toBytes(value));
+        }
     }
 
 }
