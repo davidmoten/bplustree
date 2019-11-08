@@ -98,4 +98,37 @@ public class LargeMappedByteBufferTest {
         }
     }
 
+    @Test
+    public void testWriteAndReadDoubleValuesAcrossSegments() throws IOException {
+        for (int size = 1; size <= 3 * Double.BYTES + 1; size++) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size,
+                    "index-")) {
+                b.putDouble(10.01);
+                b.putDouble(11.01);
+                b.putDouble(12.01);
+                // now read what we've just written
+                b.position(0);
+                assertEquals(10.01, b.getDouble(), 0.00001);
+                assertEquals(11.01, b.getDouble(), 0.00001);
+                assertEquals(12.01, b.getDouble(), 0.00001);
+            }
+        }
+    }
+
+    @Test
+    public void testWriteAndReadFloatValuesAcrossSegments() throws IOException {
+        for (int size = 1; size <= 3 * Float.BYTES + 1; size++) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size,
+                    "index-")) {
+                b.putFloat(10.01f);
+                b.putFloat(11.01f);
+                b.putFloat(12.01f);
+                // now read what we've just written
+                b.position(0);
+                assertEquals(10.01f, b.getFloat(), 0.00001);
+                assertEquals(11.01f, b.getFloat(), 0.00001);
+                assertEquals(12.01f, b.getFloat(), 0.00001);
+            }
+        }
+    }
 }
