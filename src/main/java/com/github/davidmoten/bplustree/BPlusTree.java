@@ -41,72 +41,83 @@ public class BPlusTree<K, V> implements AutoCloseable {
     }
 
     public static final class BuilderFile {
+
+        BuilderFile() {
+            // restrict visibility
+        }
+
+        public BuilderFile2 directory(String directory) {
+            return directory(new File(directory));
+        }
+
+        public BuilderFile2 directory(File directory) {
+            return new BuilderFile2(directory);
+        }
+
+    }
+
+    public static final class BuilderFile2 {
         File directory;
         int segmentSizeBytes = 50 * 1024 * 1024;
         int maxLeafKeys = NOT_SPECIFIED;
         int maxNonLeafKeys = NOT_SPECIFIED;
         boolean uniqueKeys = false;
 
-        public BuilderFile directory(String directory) {
-            return directory(new File(directory));
-        }
-
-        public BuilderFile directory(File directory) {
+        public BuilderFile2(File directory) {
             this.directory = directory;
-            return this;
         }
 
-        public BuilderFile segmentSizeBytes(int size) {
+        public BuilderFile2 segmentSizeBytes(int size) {
             this.segmentSizeBytes = size;
             return this;
         }
 
-        public BuilderFile segmentSizeMB(int size) {
+        public BuilderFile2 segmentSizeMB(int size) {
             return segmentSizeBytes(size * 1024 * 1024);
         }
 
-        public BuilderFile maxLeafKeys(int maxLeafKeys) {
+        public BuilderFile2 maxLeafKeys(int maxLeafKeys) {
             this.maxLeafKeys = maxLeafKeys;
             return this;
         }
 
-        public BuilderFile maxNonLeafKeys(int maxNonLeafKeys) {
+        public BuilderFile2 maxNonLeafKeys(int maxNonLeafKeys) {
             this.maxNonLeafKeys = maxNonLeafKeys;
             return this;
         }
 
-        public BuilderFile maxKeys(int maxKeys) {
+        public BuilderFile2 maxKeys(int maxKeys) {
             maxLeafKeys(maxKeys);
             return maxNonLeafKeys(maxKeys);
         }
 
-        public <K> BuilderFile2<K> keySerializer(Serializer<K> serializer) {
-            return new BuilderFile2<K>(this, serializer);
+        public <K> BuilderFile3<K> keySerializer(Serializer<K> serializer) {
+            return new BuilderFile3<K>(this, serializer);
         }
     }
 
-    public static final class BuilderFile2<K> {
+    public static final class BuilderFile3<K> {
 
-        private BuilderFile b;
+        private BuilderFile2 b;
         private final Serializer<K> keySerializer;
 
-        BuilderFile2(BuilderFile b, Serializer<K> serializer) {
+        BuilderFile3(BuilderFile2 b, Serializer<K> serializer) {
             this.b = b;
             this.keySerializer = serializer;
         }
 
-        public <V> BuilderFile3<K, V> valueSerializer(Serializer<V> valueSerializer) {
-            return new BuilderFile3<K, V>(b, keySerializer, valueSerializer);
+        public <V> BuilderFile4<K, V> valueSerializer(Serializer<V> valueSerializer) {
+            return new BuilderFile4<K, V>(b, keySerializer, valueSerializer);
         }
     }
 
-    public static final class BuilderFile3<K, V> {
+    public static final class BuilderFile4<K, V> {
 
-        private final BuilderFile b;
+        private final BuilderFile2 b;
         private final Serializer<K> keySerializer;
         private final Serializer<V> valueSerializer;
 
-        BuilderFile3(BuilderFile b, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
+        BuilderFile4(BuilderFile2 b, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
             this.b = b;
             this.keySerializer = keySerializer;
             this.valueSerializer = valueSerializer;
