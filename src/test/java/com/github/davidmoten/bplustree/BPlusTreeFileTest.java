@@ -19,6 +19,7 @@ public final class BPlusTreeFileTest {
         return BPlusTree.file() //
                 .directory(Testing.newDirectory()) //
                 .maxKeys(maxKeys) //
+                .segmentSizeMB(1) //
                 .keySerializer(Serializer.INTEGER) //
                 .valueSerializer(Serializer.INTEGER) //
                 .naturalOrder();
