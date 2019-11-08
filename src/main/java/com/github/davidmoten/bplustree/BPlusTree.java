@@ -109,6 +109,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         }
 
         public <K> BuilderFile3<K> keySerializer(Serializer<K> serializer) {
+            Preconditions.checkArgument(serializer.maxSize() > 0,
+                    "key serializer must have non-zero maxSize");
             return new BuilderFile3<K>(this, serializer);
         }
     }
