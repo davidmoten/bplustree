@@ -14,7 +14,7 @@ import com.github.davidmoten.bplustree.internal.memory.FactoryMemory;
 import com.github.davidmoten.guavamini.Preconditions;
 import com.github.davidmoten.guavamini.annotations.VisibleForTesting;
 
-public class BPlusTree<K, V> implements AutoCloseable {
+public final class BPlusTree<K, V> implements AutoCloseable {
 
     private static final int MAX_KEYS_NOT_SPECIFIED = -1;
     private static final int DEFAULT_NUM_KEYS = 4;

@@ -3,7 +3,7 @@ package com.github.davidmoten.bplustree;
 public interface NonLeaf<K, V> extends Node<K, V> {
     
     public static final int TYPE = 1;
-
+    
     void setNumKeys(int numKeys);
 
     @Override

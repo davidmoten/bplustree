@@ -15,6 +15,7 @@ Disk based B+-tree in java designed for querying of metrics (key-value pairs) fr
 * optimized for insert in approximate index order
 * single threaded (no concurrency support)
 * no transactions
+* delete not supported (?)
 
 ## Getting started
 Add this to your pom.xml:
