@@ -10,9 +10,13 @@ import java.util.NoSuchElementException;
 
 import com.github.davidmoten.bplustree.internal.file.FactoryFile;
 import com.github.davidmoten.bplustree.internal.memory.FactoryMemory;
+import com.github.davidmoten.guavamini.Preconditions;
 import com.github.davidmoten.guavamini.annotations.VisibleForTesting;
 
 public class BPlusTree<K, V> implements AutoCloseable {
+
+    private static final int MAX_KEYS_NOT_SPECIFIED = -1;
+    private static final int DEFAULT_NUM_KEYS = 4;
 
     private final Options<K, V> options;
     private final Factory<K, V> factory;
@@ -47,10 +51,12 @@ public class BPlusTree<K, V> implements AutoCloseable {
         }
 
         public BuilderFile2 directory(String directory) {
+            Preconditions.checkNotNull(directory);
             return directory(new File(directory));
         }
 
         public BuilderFile2 directory(File directory) {
+            Preconditions.checkNotNull(directory);
             return new BuilderFile2(directory);
         }
 
@@ -59,20 +65,22 @@ public class BPlusTree<K, V> implements AutoCloseable {
     public static final class BuilderFile2 {
         File directory;
         int segmentSizeBytes = 50 * 1024 * 1024;
-        int maxLeafKeys = NOT_SPECIFIED;
-        int maxNonLeafKeys = NOT_SPECIFIED;
+        int maxLeafKeys = MAX_KEYS_NOT_SPECIFIED;
+        int maxNonLeafKeys = MAX_KEYS_NOT_SPECIFIED;
         boolean uniqueKeys = false;
 
-        public BuilderFile2(File directory) {
+        BuilderFile2(File directory) {
             this.directory = directory;
         }
 
         public BuilderFile2 segmentSizeBytes(int size) {
+            Preconditions.checkArgument(size > 0);
             this.segmentSizeBytes = size;
             return this;
         }
 
         public BuilderFile2 segmentSizeMB(int size) {
+            Preconditions.checkArgument(size > 0);
             return segmentSizeBytes(size * 1024 * 1024);
         }
 
@@ -132,14 +140,14 @@ public class BPlusTree<K, V> implements AutoCloseable {
             FactoryProvider<K, V> factoryProvider = options -> new FactoryFile<K, V>(options, b.directory,
                     keySerializer, valueSerializer, b.segmentSizeBytes);
 
-            if (b.maxLeafKeys == NOT_SPECIFIED) {
-                if (b.maxNonLeafKeys == NOT_SPECIFIED) {
+            if (b.maxLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
+                if (b.maxNonLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
                     b.maxLeafKeys = DEFAULT_NUM_KEYS;
                     b.maxNonLeafKeys = DEFAULT_NUM_KEYS;
                 } else {
                     b.maxLeafKeys = b.maxNonLeafKeys;
                 }
-            } else if (b.maxNonLeafKeys == NOT_SPECIFIED) {
+            } else if (b.maxNonLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
                 b.maxNonLeafKeys = b.maxLeafKeys;
             }
 
@@ -148,14 +156,10 @@ public class BPlusTree<K, V> implements AutoCloseable {
 
     }
 
-    private static final int NOT_SPECIFIED = -1;
-
-    private static final int DEFAULT_NUM_KEYS = 4;
-
     public static final class Builder {
 
-        private int maxLeafKeys = NOT_SPECIFIED;
-        private int maxInnerKeys = NOT_SPECIFIED;
+        private int maxLeafKeys = MAX_KEYS_NOT_SPECIFIED;
+        private int maxInnerKeys = MAX_KEYS_NOT_SPECIFIED;
 
         private boolean uniqueKeys = false;
 
@@ -194,14 +198,14 @@ public class BPlusTree<K, V> implements AutoCloseable {
 
         public <K, V> BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
             FactoryProvider<K, V> factoryProvider = options -> new FactoryMemory<K, V>(options);
-            if (maxLeafKeys == NOT_SPECIFIED) {
-                if (maxInnerKeys == NOT_SPECIFIED) {
+            if (maxLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
+                if (maxInnerKeys == MAX_KEYS_NOT_SPECIFIED) {
                     maxLeafKeys = DEFAULT_NUM_KEYS;
                     maxInnerKeys = DEFAULT_NUM_KEYS;
                 } else {
                     maxLeafKeys = maxInnerKeys;
                 }
-            } else if (maxInnerKeys == NOT_SPECIFIED) {
+            } else if (maxInnerKeys == MAX_KEYS_NOT_SPECIFIED) {
                 maxInnerKeys = maxLeafKeys;
             }
 
