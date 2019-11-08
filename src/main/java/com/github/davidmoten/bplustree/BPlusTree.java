@@ -295,7 +295,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     public Iterable<Entry<K, V>> findEntries(K startInclusive, K finishExclusive) {
         return findEntries(startInclusive, finishExclusive, false);
     }
-    
+
     public Iterable<Entry<K, V>> findEntries(K startInclusive, K finish,
             boolean isFinishInclusive) {
         return find(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k, v));

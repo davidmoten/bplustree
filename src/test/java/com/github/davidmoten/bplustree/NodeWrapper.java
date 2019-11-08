@@ -13,9 +13,9 @@ public final class NodeWrapper<K, V> {
     public NodeWrapper(Node<K, V> node) {
         this.node = node;
     }
-    
-    public static <K,V> NodeWrapper<K, V> root(BPlusTree<K, V> tree) {
-        return new NodeWrapper<K,V>(tree.root());
+
+    public static <K, V> NodeWrapper<K, V> root(BPlusTree<K, V> tree) {
+        return new NodeWrapper<K, V>(tree.root());
     }
 
     public List<K> keys() {

@@ -1,7 +1,7 @@
 package com.github.davidmoten.bplustree.internal;
 
 public interface Leaf<K, V> extends Node<K, V> {
-    
+
     public static final int TYPE = 0;
 
     @Override
@@ -28,12 +28,9 @@ public interface Leaf<K, V> extends Node<K, V> {
      * sets the number of keys in the new Leaf to be {@code length}, sets the number
      * of keys in source Leaf to be {@code start}.
      * 
-     * @param start
-     *            start index of Key Value pairs to copy in current Leaf
-     * @param length
-     *            number of Key Value pairs to copy
-     * @param newLeaf
-     *            a new empty Leaf
+     * @param start   start index of Key Value pairs to copy in current Leaf
+     * @param length  number of Key Value pairs to copy
+     * @param newLeaf a new empty Leaf
      */
     void move(int start, int length, Leaf<K, V> newLeaf);
 
@@ -45,7 +42,7 @@ public interface Leaf<K, V> extends Node<K, V> {
     default Split<K, V> insert(K key, V value) {
         // Simple linear search
         int i = getLocation(key);
-        if (numKeys() == options().maxLeafKeys()) { 
+        if (numKeys() == options().maxLeafKeys()) {
             // The node is full. We must split it
             int mid = (options().maxLeafKeys() + 1) / 2;
             int len = numKeys() - mid;

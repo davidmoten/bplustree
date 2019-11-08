@@ -14,7 +14,8 @@ public class SerializerTest {
     @Test
     public void testLong() throws IOException {
         assertEquals(8, Serializer.LONG.maxSize());
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100, "test-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100,
+                "test-")) {
             b.position(0);
             Serializer.LONG.write(b, Long.MAX_VALUE);
             b.position(0);
@@ -25,7 +26,8 @@ public class SerializerTest {
     @Test
     public void testShort() throws IOException {
         assertEquals(2, Serializer.SHORT.maxSize());
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100, "test-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100,
+                "test-")) {
             b.position(0);
             Serializer.SHORT.write(b, Short.MAX_VALUE);
             b.position(0);
@@ -36,7 +38,8 @@ public class SerializerTest {
     @Test
     public void testInteger() throws IOException {
         assertEquals(4, Serializer.INTEGER.maxSize());
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100, "test-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100,
+                "test-")) {
             b.position(0);
             Serializer.INTEGER.write(b, Integer.MAX_VALUE);
             b.position(0);
@@ -48,7 +51,8 @@ public class SerializerTest {
     public void testUtf8() throws IOException {
         Serializer<String> ser = Serializer.utf8(16);
         assertEquals(16, ser.maxSize());
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100, "test-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100,
+                "test-")) {
             b.position(0);
             ser.write(b, "hello");
             b.position(0);
@@ -60,7 +64,8 @@ public class SerializerTest {
     public void testBytes() throws IOException {
         Serializer<byte[]> ser = Serializer.bytes(16);
         assertEquals(16, ser.maxSize());
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100, "test-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100,
+                "test-")) {
             b.position(0);
             ser.write(b, "hello".getBytes(StandardCharsets.UTF_8));
             b.position(0);

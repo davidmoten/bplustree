@@ -53,7 +53,7 @@ public interface Serializer<T> {
             return Long.BYTES;
         }
     };
-    
+
     public static Serializer<Short> SHORT = new Serializer<Short>() {
 
         @Override

@@ -14,8 +14,7 @@ final class Util {
         }
     }
 
-    
-    static <K,V> void insertNonfull(NonLeaf<K,V> node, K key, V value) {
+    static <K, V> void insertNonfull(NonLeaf<K, V> node, K key, V value) {
         // Simple linear search
         int index = node.getLocation(key);
         Split<K, V> result = node.child(index).insert(key, value);

@@ -59,7 +59,7 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
 
     @Override
     public void move(int mid, NonLeaf<K, V> other, int length) {
-        factory.nonLeafMove(position, mid, length, (NonLeafFile<K,V>) other);
+        factory.nonLeafMove(position, mid, length, (NonLeafFile<K, V>) other);
 
     }
 

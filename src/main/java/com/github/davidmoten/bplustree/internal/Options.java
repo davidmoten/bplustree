@@ -18,8 +18,8 @@ public final class Options<K, V> {
     private final boolean uniqueKeys;
     private final FactoryProvider<K, V> factoryProvider;
 
-    public Options(int maxLeafKeys, int maxNonLeafKeys, boolean uniqueKeys, Comparator<? super K> comparator,
-            FactoryProvider<K, V> factoryProvider) {
+    public Options(int maxLeafKeys, int maxNonLeafKeys, boolean uniqueKeys,
+            Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
         // only one byte used to store num keys so check values
         Preconditions.checkArgument(0 < maxLeafKeys && maxLeafKeys <= 255);
         Preconditions.checkArgument(0 < maxNonLeafKeys && maxNonLeafKeys <= 255);

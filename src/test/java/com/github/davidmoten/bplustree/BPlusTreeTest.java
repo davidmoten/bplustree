@@ -35,8 +35,8 @@ public class BPlusTreeTest {
                 .naturalOrder();
     };
 
-    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree.memory()
-            .maxKeys(maxKeys).naturalOrder();
+    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree
+            .memory().maxKeys(maxKeys).naturalOrder();
 
     @Parameters
     public static Collection<Object[]> creators() {
@@ -303,7 +303,8 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys() throws Exception {
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys()
+            throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 12);
             t.insert(1, 13);
@@ -333,7 +334,8 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame() throws Exception {
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame()
+            throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 2);
             t.insert(1, 3);

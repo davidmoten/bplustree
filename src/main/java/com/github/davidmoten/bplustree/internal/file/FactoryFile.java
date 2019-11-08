@@ -190,7 +190,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES
+                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 
@@ -293,7 +294,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     @Override
     public void root(Node<K, V> node) {
         bb.position(0);
-        bb.putLong(((NodeFile) node).position()); 
+        bb.putLong(((NodeFile) node).position());
     }
 
     @Override

@@ -56,8 +56,8 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         try {
             if (file.exists()) {
                 if (file.length() != segmentSizeBytes) {
-                    throw new IllegalStateException("segment file " + file + " should be of size " + segmentSizeBytes
-                            + " but was of size " + file.length());
+                    throw new IllegalStateException("segment file " + file + " should be of size "
+                            + segmentSizeBytes + " but was of size " + file.length());
                 }
             }
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {

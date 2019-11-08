@@ -14,7 +14,7 @@ public final class LeafMemory<K, V> implements Leaf<K, V> {
     private Leaf<K, V> next;
 
     @SuppressWarnings("unchecked")
-    public LeafMemory(Options<K,V> options, Factory<K,V> factory) {
+    public LeafMemory(Options<K, V> options, Factory<K, V> factory) {
         this.options = options;
         keys = (K[]) new Object[options.maxLeafKeys()];
         values = (V[]) new Object[options.maxLeafKeys()];
@@ -70,7 +70,7 @@ public final class LeafMemory<K, V> implements Leaf<K, V> {
 
     @Override
     public Leaf<K, V> next() {
-       return next;
+        return next;
     }
 
     @Override
