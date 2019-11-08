@@ -352,8 +352,8 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive
-     * @param finishExclusive
+     * @param startInclusive start of the key range, inclusive
+     * @param finishExclusive finish of the key range, exclusive
      * @return values of entries in searched for key range preserving insert order
      */
     public Iterable<V> findPreserveDuplicateInsertOrder(K startInclusive, K finishExclusive) {
@@ -370,9 +370,9 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive
-     * @param finish
-     * @param isFinishInclusive
+     * @param startInclusive start of the key range, inclusive
+     * @param finish finish of the key range
+     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
      * @return values of entries in searched for key range preserving insert order
      */
     public Iterable<V> findPreserveDuplicateInsertOrder(K startInclusive, K finish, boolean isFinishInclusive) {
@@ -387,9 +387,9 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive
-     * @param finish
-     * @param isFinishInclusive
+     * @param startInclusive start of the key range, inclusive
+     * @param finish finish of the key range
+     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
      * @return values of entries in searched for key range preserving insert order
      */
     public Iterable<Entry<K,V>> findPreserveDuplicateInsertOrderEntries(K startInclusive, K finish, boolean isFinishInclusive) {
@@ -404,12 +404,12 @@ public class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive
-     * @param finish
-     * @param isFinishInclusive
-     * @param mapper
-     *            maps the key and value to the streamed result
+     * @param startInclusive start of the key range, inclusive
+     * @param finish finish of the key range
+     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
+     * @param mapper maps key value pairs to the stream result
      * @return values of entries in searched for key range preserving insert order
+     *            maps the key and value to the streamed result
      */
     public <R> Iterable<R> findPreserveDuplicateInsertOrder(K startInclusive, K finish, boolean isFinishInclusive,
             BiFunction<K, V, R> mapper) {
