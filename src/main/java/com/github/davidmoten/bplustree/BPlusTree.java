@@ -36,9 +36,10 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     private Node<K, V> root;
 
     /** Create a new empty tree. */
-    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
-            FactoryProvider<K, V> factoryProvider) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
+    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys,
+            Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
+                factoryProvider);
         this.factory = options.factoryProvider().createFactory(options);
         this.root = factory.loadOrCreateRoot();
         factory.root(root);
@@ -145,8 +146,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         }
 
         public BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
-            FactoryProvider<K, V> factoryProvider = options -> new FactoryFile<K, V>(options, b.directory,
-                    keySerializer, valueSerializer, b.segmentSizeBytes);
+            FactoryProvider<K, V> factoryProvider = options -> new FactoryFile<K, V>(options,
+                    b.directory, keySerializer, valueSerializer, b.segmentSizeBytes);
 
             if (b.maxLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
                 if (b.maxNonLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
@@ -159,7 +160,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                 b.maxNonLeafKeys = b.maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(b.maxLeafKeys, b.maxNonLeafKeys, b.uniqueKeys, comparator, factoryProvider);
+            return new BPlusTree<K, V>(b.maxLeafKeys, b.maxNonLeafKeys, b.uniqueKeys, comparator,
+                    factoryProvider);
         }
 
     }
@@ -217,7 +219,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                 maxInnerKeys = maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
+                    factoryProvider);
         }
 
     }
@@ -272,12 +275,13 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     }
 
     /**
-     * Returns an in-order sequence of values whose keys are >= start and < finish.
+     * Returns a key ordered sequence of values whose keys are >= start and <
+     * finish. Note that the insert order of duplicate keys may not be preserved.
+     * See {@link BPlusTree#findOrderPreserving(Object, Object)} to preserve insert
+     * order on duplicate keys.
      * 
-     * @param startInclusive
-     *            inclusive end of search
-     * @param finishExclusive
-     *            exclusive end of search
+     * @param startInclusive  inclusive end of search
+     * @param finishExclusive exclusive end of search
      * @return in-order sequence of values whose keys are >= start and < finish
      */
     public Iterable<V> find(K startInclusive, K finishExclusive) {
@@ -288,11 +292,17 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         return find(startInclusive, finish, isFinishInclusive, (k, v) -> v);
     }
 
-    public Iterable<Entry<K, V>> findEntries(K startInclusive, K finish, boolean isFinishInclusive) {
+    public Iterable<Entry<K, V>> findEntries(K startInclusive, K finishExclusive) {
+        return findEntries(startInclusive, finishExclusive, false);
+    }
+    
+    public Iterable<Entry<K, V>> findEntries(K startInclusive, K finish,
+            boolean isFinishInclusive) {
         return find(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k, v));
     }
 
-    public <R> Iterable<R> find(K startInclusive, K finish, boolean isFinishInclusive, BiFunction<K, V, R> mapper) {
+    public <R> Iterable<R> find(K startInclusive, K finish, boolean isFinishInclusive,
+            BiFunction<K, V, R> mapper) {
         return new Iterable<R>() {
 
             @Override
@@ -359,7 +369,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive start of the key range, inclusive
+     * @param startInclusive  start of the key range, inclusive
      * @param finishExclusive finish of the key range, exclusive
      * @return values of entries in searched for key range preserving insert order
      */
@@ -377,8 +387,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive start of the key range, inclusive
-     * @param finish finish of the key range
+     * @param startInclusive    start of the key range, inclusive
+     * @param finish            finish of the key range
      * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
      * @return values of entries in searched for key range preserving insert order
      */
@@ -394,13 +404,15 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive start of the key range, inclusive
-     * @param finish finish of the key range
+     * @param startInclusive    start of the key range, inclusive
+     * @param finish            finish of the key range
      * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
      * @return values of entries in searched for key range preserving insert order
      */
-    public Iterable<Entry<K,V>> findEntriesOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive) {
-        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k,v));
+    public Iterable<Entry<K, V>> findEntriesOrderPreserving(K startInclusive, K finish,
+            boolean isFinishInclusive) {
+        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive,
+                (k, v) -> Entry.create(k, v));
     }
 
     /**
@@ -411,15 +423,15 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive start of the key range, inclusive
-     * @param finish finish of the key range
+     * @param startInclusive    start of the key range, inclusive
+     * @param finish            finish of the key range
      * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
-     * @param mapper maps key value pairs to the stream result
+     * @param mapper            maps key value pairs to the stream result
      * @return values of entries in searched for key range preserving insert order
-     *            maps the key and value to the streamed result
+     *         maps the key and value to the streamed result
      */
-    public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive,
-            BiFunction<K, V, R> mapper) {
+    public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish,
+            boolean isFinishInclusive, BiFunction<K, V, R> mapper) {
         return new Iterable<R>() {
 
             @Override
