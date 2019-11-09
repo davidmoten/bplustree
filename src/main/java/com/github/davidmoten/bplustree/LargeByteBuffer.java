@@ -45,6 +45,10 @@ public interface LargeByteBuffer {
     double getFloat();
     
     void putFloat(float value);
+    
+    String getString();
+    
+    void putString(String value);
 
     void commit();
 

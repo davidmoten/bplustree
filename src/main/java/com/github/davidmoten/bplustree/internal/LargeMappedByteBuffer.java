@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
@@ -334,6 +335,21 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         } else {
             put(toBytes(value));
         }
+    }
+
+    @Override
+    public String getString() {
+        int length = getInt();
+        byte[] bytes = new byte[length];
+        get(bytes);
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public void putString(String value) {
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        putInt(bytes.length);
+        put(bytes);
     }
 
 }

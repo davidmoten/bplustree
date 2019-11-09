@@ -117,17 +117,12 @@ public interface Serializer<T> {
 
             @Override
             public String read(LargeByteBuffer bb) {
-                int size = bb.getInt();
-                byte[] bytes = new byte[size];
-                bb.get(bytes);
-                return new String(bytes, charset);
+                return bb.getString();
             }
 
             @Override
             public void write(LargeByteBuffer bb, String s) {
-                byte[] bytes = s.getBytes(charset);
-                bb.putInt(bytes.length);
-                bb.put(bytes);
+                bb.putString(s);
             }
 
             @Override
@@ -162,15 +157,4 @@ public interface Serializer<T> {
         };
     }
 
-    public static void writeString(LargeByteBuffer bb, String s) {
-        byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
-        bb.putInt(bytes.length);
-        bb.put(bytes);
-    }
-
-    public static String readString(LargeByteBuffer bb) {
-        byte[] bytes = new byte[bb.getInt()];
-        bb.get(bytes);
-        return new String(bytes, StandardCharsets.UTF_8);
-    }
 }
