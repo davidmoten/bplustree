@@ -15,7 +15,7 @@
     <description>B+-tree using Memory Mapped Files, supports range queries and duplicate keys</description>
     <packaging>jar</packaging>
 
-    <url>http://github.com/davidmoten/logss</url>
+    <url>http://github.com/davidmoten/bplustree</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -50,15 +50,15 @@
 
     <ciManagement>
         <system>Travis</system>
-        <url>https://travis-ci.org/davidmoten/logss</url>
+        <url>https://travis-ci.org/davidmoten/bplustree</url>
     </ciManagement>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/davidmoten/logss/issues</url>
+        <url>https://github.com/davidmoten/bplustree/issues</url>
     </issueManagement>
 
-    <inceptionYear>2013</inceptionYear>
+    <inceptionYear>2019</inceptionYear>
     <developers>
         <developer>
             <id>dave</id>
@@ -73,9 +73,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/davidmoten/logss.git</connection>
-        <developerConnection>scm:git:https://github.com/davidmoten/logss.git</developerConnection>
-        <url>scm:git:https://github.com:davidmoten/logss.git</url>
+        <connection>scm:git:https://github.com/davidmoten/bplustree.git</connection>
+        <developerConnection>scm:git:https://github.com/davidmoten/bplustree.git</developerConnection>
+        <url>scm:git:https://github.com:davidmoten/bplustree.git</url>
         <tag>HEAD</tag>
     </scm>
 
