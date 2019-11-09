@@ -17,9 +17,9 @@ public interface Leaf<K, V> extends Node<K, V> {
      * Inserts a key and value at the given index in the node and increments the
      * number of keys in the node.
      * 
-     * @param i
-     * @param key
-     * @param value
+     * @param i     which position to make the insertino at in the Leaf keys
+     * @param key   key to insert
+     * @param value value to insert
      */
     void insert(int i, K key, V value);
 
@@ -70,10 +70,11 @@ public interface Leaf<K, V> extends Node<K, V> {
     /**
      * Returns the position where 'key' should be inserted in a leaf node that has
      * the given keys.
+     * 
+     * @param key key to insert
+     * @return the position where key should be inserted
      */
     default int getLocation(K key) {
-        // Simple linear search. Faster for small values of N or M, binary search would
-        // be faster for larger M / N
         int numKeys = numKeys();
         for (int i = 0; i < numKeys; i++) {
             if (options().comparator().compare(key(i), key) >= 0) {

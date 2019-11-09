@@ -249,6 +249,9 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     /**
      * Looks for the given key. If it is not found, it returns null. If it is found,
      * it returns the associated value.
+     * 
+     * @param key key to find
+     * @return the first matching value or null if not found
      */
     public V findFirst(K key) {
         Leaf<K, V> leaf = findFirstLeaf(key);
@@ -272,19 +275,20 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             int idx = inner.getLocation(key);
             node = inner.child(idx);
         }
-        // We are @ leaf after while loop
+        // We are @ leaf after while floop
         return (Leaf<K, V>) node;
     }
 
     /**
-     * Returns a key ordered sequence of values whose keys are >= start and <
+     * Returns a key ordered sequence of values whose keys are &gt;= start and &lt;
      * finish. Note that the insert order of duplicate keys may not be preserved.
      * See {@link BPlusTree#findOrderPreserving(Object, Object)} to preserve insert
      * order on duplicate keys.
      * 
      * @param startInclusive  inclusive end of search
      * @param finishExclusive exclusive end of search
-     * @return in-order sequence of values whose keys are >= start and < finish
+     * @return in-order sequence of values whose keys are &gt;= start and &lt;
+     *         finish
      */
     public Iterable<V> find(K startInclusive, K finishExclusive) {
         return find(startInclusive, finishExclusive, false);
@@ -429,6 +433,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * @param finish            finish of the key range
      * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
      * @param mapper            maps key value pairs to the stream result
+     * @param                   <R> the type of streamed result that the key and
+     *                          value are mapped to
      * @return values of entries in searched for key range preserving insert order
      *         maps the key and value to the streamed result
      */
