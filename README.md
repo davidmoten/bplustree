@@ -83,6 +83,7 @@ BPlusTree<Integer, StringWithValue> tree = ...
 ```
 So you insert the String hashcode in the key and combine the String with the value. You find records using the hashcode of the String key and then filter the results based on an exact match of the String component of StringAndValue.
 ```
+
 ## Design
 B+-tree index is stored across multiple files (of fixed size). Pointers to values are stored in the tree and the values are stored across a separate set of files (of fixed size).
 
