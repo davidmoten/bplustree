@@ -108,6 +108,10 @@ public interface Serializer<T> {
         }
     };
 
+    public static Serializer<String> utf8() {
+        return utf8(0);
+    }
+    
     public static Serializer<String> utf8(int maxSize) {
         return string(StandardCharsets.UTF_8, maxSize);
     }

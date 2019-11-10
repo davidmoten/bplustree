@@ -51,7 +51,7 @@ BPlusTree<Long, String> tree =
     .maxNonLeafKeys(8)
     .segmentSizeMB(1)
     .keySerializer(Serializer.LONG)
-    .valueSerializer(Serializer.utf8(0))
+    .valueSerializer(Serializer.utf8())
     .naturalOrder();
     
 // insert some values    
