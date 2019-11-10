@@ -75,6 +75,14 @@ Note that for efficiency values with duplicate keys are entered into the tree in
 tree.findOrderPreserving(0, 3000);
 ```
 
+## Using bplustree for String keys
+Suppose you want to create a B-+ tree with String keys and those keys can have effectively arbitrary length. Keys are stored as fixed size records (unlike values which can be arbitrary in length). You can use hashes to get good find performance and keep the keys small (4 bytes of hash code) by making a tree of type:
+
+```java
+BPlusTree<Integer, StringWithValue> tree = ...
+```
+So you insert the String hashcode in the key and combine the String with the value. You find records using the hashcode of the String key and then filter the results based on an exact match of the String component of StringAndValue.
+```
 ## Design
 B+-tree index is stored across multiple files (of fixed size). Pointers to values are stored in the tree and the values are stored across a separate set of files (of fixed size).
 
