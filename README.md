@@ -81,7 +81,6 @@ Suppose you want to create a B-+ tree with String keys and those keys can have e
 ```java
 BPlusTree<Integer, StringWithValue> tree = ...
 ```
-```
 So you insert the String hashcode in the key and combine the String with the value. You find records using the hashcode of the String key and then filter the results based on an exact match of the String component of StringAndValue.
 
 ## Design
