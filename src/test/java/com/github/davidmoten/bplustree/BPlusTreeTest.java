@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -369,6 +370,20 @@ public class BPlusTreeTest {
         List<Integer> list2 = BPlusTree.clear(list, 3);
         assertTrue(list2.isEmpty());
         assertTrue(list == list2);
+    }
+
+    @Test
+    public void testWithBiggishInts() {
+        BPlusTree<Integer, Integer> tree = BPlusTree //
+                .file() //
+                .directory("target") //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
+                .comparator((a, b) -> Integer.compare(a, b));
+        tree.insert(-1220935264, 1);
+        tree.insert(110327396, 2);
+        tree.insert(99162322, 3);
+        tree.print();
     }
 
 }
