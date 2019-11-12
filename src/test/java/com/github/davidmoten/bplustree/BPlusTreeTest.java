@@ -384,6 +384,7 @@ public class BPlusTreeTest {
         tree.insert(110327396, 2);
         tree.insert(99162322, 3);
         tree.print();
+        tree.findAll().forEach(System.out::println);
     }
 
 }

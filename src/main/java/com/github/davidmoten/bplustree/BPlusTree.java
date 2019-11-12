@@ -584,7 +584,9 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                         if (leaf == null) {
                             throw new NoSuchElementException();
                         } else {
-                            return mapper.apply(leaf.key(index), leaf.value(index));
+                            R r = mapper.apply(leaf.key(index), leaf.value(index));
+                            index++;
+                            return r;
                         }
                     }
                 };
