@@ -3,6 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.davidmoten/bplustree/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.davidmoten/bplustree)<br/>
 [![codecov](https://codecov.io/gh/davidmoten/bplustree/branch/master/graph/badge.svg)](https://codecov.io/gh/davidmoten/bplustree)<br/>
 
+**Status:** pre-alpha (in development)
 
 Disk based B+-tree in java using memory mapped files.
 
