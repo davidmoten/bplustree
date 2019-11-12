@@ -36,10 +36,9 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     private Node<K, V> root;
 
     /** Create a new empty tree. */
-    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys,
-            Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
-                factoryProvider);
+    private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Comparator<? super K> comparator,
+            FactoryProvider<K, V> factoryProvider) {
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
         this.factory = options.factoryProvider().createFactory(options);
         this.root = factory.loadOrCreateRoot();
         factory.root(root);
@@ -109,8 +108,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         }
 
         public <K> BuilderFile3<K> keySerializer(Serializer<K> serializer) {
-            Preconditions.checkArgument(serializer.maxSize() > 0,
-                    "key serializer must have non-zero maxSize");
+            Preconditions.checkArgument(serializer.maxSize() > 0, "key serializer must have non-zero maxSize");
             return new BuilderFile3<K>(this, serializer);
         }
     }
@@ -148,8 +146,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         }
 
         public BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
-            FactoryProvider<K, V> factoryProvider = options -> new FactoryFile<K, V>(options,
-                    b.directory, keySerializer, valueSerializer, b.segmentSizeBytes);
+            FactoryProvider<K, V> factoryProvider = options -> new FactoryFile<K, V>(options, b.directory,
+                    keySerializer, valueSerializer, b.segmentSizeBytes);
 
             if (b.maxLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
                 if (b.maxNonLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
@@ -162,8 +160,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                 b.maxNonLeafKeys = b.maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(b.maxLeafKeys, b.maxNonLeafKeys, b.uniqueKeys, comparator,
-                    factoryProvider);
+            return new BPlusTree<K, V>(b.maxLeafKeys, b.maxNonLeafKeys, b.uniqueKeys, comparator, factoryProvider);
         }
 
     }
@@ -221,8 +218,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                 maxInnerKeys = maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator,
-                    factoryProvider);
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
         }
 
     }
@@ -250,7 +246,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * Looks for the given key. If it is not found, it returns null. If it is found,
      * it returns the associated value.
      * 
-     * @param key key to find
+     * @param key
+     *            key to find
      * @return the first matching value or null if not found
      */
     public V findFirst(K key) {
@@ -285,8 +282,10 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * See {@link BPlusTree#findOrderPreserving(Object, Object)} to preserve insert
      * order on duplicate keys.
      * 
-     * @param startInclusive  inclusive end of search
-     * @param finishExclusive exclusive end of search
+     * @param startInclusive
+     *            inclusive end of search
+     * @param finishExclusive
+     *            exclusive end of search
      * @return in-order sequence of values whose keys are &gt;= start and &lt;
      *         finish
      */
@@ -302,13 +301,12 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         return findEntries(startInclusive, finishExclusive, false);
     }
 
-    public Iterable<Entry<K, V>> findEntries(K startInclusive, K finish,
-            boolean isFinishInclusive) {
+    public Iterable<Entry<K, V>> findEntries(K startInclusive, K finish, boolean isFinishInclusive) {
         return find(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k, v));
     }
 
     public <R> Iterable<R> find(K startInclusive, K finish, boolean isFinishInclusive,
-            BiFunction<K, V, R> mapper) {
+            BiFunction<? super K, ? super V, ? extends R> mapper) {
         return new Iterable<R>() {
 
             @Override
@@ -375,8 +373,10 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive  start of the key range, inclusive
-     * @param finishExclusive finish of the key range, exclusive
+     * @param startInclusive
+     *            start of the key range, inclusive
+     * @param finishExclusive
+     *            finish of the key range, exclusive
      * @return values of entries in searched for key range preserving insert order
      */
     public Iterable<V> findOrderPreserving(K startInclusive, K finishExclusive) {
@@ -393,9 +393,12 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive    start of the key range, inclusive
-     * @param finish            finish of the key range
-     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
+     * @param startInclusive
+     *            start of the key range, inclusive
+     * @param finish
+     *            finish of the key range
+     * @param isFinishInclusive
+     *            if true then finish is inclusive otherwise exclusive
      * @return values of entries in searched for key range preserving insert order
      */
     public Iterable<V> findOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive) {
@@ -410,15 +413,16 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive    start of the key range, inclusive
-     * @param finish            finish of the key range
-     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
+     * @param startInclusive
+     *            start of the key range, inclusive
+     * @param finish
+     *            finish of the key range
+     * @param isFinishInclusive
+     *            if true then finish is inclusive otherwise exclusive
      * @return values of entries in searched for key range preserving insert order
      */
-    public Iterable<Entry<K, V>> findEntriesOrderPreserving(K startInclusive, K finish,
-            boolean isFinishInclusive) {
-        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive,
-                (k, v) -> Entry.create(k, v));
+    public Iterable<Entry<K, V>> findEntriesOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive) {
+        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k, v));
     }
 
     /**
@@ -429,17 +433,21 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * order. If there are a lot of keys with the same value then an
      * {@link OutOfMemoryError} might be thrown.
      * 
-     * @param startInclusive    start of the key range, inclusive
-     * @param finish            finish of the key range
-     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
-     * @param mapper            maps key value pairs to the stream result
-     * @param                   <R> the type of streamed result that the key and
-     *                          value are mapped to
+     * @param startInclusive
+     *            start of the key range, inclusive
+     * @param finish
+     *            finish of the key range
+     * @param isFinishInclusive
+     *            if true then finish is inclusive otherwise exclusive
+     * @param mapper
+     *            maps key value pairs to the stream result
+     * @param <R>
+     *            the type of streamed result that the key and value are mapped to
      * @return values of entries in searched for key range preserving insert order
      *         maps the key and value to the streamed result
      */
-    public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish,
-            boolean isFinishInclusive, BiFunction<K, V, R> mapper) {
+    public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive,
+            BiFunction<? super K, ? super V, ? extends R> mapper) {
         return new Iterable<R>() {
 
             @Override
@@ -533,6 +541,55 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             values.clear();
             return values;
         }
+    }
+
+    private Leaf<K, V> firstLeaf(Node<K, V> node) {
+        if (node instanceof Leaf) {
+            return (Leaf<K, V>) node;
+        } else {
+            NonLeaf<K, V> n = (NonLeaf<K, V>) node;
+            if (n.numKeys() == 0) {
+                return null;
+            } else {
+                return firstLeaf(n.child(0));
+            }
+        }
+    }
+    
+    public Iterable<V> findAll() {
+        return findAll((k,v) -> v);
+    }
+
+    public <R> Iterable<R> findAll(BiFunction<? super K, ? super V, ? extends R> mapper) {
+        return new Iterable<R>() {
+
+            @Override
+            public Iterator<R> iterator() {
+                return new Iterator<R>() {
+
+                    Leaf<K, V> leaf = firstLeaf(root);
+                    int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return leaf != null && index < leaf.numKeys();
+                    }
+
+                    @Override
+                    public R next() {
+                        while (leaf != null && index == leaf.numKeys()) {
+                            leaf = leaf.next();
+                            index = 0;
+                        }
+                        if (leaf == null) {
+                            throw new NoSuchElementException();
+                        } else {
+                            return mapper.apply(leaf.key(index), leaf.value(index));
+                        }
+                    }
+                };
+            }
+        };
     }
 
     public void print() {
