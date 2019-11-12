@@ -8,7 +8,7 @@
         <version>0.1</version>
     </parent>
     <artifactId>bplustree</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <description>B+-tree using Memory Mapped Files, supports range queries and duplicate keys</description>
     <packaging>jar</packaging>
