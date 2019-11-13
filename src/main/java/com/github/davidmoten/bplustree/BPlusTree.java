@@ -62,7 +62,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             Preconditions.checkNotNull(directory);
             return directory(new File(directory));
         }
-
+        
         public BuilderFile2 directory(File directory) {
             Preconditions.checkNotNull(directory);
             return new BuilderFile2(directory);
@@ -79,6 +79,17 @@ public final class BPlusTree<K, V> implements AutoCloseable {
 
         BuilderFile2(File directory) {
             this.directory = directory;
+        }
+        
+        public BuilderFile2 clearDirectory() {
+            if (directory.exists()) {
+                for (File f: directory.listFiles()) {
+                    f.delete();
+                }
+            } else {
+                directory.mkdirs();
+            }
+            return this;
         }
 
         public BuilderFile2 segmentSizeBytes(int size) {
@@ -543,7 +554,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         }
     }
 
-    private Leaf<K, V> firstLeaf(Node<K, V> node) {
+    @VisibleForTesting
+    Leaf<K, V> firstLeaf(Node<K, V> node) {
         if (node instanceof Leaf) {
             return (Leaf<K, V>) node;
         } else {
@@ -586,6 +598,10 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                         } else {
                             R r = mapper.apply(leaf.key(index), leaf.value(index));
                             index++;
+                            while (leaf != null && index == leaf.numKeys()) {
+                                leaf = leaf.next();
+                                index = 0;
+                            }
                             return r;
                         }
                     }

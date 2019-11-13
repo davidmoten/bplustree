@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.davidmoten.kool.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -30,14 +30,15 @@ public class BPlusTreeTest {
 
         return BPlusTree.file() //
                 .directory(Testing.newDirectory()) //
+                .clearDirectory() //
                 .maxKeys(maxKeys) //
                 .keySerializer(Serializer.INTEGER) //
                 .valueSerializer(Serializer.INTEGER) //
                 .naturalOrder();
     };
 
-    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree
-            .memory().maxKeys(maxKeys).naturalOrder();
+    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree.memory()
+            .maxKeys(maxKeys).naturalOrder();
 
     @Parameters
     public static Collection<Object[]> creators() {
@@ -304,8 +305,7 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys()
-            throws Exception {
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys() throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 12);
             t.insert(1, 13);
@@ -335,8 +335,7 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame()
-            throws Exception {
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame() throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 2);
             t.insert(1, 3);
@@ -347,8 +346,7 @@ public class BPlusTreeTest {
 
     @Test
     public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() throws Exception {
-        try (BPlusTree<Integer, Integer> t = BPlusTree.memory().maxKeys(2).uniqueKeys()
-                .naturalOrder()) {
+        try (BPlusTree<Integer, Integer> t = BPlusTree.memory().maxKeys(2).uniqueKeys().naturalOrder()) {
             t.insert(1, 2);
             t.insert(1, 3);
             t.print();
@@ -376,7 +374,8 @@ public class BPlusTreeTest {
     public void testWithBiggishInts() {
         BPlusTree<Integer, Integer> tree = BPlusTree //
                 .file() //
-                .directory("target") //
+                .directory("target/bigints") //
+                .clearDirectory() //
                 .keySerializer(Serializer.INTEGER) //
                 .valueSerializer(Serializer.INTEGER) //
                 .comparator((a, b) -> Integer.compare(a, b));
@@ -384,7 +383,27 @@ public class BPlusTreeTest {
         tree.insert(110327396, 2);
         tree.insert(99162322, 3);
         tree.print();
-        tree.findAll().forEach(System.out::println);
+        assertEquals(Arrays.asList(1, 3, 2), Stream.from(tree.findAll()).toList().get());
+    }
+
+    @Test
+    public void testFindAllWithManyEntries() {
+        BPlusTree<Integer, Integer> tree = BPlusTree //
+                .file() //
+                .directory("target/findall") //
+                .clearDirectory() //
+                .maxKeys(2) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
+                .comparator((a, b) -> Integer.compare(a, b));
+        tree.insert(100, 1);
+        tree.insert(200, 2);
+        tree.insert(300, 3);
+        tree.insert(400, 4);
+        tree.insert(500, 5);
+        tree.print();
+        assertEquals(100, (int) tree.firstLeaf(tree.root()).key(0));
+        assertEquals(Arrays.asList(1, 2, 3, 4, 5), Stream.from(tree.findAll()).toList().get());
     }
 
 }
