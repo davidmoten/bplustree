@@ -190,8 +190,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES
-                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 
@@ -199,6 +198,12 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         long i = index;
         bb.position(index);
         bb.put((byte) NonLeaf.TYPE);
+//        //TODO is this necessary?
+//        // initialize the child pointers to not present
+//        for (int j = 0; j < options.maxNonLeafKeys(); j++) {
+//            bb.position(index + relativePositionNonLeafEntry(j));
+//            bb.putLong(POSITION_NOT_PRESENT);
+//        }
         index += nonLeafBytes();
         return i;
     }
@@ -226,7 +231,11 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public Node<K, V> nonLeafChild(long position, int i) {
         bb.position(position + relativePositionNonLeafEntry(i));
         long pos = bb.getLong();
-        return readNode(pos);
+        if (pos == POSITION_NOT_PRESENT) {
+            return null;
+        } else {
+            return readNode(pos);
+        }
     }
 
     private Node<K, V> readNode(long pos) {
@@ -267,7 +276,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public void nonLeafInsert(long position, int i, K key, NodeFile left) {
         int numKeys = nonLeafNumKeys(position);
         int relativeStart = relativePositionNonLeafEntry(i);
-        int relativeEnd = relativePositionNonLeafEntry(numKeys);
+        int relativeEnd = relativePositionNonLeafEntry(numKeys) + POSITION_BYTES;
         bb.position(position + relativeStart);
         byte[] bytes = new byte[relativeEnd - relativeStart];
         bb.get(bytes);

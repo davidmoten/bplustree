@@ -68,6 +68,7 @@ public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
         System.arraycopy(children, idx, children, idx + 1, numKeys - idx + 1);
         children[idx] = node;
         keys[idx] = key;
+        numKeys+=1;
     }
 
     @Override

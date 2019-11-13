@@ -20,6 +20,17 @@ public interface NonLeaf<K, V> extends Node<K, V> {
 
     void move(int mid, NonLeaf<K, V> other, int length);
 
+    /**
+     * Inserts the key at the given index and sets the left child of that key to be
+     * {@code left}. Also increments the number of keys in the node.
+     * 
+     * @param i
+     *            index to insert at
+     * @param key
+     *            key to insert
+     * @param left
+     *            child to set of the new key
+     */
     void insert(int i, K key, Node<K, V> left);
 
     @Override
@@ -51,7 +62,8 @@ public interface NonLeaf<K, V> extends Node<K, V> {
      * Returns the position where 'key' should be inserted in a leaf node that has
      * the given keys.
      * 
-     * @param key key to insert
+     * @param key
+     *            key to insert
      * @return the position where key should be inserted
      */
     default int getLocation(K key) {

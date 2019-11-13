@@ -62,7 +62,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             Preconditions.checkNotNull(directory);
             return directory(new File(directory));
         }
-        
+
         public BuilderFile2 directory(File directory) {
             Preconditions.checkNotNull(directory);
             return new BuilderFile2(directory);
@@ -80,10 +80,10 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         BuilderFile2(File directory) {
             this.directory = directory;
         }
-        
+
         public BuilderFile2 clearDirectory() {
             if (directory.exists()) {
-                for (File f: directory.listFiles()) {
+                for (File f : directory.listFiles()) {
                     f.delete();
                 }
             } else {
@@ -567,9 +567,9 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             }
         }
     }
-    
+
     public Iterable<V> findAll() {
-        return findAll((k,v) -> v);
+        return findAll((k, v) -> v);
     }
 
     public <R> Iterable<R> findAll(BiFunction<? super K, ? super V, ? extends R> mapper) {
@@ -672,7 +672,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     Node<K, V> root() {
         return root;
     }
-    
+
     Factory<K, V> factory() {
         return factory;
     }

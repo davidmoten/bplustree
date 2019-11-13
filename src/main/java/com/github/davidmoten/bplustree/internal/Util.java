@@ -25,13 +25,13 @@ final class Util {
                 node.setKey(index, result.key);
                 node.setChild(index, result.left);
                 node.setChild(index + 1, result.right);
+                node.setNumKeys(node.numKeys() + 1);
             } else {
                 // Insertion not at the rightmost key
                 // shift i>idx to the right
                 node.insert(index, result.key, result.left);
                 node.setChild(index + 1, result.right);
             }
-            node.setNumKeys(node.numKeys() + 1);
         } // else the current node is not affected
     }
 

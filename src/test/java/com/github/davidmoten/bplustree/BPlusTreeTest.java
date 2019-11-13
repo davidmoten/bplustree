@@ -42,7 +42,7 @@ public class BPlusTreeTest {
 
     @Parameters
     public static Collection<Object[]> creators() {
-        return Arrays.asList(new Object[][] { { creatorFile } });
+        return Arrays.asList(new Object[][] { { creatorMemory }, { creatorFile } });
     }
 
     private final Function<Integer, BPlusTree<Integer, Integer>> creator;
@@ -389,10 +389,24 @@ public class BPlusTreeTest {
             tree.insert(4, 400);
             tree.insert(3, 300);
             tree.insert(2, 200);
-            tree.insert(1, 100);
             tree.print();
+            tree.insert(1, 100);
             tree.insert(0, 7);
             tree.print();
+            assertEquals(Lists.newArrayList(7, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
+        }
+    }
+
+    @Test
+    public void testInsert31024() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(3, 300);
+            tree.insert(1, 100);
+            tree.insert(0, 7);
+            tree.print();
+            tree.insert(2, 200);
+            tree.print();
+            tree.insert(4, 400);
             assertEquals(Lists.newArrayList(7, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
         }
     }
@@ -407,7 +421,6 @@ public class BPlusTreeTest {
                 }
                 List<Integer> expected = new ArrayList<>(list);
                 Collections.shuffle(list);
-                System.out.println("inserting " + list);
                 for (int v : list) {
                     tree.insert(v, v);
                 }
