@@ -413,21 +413,23 @@ public class BPlusTreeTest {
 
     @Test
     public void testTreeOnAllPermutationsOfNonRepeatedInput() throws Exception {
-        for (int i = 1; i <= 6; i++) {
-            List<Integer> expected = new ArrayList<>();
-            for (int j = 0; j < i; j++) {
-                expected.add(j);
-            }
-            Stream.permutations(i).doOnNext(list -> {
-                try (BPlusTree<Integer, Integer> tree = create(2)) {
-                    for (int v : list) {
-                        tree.insert(v, v);
-                    }
-                    // assertEquals(0, (int) tree.firstLeaf(tree.root()).key(0));
-                    assertEquals(expected, Stream.from(tree.findAll()).toList().get());
+        for (int maxKeys = 2; maxKeys <= 5; maxKeys++) {
+            int mk = maxKeys;
+            for (int i = 1; i <= 6; i++) {
+                List<Integer> expected = new ArrayList<>();
+                for (int j = 0; j < i; j++) {
+                    expected.add(j);
                 }
-            }).forEach();
-
+                Stream.permutations(i).doOnNext(list -> {
+                    try (BPlusTree<Integer, Integer> tree = create(mk)) {
+                        for (int v : list) {
+                            tree.insert(v, v);
+                        }
+                        // assertEquals(0, (int) tree.firstLeaf(tree.root()).key(0));
+                        assertEquals(expected, Stream.from(tree.findAll()).toList().get());
+                    }
+                }).forEach();
+            }
         }
     }
 }
