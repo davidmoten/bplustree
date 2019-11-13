@@ -16,7 +16,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int NUM_KEYS_BYTES = 1;
     private static final int NUM_NODES_BYTES = 4;
     private static final int POSITION_BYTES = 8;
-    private static final long NEXT_NOT_PRESENT = -1;
+    private static final long POSITION_NOT_PRESENT = -1;
     private final Options<K, V> options;
 
     // position where next node will be written, first 8 bytes are for the position
@@ -65,7 +65,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position(index);
         bb.put((byte) Leaf.TYPE);
         bb.position(index + leafBytes() - POSITION_BYTES);
-        bb.putLong(NEXT_NOT_PRESENT);
+        bb.putLong(POSITION_NOT_PRESENT);
         // shift by max size of a leaf node: numKeys, keys, values, next leaf position
         // (b+tree pointer to next leaf node)
         index += leafBytes();
@@ -152,7 +152,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         long p = position + relativeLeafKeyPosition(options.maxLeafKeys());
         long v;
         if (sibling == null) {
-            v = NEXT_NOT_PRESENT;
+            v = POSITION_NOT_PRESENT;
         } else {
             v = sibling.position();
         }
@@ -163,7 +163,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public Leaf<K, V> leafNext(long position) {
         bb.position(position + relativeLeafKeyPosition(options.maxLeafKeys()));
         long p = bb.getLong();
-        if (p == NEXT_NOT_PRESENT) {
+        if (p == POSITION_NOT_PRESENT) {
             return null;
         } else {
             return new LeafFile<K, V>(options, this, p);
@@ -190,8 +190,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES
-                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 

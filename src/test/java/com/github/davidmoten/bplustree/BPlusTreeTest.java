@@ -42,7 +42,7 @@ public class BPlusTreeTest {
 
     @Parameters
     public static Collection<Object[]> creators() {
-        return Arrays.asList(new Object[][] { { creatorMemory }, { creatorFile } });
+        return Arrays.asList(new Object[][] { { creatorFile } });
     }
 
     private final Function<Integer, BPlusTree<Integer, Integer>> creator;
@@ -383,20 +383,20 @@ public class BPlusTreeTest {
         }
     }
 
-    
     @Test
     public void testInsert43210() throws Exception {
         try (BPlusTree<Integer, Integer> tree = create(2)) {
             tree.insert(4, 400);
             tree.insert(3, 300);
             tree.insert(2, 200);
-            tree.print();
             tree.insert(1, 100);
-            tree.insert(0, 0);
             tree.print();
-            assertEquals(Lists.newArrayList(0, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
+            tree.insert(0, 7);
+            tree.print();
+            assertEquals(Lists.newArrayList(7, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
         }
     }
+
     @Test
     public void testFindAllWithManyEntries() throws Exception {
         for (int i = 0; i < 1000; i++) {
