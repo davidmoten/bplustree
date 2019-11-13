@@ -1,16 +1,23 @@
 package com.github.davidmoten.bplustree;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.davidmoten.kool.Stream;
 import org.junit.Test;
 
 import com.github.davidmoten.bplustree.internal.file.LeafFile;
+import com.github.davidmoten.guavamini.Lists;
 
 public final class BPlusTreeFileTest {
 
@@ -104,16 +111,16 @@ public final class BPlusTreeFileTest {
                     int v = n - i + 1;
                     tree.insert(v, v);
                 }
-                System.out.println("insert rate desc order= "
-                        + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+                System.out.println(
+                        "insert rate desc order= " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
             }
             {
                 BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
                 for (int i = 1; i <= n; i++) {
                     tree.insert(i, i);
                 }
-                System.out.println("insert rate asc order = "
-                        + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
+                System.out.println(
+                        "insert rate asc order = " + (n * 1000.0 / (System.currentTimeMillis() - t)) + " per second");
             }
         }
     }
@@ -121,8 +128,7 @@ public final class BPlusTreeFileTest {
     @Test
     public void testRegexSpeed() {
         String s = "2019-11-06 23:13:00.427 DEBUG com.zaxxer.hikari.pool.HikariPool [HikariPool-2 housekeeper] - HikariPool-2 - Before cleanup stats (total=5, active=3, idle=2, waiting=0)";
-        Pattern p = Pattern.compile(
-                "^.*com.zaxxer.hikari.pool.HikariPool.*Before cleanup stats.*, active=([0-9]+).*$");
+        Pattern p = Pattern.compile("^.*com.zaxxer.hikari.pool.HikariPool.*Before cleanup stats.*, active=([0-9]+).*$");
         long t = System.currentTimeMillis();
         int n = 100000;
         for (int i = 0; i < n; i++) {
@@ -133,8 +139,73 @@ public final class BPlusTreeFileTest {
                 }
             }
         }
-        System.out.println("regex match rate = " + n * 1000.0 / (System.currentTimeMillis() - t)
-                + " lines per second");
+        System.out.println("regex match rate = " + n * 1000.0 / (System.currentTimeMillis() - t) + " lines per second");
+    }
+
+    @Test
+    public void testInsert3201() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = BPlusTree //
+                .file() //
+                .directory("target/insertSome") //
+                .clearDirectory() //
+                .maxKeys(2) //
+                .keySerializer(Serializer.INTEGER) // l
+                .valueSerializer(Serializer.INTEGER) //
+                .comparator((a, b) -> Integer.compare(a, b))) {
+            tree.insert(3, 300);
+            tree.insert(2, 200);
+            tree.insert(0, 0);
+            tree.print();
+            tree.insert(1, 100);
+            tree.print();
+            assertEquals(Lists.newArrayList(0, 100, 200, 300), Stream.from(tree.findAll()).toList().get());
+        }
+    }
+
+    @Test
+    public void testFindAllWithManyEntries() {
+        for (int i = 0; i < 1000; i++) {
+            BPlusTree<Integer, Integer> tree = BPlusTree //
+                    .file() //
+                    .directory("target/findall") //
+                    .clearDirectory() //
+                    .maxKeys(2) //
+                    .keySerializer(Serializer.INTEGER) //
+                    .valueSerializer(Serializer.INTEGER) //
+                    .comparator((a, b) -> Integer.compare(a, b));
+            List<Integer> list = new ArrayList<>();
+            for (int j = 0; j < 4; j++) {
+                list.add(j);
+            }
+            List<Integer> expected = new ArrayList<>(list);
+            Collections.shuffle(list);
+            System.out.println("inserting " + list);
+            for (int v : list) {
+                tree.insert(v, v);
+            }
+            // assertEquals(0, (int) tree.firstLeaf(tree.root()).key(0));
+            assertEquals(expected, Stream.from(tree.findAll()).toList().get());
+        }
+    }
+
+    @Test
+    public void testFindAllNextWhenNone() {
+        BPlusTree<Integer, Integer> tree = BPlusTree //
+                .file() //
+                .directory("target/findall") //
+                .clearDirectory() //
+                .maxKeys(2) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
+                .comparator((a, b) -> Integer.compare(a, b));
+        Iterator<Integer> it = tree.findAll().iterator();
+        assertFalse(it.hasNext());
+        try {
+            it.next();
+            org.junit.Assert.fail();
+        } catch (NoSuchElementException e) {
+            // ok
+        }
     }
 
     public static void main(String[] args) {
@@ -149,8 +220,7 @@ public final class BPlusTreeFileTest {
             tree.insert(i, i);
             if (i % 1000000 == 0) {
                 long t2 = System.currentTimeMillis();
-                System.out.println(i / 1000000 + "m, insertRate=" + 1000000 * 1000.0 / (t2 - t)
-                        + " per second");
+                System.out.println(i / 1000000 + "m, insertRate=" + 1000000 * 1000.0 / (t2 - t) + " per second");
                 t = t2;
             }
             i++;

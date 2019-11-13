@@ -273,7 +273,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.get(bytes);
         bb.position(position + relativePositionNonLeafEntry(i + 1));
         bb.put(bytes);
-        bb.position(relativeStart);
+        bb.position(position + relativeStart);
         bb.putLong(left.position());
         keySerializer.write(bb, key);
         nonLeafSetNumKeys(position, numKeys + 1);

@@ -589,18 +589,18 @@ public final class BPlusTree<K, V> implements AutoCloseable {
 
                     @Override
                     public R next() {
-                        moveToNext();
+                        moveBeyondLeafEnd();
                         if (leaf == null) {
                             throw new NoSuchElementException();
                         } else {
                             R r = mapper.apply(leaf.key(index), leaf.value(index));
                             index++;
-                            moveToNext();
+                            moveBeyondLeafEnd();
                             return r;
                         }
                     }
 
-                    private void moveToNext() {
+                    private void moveBeyondLeafEnd() {
                         while (leaf != null && index == leaf.numKeys()) {
                             leaf = leaf.next();
                             index = 0;

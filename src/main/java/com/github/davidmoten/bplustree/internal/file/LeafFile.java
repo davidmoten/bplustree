@@ -74,5 +74,30 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
     public long position() {
         return position;
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("LeafFile [");
+        b.append("position=");
+        b.append(position);
+        b.append(", numKeys=");
+        b.append(numKeys());
+        b.append(", keyValues=[");
+        StringBuilder b2 = new StringBuilder();
+        int n = numKeys();
+        for (int i = 0; i < n; i++) {
+            if (b2.length() > 0) {
+                b2.append(", ");
+            }
+            b2.append(key(i));
+            b2.append("->");
+            b2.append(value(i));
+        }
+        b.append(b2.toString());
+        b.append("]");
+        b.append("]");
+        return b.toString();
+    }
 
 }
