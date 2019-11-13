@@ -198,12 +198,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         long i = index;
         bb.position(index);
         bb.put((byte) NonLeaf.TYPE);
-//        //TODO is this necessary?
-//        // initialize the child pointers to not present
-//        for (int j = 0; j < options.maxNonLeafKeys(); j++) {
-//            bb.position(index + relativePositionNonLeafEntry(j));
-//            bb.putLong(POSITION_NOT_PRESENT);
-//        }
         index += nonLeafBytes();
         return i;
     }
@@ -231,11 +225,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public Node<K, V> nonLeafChild(long position, int i) {
         bb.position(position + relativePositionNonLeafEntry(i));
         long pos = bb.getLong();
-        if (pos == POSITION_NOT_PRESENT) {
-            return null;
-        } else {
-            return readNode(pos);
-        }
+        return readNode(pos);
     }
 
     private Node<K, V> readNode(long pos) {

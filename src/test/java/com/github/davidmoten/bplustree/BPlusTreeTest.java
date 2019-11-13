@@ -412,21 +412,22 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testFindAllWithManyEntries() throws Exception {
-        for (int i = 0; i < 1000; i++) {
-            try (BPlusTree<Integer, Integer> tree = create(2)) {
-                List<Integer> list = new ArrayList<>();
-                for (int j = 0; j < 5; j++) {
-                    list.add(j);
-                }
-                List<Integer> expected = new ArrayList<>(list);
-                Collections.shuffle(list);
-                for (int v : list) {
-                    tree.insert(v, v);
-                }
-                // assertEquals(0, (int) tree.firstLeaf(tree.root()).key(0));
-                assertEquals(expected, Stream.from(tree.findAll()).toList().get());
+    public void testTreeOnAllPermutationsOfNonRepeatedInput() throws Exception {
+        for (int i = 1; i <= 6; i++) {
+            List<Integer> expected = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                expected.add(j);
             }
+            Stream.permutations(i).doOnNext(list -> {
+                try (BPlusTree<Integer, Integer> tree = create(2)) {
+                    for (int v : list) {
+                        tree.insert(v, v);
+                    }
+                    // assertEquals(0, (int) tree.firstLeaf(tree.root()).key(0));
+                    assertEquals(expected, Stream.from(tree.findAll()).toList().get());
+                }
+            }).forEach();
+
         }
     }
 }
