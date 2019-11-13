@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.github.davidmoten.bplustree.internal.Factory;
 import com.github.davidmoten.bplustree.internal.file.LeafFile;
+import com.github.davidmoten.bplustree.internal.file.NonLeafFile;
 
 public class FactoryFileTest {
 
@@ -26,7 +27,20 @@ public class FactoryFileTest {
             assertEquals(3, (int) leaf.key(0));
             leaf.setValue(0, 1234567890L);
             assertEquals(1234567890L, (long) leaf.value(0));
+        }
+    }
 
+    @Test
+    public void testNonLeafFile() throws Exception {
+        try (BPlusTree<Integer, Long> t = create()) {
+            Factory<Integer, Long> factory = t.factory();
+            NonLeafFile<Integer, Long> n = (NonLeafFile<Integer, Long>) factory.createNonLeaf();
+            NonLeafFile<Integer, Long> n2 = (NonLeafFile<Integer, Long>) factory.createNonLeaf();
+
+            n.setNumKeys(2);
+            assertEquals(2, n.numKeys());
+            n.setNumKeys(0);
+            assertEquals(0, n.numKeys());
         }
     }
 
