@@ -66,7 +66,7 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
     }
 
     @Override
-    public Leaf<K, V> next() {
+    public LeafFile<K, V> next() {
         return factory.leafNext(position);
     }
 

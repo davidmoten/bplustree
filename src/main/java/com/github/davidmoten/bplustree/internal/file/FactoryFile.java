@@ -160,7 +160,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.putLong(v);
     }
 
-    public Leaf<K, V> leafNext(long position) {
+    public LeafFile<K, V> leafNext(long position) {
         bb.position(position + relativeLeafKeyPosition(options.maxLeafKeys()));
         long p = bb.getLong();
         if (p == POSITION_NOT_PRESENT) {
@@ -190,7 +190,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES
+                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 

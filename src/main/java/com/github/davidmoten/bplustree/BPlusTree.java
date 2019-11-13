@@ -672,6 +672,10 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     Node<K, V> root() {
         return root;
     }
+    
+    Factory<K, V> factory() {
+        return factory;
+    }
 
     @Override
     public void close() throws Exception {
