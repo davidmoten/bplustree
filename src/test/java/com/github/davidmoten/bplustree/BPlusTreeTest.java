@@ -371,19 +371,49 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testWithBiggishInts() {
-        BPlusTree<Integer, Integer> tree = BPlusTree //
-                .file() //
-                .directory("target/bigints") //
-                .clearDirectory() //
-                .keySerializer(Serializer.INTEGER) //
-                .valueSerializer(Serializer.INTEGER) //
-                .comparator((a, b) -> Integer.compare(a, b));
-        tree.insert(-1220935264, 1);
-        tree.insert(110327396, 2);
-        tree.insert(99162322, 3);
-        tree.print();
-        assertEquals(Arrays.asList(1, 3, 2), Stream.from(tree.findAll()).toList().get());
+    public void testInsertt3201() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(3, 300);
+            tree.insert(2, 200);
+            tree.insert(0, 0);
+            tree.print();
+            tree.insert(1, 100);
+            tree.print();
+            assertEquals(Lists.newArrayList(0, 100, 200, 300), Stream.from(tree.findAll()).toList().get());
+        }
     }
 
+    
+    @Test
+    public void testInsert43210() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(4, 400);
+            tree.insert(3, 300);
+            tree.insert(2, 200);
+            tree.print();
+            tree.insert(1, 100);
+            tree.insert(0, 0);
+            tree.print();
+            assertEquals(Lists.newArrayList(0, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
+        }
+    }
+    @Test
+    public void testFindAllWithManyEntries() throws Exception {
+        for (int i = 0; i < 1000; i++) {
+            try (BPlusTree<Integer, Integer> tree = create(2)) {
+                List<Integer> list = new ArrayList<>();
+                for (int j = 0; j < 5; j++) {
+                    list.add(j);
+                }
+                List<Integer> expected = new ArrayList<>(list);
+                Collections.shuffle(list);
+                System.out.println("inserting " + list);
+                for (int v : list) {
+                    tree.insert(v, v);
+                }
+                // assertEquals(0, (int) tree.firstLeaf(tree.root()).key(0));
+                assertEquals(expected, Stream.from(tree.findAll()).toList().get());
+            }
+        }
+    }
 }

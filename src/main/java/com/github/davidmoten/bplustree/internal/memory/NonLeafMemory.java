@@ -1,5 +1,7 @@
 package com.github.davidmoten.bplustree.internal.memory;
 
+import java.util.Arrays;
+
 import com.github.davidmoten.bplustree.internal.Factory;
 import com.github.davidmoten.bplustree.internal.Node;
 import com.github.davidmoten.bplustree.internal.NonLeaf;
@@ -77,5 +79,18 @@ public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
     public Factory<K, V> factory() {
         return factory;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("NonLeafMemory [");
+        builder.append("numKeys=" + numKeys());
+        builder.append(", keys=");
+        builder.append(Arrays.toString(keys));
+        builder.append("]");
+        return builder.toString();
+    }
+    
+    
 
 }

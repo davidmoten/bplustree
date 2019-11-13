@@ -1,5 +1,7 @@
 package com.github.davidmoten.bplustree.internal.memory;
 
+import java.util.Arrays;
+
 import com.github.davidmoten.bplustree.internal.Factory;
 import com.github.davidmoten.bplustree.internal.Leaf;
 import com.github.davidmoten.bplustree.internal.Options;
@@ -82,5 +84,21 @@ public final class LeafMemory<K, V> implements Leaf<K, V> {
     public Factory<K, V> factory() {
         return factory;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("LeafMemory [");
+        builder.append("numKeys=");
+        builder.append(numKeys);
+        builder.append(", keys=");
+        builder.append(Arrays.toString(keys));
+        builder.append(", values=");
+        builder.append(Arrays.toString(values));
+        builder.append("]");
+        return builder.toString();
+    }
+    
+    
 
 }

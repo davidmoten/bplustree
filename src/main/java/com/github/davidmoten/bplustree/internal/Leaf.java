@@ -55,6 +55,7 @@ public interface Leaf<K, V> extends Node<K, V> {
                 // Inserted element goes to right sibling
                 Util.insertNonfull(sibling, key, value, i - mid);
             }
+            sibling.setNext(next());
             setNext(sibling);
             // Notify the parent about the split
             return new Split<>(sibling.key(0), // make the right's key >=
