@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -404,6 +405,26 @@ public class BPlusTreeTest {
         tree.print();
         assertEquals(100, (int) tree.firstLeaf(tree.root()).key(0));
         assertEquals(Arrays.asList(1, 2, 3, 4, 5), Stream.from(tree.findAll()).toList().get());
+    }
+
+    @Test
+    public void testFindAllNextWhenNone() {
+        BPlusTree<Integer, Integer> tree = BPlusTree //
+                .file() //
+                .directory("target/findall") //
+                .clearDirectory() //
+                .maxKeys(2) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
+                .comparator((a, b) -> Integer.compare(a, b));
+        Iterator<Integer> it = tree.findAll().iterator();
+        assertFalse(it.hasNext());
+        try {
+            it.next();
+            org.junit.Assert.fail();
+        } catch (NoSuchElementException e) {
+            // ok
+        }
     }
 
 }
