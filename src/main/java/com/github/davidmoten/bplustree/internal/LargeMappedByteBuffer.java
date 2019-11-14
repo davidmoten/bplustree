@@ -289,7 +289,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         }
         map.clear();
     }
-    
+
     private static final class Segment {
         private final FileChannel channel;
         final MappedByteBuffer bb;
@@ -300,20 +300,25 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         }
 
         public void close() throws IOException {
+            // Note that System.gc() seems to do the job as well
+            // as closeDirectBuffer but of course may cause overall
+            // system pauses which may not be desirable for everyone
             closeDirectBuffer(bb);
             channel.close();
         }
 
     }
-    
+
     private static void closeDirectBuffer(ByteBuffer cb) {
-        if (cb==null || !cb.isDirect()) return;
+        if (cb == null || !cb.isDirect())
+            return;
         // we could use this type cast and call functions without reflection code,
         // but static import from sun.* package is risky for non-SUN virtual machine.
-        //try { ((sun.nio.ch.DirectBuffer)cb).cleaner().clean(); } catch (Exception ex) { }
+        // try { ((sun.nio.ch.DirectBuffer)cb).cleaner().clean(); } catch (Exception ex)
+        // { }
 
         // JavaSpecVer: 1.6, 1.7, 1.8, 9, 10
-        boolean isOldJDK = System.getProperty("java.specification.version","99").startsWith("1.");  
+        boolean isOldJDK = System.getProperty("java.specification.version", "99").startsWith("1.");
         try {
             if (isOldJDK) {
                 Method cleaner = cb.getClass().getMethod("cleaner");
@@ -325,7 +330,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
                 Class unsafeClass;
                 try {
                     unsafeClass = Class.forName("sun.misc.Unsafe");
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     // jdk.internal.misc.Unsafe doesn't yet have an invokeCleaner() method,
                     // but that method should be added if sun.misc.Unsafe is removed.
                     unsafeClass = Class.forName("jdk.internal.misc.Unsafe");
@@ -338,7 +343,8 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
                 Object theUnsafe = theUnsafeField.get(null);
                 clean.invoke(theUnsafe, cb);
             }
-        } catch(Exception ex) { }
+        } catch (Exception ex) {
+        }
         cb = null;
     }
 
