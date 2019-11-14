@@ -35,8 +35,6 @@ public class FactoryFileTest {
         try (BPlusTree<Integer, Long> t = create()) {
             Factory<Integer, Long> factory = t.factory();
             NonLeafFile<Integer, Long> n = (NonLeafFile<Integer, Long>) factory.createNonLeaf();
-            NonLeafFile<Integer, Long> n2 = (NonLeafFile<Integer, Long>) factory.createNonLeaf();
-
             n.setNumKeys(2);
             assertEquals(2, n.numKeys());
             n.setNumKeys(0);

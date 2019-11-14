@@ -4,9 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -154,7 +152,6 @@ public final class BPlusTreeFileTest {
         tree.insert(-1220935264, 1);
         tree.insert(110327396, 2);
         tree.insert(99162322, 3);
-        tree.print();
         assertEquals(Arrays.asList(1, 3, 2), Stream.from(tree.findAll()).toList().get());
     }
     
@@ -171,9 +168,7 @@ public final class BPlusTreeFileTest {
             tree.insert(3, 300);
             tree.insert(2, 200);
             tree.insert(0, 0);
-            tree.print();
             tree.insert(1, 100);
-            tree.print();
             assertEquals(Lists.newArrayList(0, 100, 200, 300), Stream.from(tree.findAll()).toList().get());
         }
     }

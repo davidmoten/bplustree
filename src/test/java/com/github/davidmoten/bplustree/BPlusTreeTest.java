@@ -152,7 +152,6 @@ public class BPlusTreeTest {
                 t.insert(i, i);
             }
             NodeWrapper<Integer, Integer> root = NodeWrapper.root(t);
-            t.print();
             assertEquals(Arrays.asList(3), root.keys());
             List<NodeWrapper<Integer, Integer>> children = root.children();
             assertEquals(Arrays.asList(3), root.keys());
@@ -298,7 +297,6 @@ public class BPlusTreeTest {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 2);
             t.insert(1, 3);
-            t.print();
             assertEquals(Lists.newArrayList(3, 2), //
                     toList(t.find(0, 4)));
         }
@@ -313,7 +311,6 @@ public class BPlusTreeTest {
             t.insert(2, 22);
             t.insert(2, 23);
             t.insert(3, 31);
-            t.print();
             assertEquals(Lists.newArrayList(12, 13, 21, 22, 23, 31), //
                     toList(t.findOrderPreserving(0, 4)));
         }
@@ -328,7 +325,6 @@ public class BPlusTreeTest {
             t.insert(2, 22);
             t.insert(2, 23);
             t.insert(3, 31);
-            t.print();
             assertEquals(Lists.newArrayList(12, 13, 21, 22, 23), //
                     toList(t.findOrderPreserving(0, 3)));
         }
@@ -339,7 +335,6 @@ public class BPlusTreeTest {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 2);
             t.insert(1, 3);
-            t.print();
             assertEquals(Lists.newArrayList(2, 3), toList(t.findOrderPreserving(0, 4)));
         }
     }
@@ -349,7 +344,6 @@ public class BPlusTreeTest {
         try (BPlusTree<Integer, Integer> t = BPlusTree.memory().maxKeys(2).uniqueKeys().naturalOrder()) {
             t.insert(1, 2);
             t.insert(1, 3);
-            t.print();
             assertEquals(Lists.newArrayList(3), toList(t.find(0, 4)));
         }
     }
@@ -376,9 +370,7 @@ public class BPlusTreeTest {
             tree.insert(3, 300);
             tree.insert(2, 200);
             tree.insert(0, 0);
-            tree.print();
             tree.insert(1, 100);
-            tree.print();
             assertEquals(Lists.newArrayList(0, 100, 200, 300), Stream.from(tree.findAll()).toList().get());
         }
     }
@@ -389,10 +381,8 @@ public class BPlusTreeTest {
             tree.insert(4, 400);
             tree.insert(3, 300);
             tree.insert(2, 200);
-            tree.print();
             tree.insert(1, 100);
             tree.insert(0, 7);
-            tree.print();
             assertEquals(Lists.newArrayList(7, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
         }
     }
@@ -403,9 +393,7 @@ public class BPlusTreeTest {
             tree.insert(3, 300);
             tree.insert(1, 100);
             tree.insert(0, 7);
-            tree.print();
             tree.insert(2, 200);
-            tree.print();
             tree.insert(4, 400);
             assertEquals(Lists.newArrayList(7, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
         }
