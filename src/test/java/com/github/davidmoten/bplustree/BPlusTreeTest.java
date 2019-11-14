@@ -31,6 +31,7 @@ public class BPlusTreeTest {
         return BPlusTree.file() //
                 .directory(Testing.newDirectory()) //
                 .clearDirectory() //
+                .deleteOnClose() //
                 .maxKeys(maxKeys) //
                 .keySerializer(Serializer.INTEGER) //
                 .valueSerializer(Serializer.INTEGER) //
@@ -403,7 +404,7 @@ public class BPlusTreeTest {
     public void testTreeOnAllPermutationsOfNonRepeatedInput() throws Exception {
         for (int maxKeys = 2; maxKeys <= 5; maxKeys++) {
             int mk = maxKeys;
-            for (int i = 1; i <= 6; i++) {
+            for (int i = 5; i <= 5; i++) {
                 List<Integer> expected = new ArrayList<>();
                 for (int j = 0; j < i; j++) {
                     expected.add(j);

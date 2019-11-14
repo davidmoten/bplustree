@@ -28,12 +28,14 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final Serializer<V> valueSerializer;
     private final LargeMappedByteBuffer bb;
     private final LargeMappedByteBuffer values;
+    private final Runnable onClose;
 
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
-            Serializer<V> valueSerializer, int segmentSizeBytes) {
+            Serializer<V> valueSerializer, int segmentSizeBytes, Runnable onClose) {
         this.options = options;
         this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
+        this.onClose = onClose;
         this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes, "index-");
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
     }
@@ -190,7 +192,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES
+                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 
@@ -282,6 +285,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public void close() throws Exception {
         bb.close();
         values.close();
+        if (onClose != null) {
+            onClose.run();
+        }
     }
 
     @Override

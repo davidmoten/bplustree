@@ -17,8 +17,9 @@ public final class Options<K, V> {
     private final Comparator<? super K> comparator;
     private final boolean uniqueKeys;
     private final FactoryProvider<K, V> factoryProvider;
+    private final Runnable onClose;
 
-    public Options(int maxLeafKeys, int maxNonLeafKeys, boolean uniqueKeys,
+    public Options(int maxLeafKeys, int maxNonLeafKeys, boolean uniqueKeys, Runnable onClose,
             Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
         // only one byte used to store num keys so check values
         Preconditions.checkArgument(0 < maxLeafKeys && maxLeafKeys <= 255);
@@ -27,6 +28,7 @@ public final class Options<K, V> {
         this.maxNonLeafKeys = maxNonLeafKeys;
         this.comparator = comparator;
         this.uniqueKeys = uniqueKeys;
+        this.onClose = onClose;
         this.factoryProvider = factoryProvider;
     }
 
@@ -44,6 +46,10 @@ public final class Options<K, V> {
 
     public boolean uniqueKeys() {
         return uniqueKeys;
+    }
+    
+    public Runnable onClose() {
+        return onClose;
     }
 
     public FactoryProvider<K, V> factoryProvider() {
