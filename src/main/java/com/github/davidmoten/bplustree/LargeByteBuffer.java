@@ -31,15 +31,16 @@ public interface LargeByteBuffer {
     void putInt(int value);
 
     /**
-     * Varint is between 0 and Integer.MAX_VALUE/8 inclusive.s
-     * 
-     * @return a non-negative integer
+     * Returns an integer that was stored in a variable number of bytes (up to 4). A
+     * varint is an alternative storage method for a non-negative integer <=
+     * Long.MAX_VALUE/8. For small values it may use only one byte.
      */
     int getVarint();
 
     /**
-     * Writes a variable number of bytes for the integer. In general the smaller the
-     * value the fewer bytes are written.
+     * Stores an integer in a variable number of bytes (up to 4). A
+     * varint is an alternative storage method for a non-negative integer <=
+     * Long.MAX_VALUE/8. For small values it may use only one byte.
      * 
      * @param value must be between 0 and Integer.MAX_VALUE/8 inclusive.
      */
