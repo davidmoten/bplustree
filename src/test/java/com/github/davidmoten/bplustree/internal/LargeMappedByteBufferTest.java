@@ -67,6 +67,33 @@ public class LargeMappedByteBufferTest {
         }
     }
 
+    @Test
+    public void testReadAndWriteVarlongs() throws IOException {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
+                "index-")) {
+            b.putVarlong(1234567890123L);
+            System.out.println(b.position());
+            long maxLong = Long.MAX_VALUE;
+            b.putVarlong(maxLong);
+            System.out.println(b.position());
+            for (int i = 0; i < 10000; i++) {
+                b.putVarlong(i * 123);
+            }
+            for (int i = 1; i <= 64; i++) {
+                b.putVarlong(123 << i);
+            }
+            b.position(0);
+            assertEquals(1234567890123L, b.getVarlong());
+            assertEquals(maxLong, b.getVarlong());
+            for (int i = 0; i < 10000; i++) {
+                assertEquals(i * 123, b.getVarlong());
+            }
+            for (int i = 1; i <= 64; i++) {
+                assertEquals(123 << i, b.getVarlong());
+            }
+        }
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testCannotWriteNegativeVarint() throws IOException {
         try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
