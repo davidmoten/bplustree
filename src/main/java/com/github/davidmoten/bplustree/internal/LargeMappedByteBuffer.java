@@ -327,7 +327,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
                 clean.setAccessible(true);
                 clean.invoke(cleaner.invoke(cb));
             } else {
-                Class unsafeClass;
+                Class<?> unsafeClass;
                 try {
                     unsafeClass = Class.forName("sun.misc.Unsafe");
                 } catch (Exception ex) {
@@ -335,7 +335,6 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
                     // but that method should be added if sun.misc.Unsafe is removed.
                     unsafeClass = Class.forName("jdk.internal.misc.Unsafe");
                 }
-                @SuppressWarnings("unchecked")
                 Method clean = unsafeClass.getMethod("invokeCleaner", ByteBuffer.class);
                 clean.setAccessible(true);
                 Field theUnsafeField = unsafeClass.getDeclaredField("theUnsafe");
