@@ -46,6 +46,36 @@ public class LargeMappedByteBufferTest {
     }
 
     @Test
+    public void testReadAndWriteVarints() throws IOException {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
+                "index-")) {
+            b.putVarint(0);
+            b.putVarint(1234567);
+            b.putVarint(1);
+            b.position(0);
+            assertEquals(0, b.getVarint());
+            assertEquals(1234567, b.getVarint());
+            assertEquals(1, b.getVarint());
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCannotWriteNegativeVarint() throws IOException {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
+                "index-")) {
+            b.putVarint(-1);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCannotWriteVeryBigVarint() throws IOException {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
+                "index-")) {
+            b.putVarint(Integer.MAX_VALUE + 1);
+        }
+    }
+
+    @Test
     public void testWriteAndReadArrayWithinSegment() throws IOException {
         try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100,
                 "index-")) {

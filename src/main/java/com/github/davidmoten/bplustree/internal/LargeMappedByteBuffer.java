@@ -16,8 +16,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
 import com.github.davidmoten.bplustree.LargeByteBuffer;
+import com.github.davidmoten.guavamini.Preconditions;
 
 public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuffer {
+
+    private static final int MAX_VARINT = Integer.MAX_VALUE / 8;
 
     private final int segmentSizeBytes;
 
@@ -383,7 +386,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     @Override
     public String getString() {
-        int length = getInt();
+        int length = getVarint();
         byte[] bytes = new byte[length];
         get(bytes);
         return new String(bytes, StandardCharsets.UTF_8);
@@ -392,8 +395,39 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     @Override
     public void putString(String value) {
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-        putInt(bytes.length);
+        putVarint(bytes.length);
         put(bytes);
+    }
+
+    @Override
+    public int getVarint() {
+        int x;
+        if ((x = get()) >= 0) {
+            return x;
+        } else if ((x ^= (get() << 7)) < 0) {
+            x ^= (~0 << 7);
+        } else if ((x ^= (get() << 14)) >= 0) {
+            x ^= (~0 << 7) ^ (~0 << 14);
+        } else if ((x ^= (get() << 21)) < 0) {
+            x ^= (~0 << 7) ^ (~0 << 14) ^ (~0 << 21);
+        } else {
+            throw new IllegalArgumentException("could not decode");
+        }
+        return x;
+    }
+
+    @Override
+    public void putVarint(int value) {
+        Preconditions.checkArgument(value >= 0 && value <= MAX_VARINT);
+        while (true) {
+            if ((value & ~0x7F) == 0) {
+                put((byte) value);
+                break;
+            } else {
+                put((byte) ((value & 0x7F) | 0x80));
+                value >>>= 7;
+            }
+        }
     }
 
 }

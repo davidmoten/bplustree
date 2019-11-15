@@ -30,6 +30,21 @@ public interface LargeByteBuffer {
 
     void putInt(int value);
 
+    /**
+     * Varint is between 0 and Integer.MAX_VALUE/8 inclusive.s
+     * 
+     * @return a non-negative integer
+     */
+    int getVarint();
+
+    /**
+     * Writes a variable number of bytes for the integer. In general the smaller the
+     * value the fewer bytes are written.
+     * 
+     * @param value must be between 0 and Integer.MAX_VALUE/8 inclusive.
+     */
+    void putVarint(int value);
+
     short getShort();
 
     void putShort(short value);
@@ -37,17 +52,17 @@ public interface LargeByteBuffer {
     long getLong();
 
     void putLong(long value);
-    
+
     double getDouble();
-    
+
     void putDouble(double value);
-    
+
     double getFloat();
-    
+
     void putFloat(float value);
-    
+
     String getString();
-    
+
     void putString(String value);
 
     void commit();
