@@ -401,6 +401,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     @Override
     public int getVarint() {
+        // Adapated from ProtocolBuffers CodedInputStream
         int x;
         if ((x = get()) >= 0) {
             return x;
@@ -419,6 +420,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     @Override
     public void putVarint(int value) {
         Preconditions.checkArgument(value >= 0 && value <= MAX_VARINT);
+        // Adapated from ProtocolBuffers CodedOutputStream
         while (true) {
             if ((value & ~0x7F) == 0) {
                 put((byte) value);

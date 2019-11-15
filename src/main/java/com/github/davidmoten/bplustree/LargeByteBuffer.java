@@ -34,6 +34,8 @@ public interface LargeByteBuffer {
      * Returns an integer that was stored in a variable number of bytes (up to 4). A
      * varint is an alternative storage method for a non-negative integer <=
      * Long.MAX_VALUE/8. For small values it may use only one byte.
+     * 
+     * <p>Algorithm used is from ProtocolBuffers.
      */
     int getVarint();
 
@@ -41,6 +43,8 @@ public interface LargeByteBuffer {
      * Stores an integer in a variable number of bytes (up to 4). A
      * varint is an alternative storage method for a non-negative integer <=
      * Long.MAX_VALUE/8. For small values it may use only one byte.
+     * 
+     * <p>Algorithm used is from ProtocolBuffers.
      * 
      * @param value must be between 0 and Integer.MAX_VALUE/8 inclusive.
      */

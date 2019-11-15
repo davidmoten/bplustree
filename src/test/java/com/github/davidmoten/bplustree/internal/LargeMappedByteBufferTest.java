@@ -49,13 +49,21 @@ public class LargeMappedByteBufferTest {
     public void testReadAndWriteVarints() throws IOException {
         try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
                 "index-")) {
-            b.putVarint(0);
             b.putVarint(1234567);
-            b.putVarint(1);
+            for (int i = 0; i < 10000; i++) {
+                b.putVarint(i);
+            }
+            for (int i = 1; i <= 16; i++) {
+                b.putVarint(123 << i);
+            }
             b.position(0);
-            assertEquals(0, b.getVarint());
             assertEquals(1234567, b.getVarint());
-            assertEquals(1, b.getVarint());
+            for (int i = 0; i < 10000; i++) {
+                assertEquals(i, b.getVarint());
+            }
+            for (int i = 1; i <= 16; i++) {
+                assertEquals(123 << i, b.getVarint());
+            }
         }
     }
 
