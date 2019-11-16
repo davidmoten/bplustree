@@ -50,6 +50,9 @@ public class LargeMappedByteBufferTest {
         try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
                 "index-")) {
             b.putVarint(1234567);
+            b.putVarint(Integer.MIN_VALUE);
+            b.putVarint(Integer.MAX_VALUE);
+            b.putVarint(-56);
             for (int i = 0; i < 10000; i++) {
                 b.putVarint(i);
             }
@@ -58,6 +61,9 @@ public class LargeMappedByteBufferTest {
             }
             b.position(0);
             assertEquals(1234567, b.getVarint());
+            assertEquals(Integer.MIN_VALUE, b.getVarint());
+            assertEquals(Integer.MAX_VALUE, b.getVarint());
+            assertEquals(-56, b.getVarint());
             for (int i = 0; i < 10000; i++) {
                 assertEquals(i, b.getVarint());
             }
@@ -72,18 +78,18 @@ public class LargeMappedByteBufferTest {
         try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
                 "index-")) {
             b.putVarlong(1234567890123L);
-            System.out.println(b.position());
+            b.putVarlong(-56);
             long maxLong = Long.MAX_VALUE;
             b.putVarlong(maxLong);
             for (int i = 0; i < 10000; i++) {
                 b.putVarlong(i * 123);
             }
             for (int i = 0; i <= 62; i++) {
-                System.out.println(maxLong >> i);
-                b.putVarlong(maxLong >>i);
+                b.putVarlong(maxLong >> i);
             }
             b.position(0);
             assertEquals(1234567890123L, b.getVarlong());
+            assertEquals(-56, b.getVarlong());
             assertEquals(maxLong, b.getVarlong());
             for (int i = 0; i < 10000; i++) {
                 assertEquals(i * 123, b.getVarlong());
@@ -91,22 +97,6 @@ public class LargeMappedByteBufferTest {
             for (int i = 0; i <= 62; i++) {
                 assertEquals(maxLong >> i, b.getVarlong());
             }
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCannotWriteNegativeVarint() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
-                "index-")) {
-            b.putVarint(-1);
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCannotWriteVeryBigVarint() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
-                "index-")) {
-            b.putVarint(Integer.MAX_VALUE + 1);
         }
     }
 

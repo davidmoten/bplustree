@@ -3,8 +3,6 @@ package com.github.davidmoten.bplustree;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import com.github.davidmoten.guavamini.Preconditions;
-
 /**
  * Similar to {@link ByteBuffer} but supports {@code long} positions instead of
  * {@code int} positions. Does not include those methods in ByteBuffer that
@@ -32,26 +30,6 @@ public interface LargeByteBuffer {
     int getInt();
 
     void putInt(int value);
-
-    /**
-     * Returns an integer that was stored in a variable number of bytes (up to 4). A
-     * varint is an alternative storage method for a non-negative integer <=
-     * Long.MAX_VALUE/8. For small values it may use only one byte.
-     * 
-     * <p>
-     * Algorithm used is from ProtocolBuffers.
-     */
-
-    /**
-     * Stores an integer in a variable number of bytes (up to 4). A varint is an
-     * alternative storage method for a non-negative integer <= Long.MAX_VALUE/8.
-     * For small values it may use only one byte.
-     * 
-     * <p>
-     * Algorithm used is from ProtocolBuffers.
-     * 
-     * @param value must be between 0 and Integer.MAX_VALUE/8 inclusive.
-     */
 
     short getShort();
 
@@ -84,26 +62,17 @@ public interface LargeByteBuffer {
         put(bytes);
     }
 
-    default int getVarint() {
-        // Adapated from ProtocolBuffers CodedInputStream
-        int x;
-        if ((x = get()) >= 0) {
-            return x;
-        } else if ((x ^= (get() << 7)) < 0) {
-            x ^= (~0 << 7);
-        } else if ((x ^= (get() << 14)) >= 0) {
-            x ^= (~0 << 7) ^ (~0 << 14);
-        } else if ((x ^= (get() << 21)) < 0) {
-            x ^= (~0 << 7) ^ (~0 << 14) ^ (~0 << 21);
-        } else {
-            throw new IllegalStateException("malformed varint");
-        }
-        return x;
-    }
-
+    /**
+     * Stores an integer in a variable number of bytes (up to 5). A varint is an
+     * alternative storage method for an integer that may take up as little as one
+     * byte for small values.
+     * 
+     * <p>
+     * Algorithm used is from ProtocolBuffers.
+     * 
+     * @param value integer value to store
+     */
     default void putVarint(int value) {
-        Preconditions.checkArgument(value >= 0 && value <= Integer.MAX_VALUE / 8);
-        // Adapated from ProtocolBuffers CodedOutputStream
         while (true) {
             if ((value & ~0x7F) == 0) {
                 put((byte) value);
@@ -115,8 +84,46 @@ public interface LargeByteBuffer {
         }
     }
 
+    /**
+     * Returns an integer that was stored in a variable number of bytes (up to 5). A
+     * varint is an alternative storage method for an integer that may take up as
+     * little as one byte for small values.
+     * 
+     * <p>
+     * Algorithm used is from ProtocolBuffers.
+     */
+    default int getVarint() {
+        // Adapated from ProtocolBuffers CodedInputStream
+        int x;
+        long pos = position();
+        if ((x = get()) >= 0) {
+            return x;
+        } else if ((x ^= (get() << 7)) < 0) {
+            x ^= (~0 << 7);
+        } else if ((x ^= (get() << 14)) >= 0) {
+            x ^= (~0 << 7) ^ (~0 << 14);
+        } else if ((x ^= (get() << 21)) < 0) {
+            x ^= (~0 << 7) ^ (~0 << 14) ^ (~0 << 21);
+        } else {
+            position(pos);
+            // get the value the slow way but can handle when integer needed more than 4
+            // bytes to represent
+            return (int) getVarlong();
+        }
+        return x;
+    }
+
+    /**
+     * Stores a long in a variable number of bytes (up to 9). A varlong is an
+     * alternative storage method for a long that may take up as little as one byte
+     * for small values.
+     * 
+     * <p>
+     * Algorithm used is from ProtocolBuffers.
+     * 
+     * @param value long value to store
+     */
     default void putVarlong(long value) {
-        Preconditions.checkArgument(value >= 0);
         while (true) {
             if ((value & ~0x7FL) == 0) {
                 put((byte) value);
@@ -128,6 +135,14 @@ public interface LargeByteBuffer {
         }
     }
 
+    /**
+     * Returns a long that was stored in a variable number of bytes (up to 9). A
+     * varlong is an alternative storage method for a long that may take up as
+     * little as one byte for small values.
+     * 
+     * <p>
+     * Algorithm used is from ProtocolBuffers.
+     */
     default long getVarlong() {
         long result = 0;
         for (int shift = 0; shift < 64; shift += 7) {
