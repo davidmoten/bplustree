@@ -100,6 +100,25 @@ public class LargeMappedByteBufferTest {
         }
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testReadAndWriteIllegalVarlong() throws IOException {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
+                "index-")) {
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.put((byte) -1);
+            b.position(0);
+            b.getVarlong();
+        }
+    }
+
     @Test
     public void testWriteAndReadArrayWithinSegment() throws IOException {
         try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100,
