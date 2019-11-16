@@ -33,6 +33,7 @@ public class BPlusTreeTest {
                 .clearDirectory() //
                 .deleteOnClose() //
                 .maxKeys(maxKeys) //
+                .uniqueKeys(false) //
                 .keySerializer(Serializer.INTEGER) //
                 .valueSerializer(Serializer.INTEGER) //
                 .naturalOrder();
