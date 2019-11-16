@@ -5,7 +5,7 @@
 
 **Status:** pre-alpha (in development)
 
-Disk based B+-tree in java using memory mapped files.
+Disk based B+-tree in java using memory mapped files (size limited only be available disk space).
 
 ## Features
 * size only limited by available disk
