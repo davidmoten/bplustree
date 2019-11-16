@@ -75,12 +75,12 @@ public class LargeMappedByteBufferTest {
             System.out.println(b.position());
             long maxLong = Long.MAX_VALUE;
             b.putVarlong(maxLong);
-            System.out.println(b.position());
             for (int i = 0; i < 10000; i++) {
                 b.putVarlong(i * 123);
             }
-            for (int i = 1; i <= 64; i++) {
-                b.putVarlong(123 << i);
+            for (int i = 0; i <= 62; i++) {
+                System.out.println(maxLong >> i);
+                b.putVarlong(maxLong >>i);
             }
             b.position(0);
             assertEquals(1234567890123L, b.getVarlong());
@@ -88,8 +88,8 @@ public class LargeMappedByteBufferTest {
             for (int i = 0; i < 10000; i++) {
                 assertEquals(i * 123, b.getVarlong());
             }
-            for (int i = 1; i <= 64; i++) {
-                assertEquals(123 << i, b.getVarlong());
+            for (int i = 0; i <= 62; i++) {
+                assertEquals(maxLong >> i, b.getVarlong());
             }
         }
     }

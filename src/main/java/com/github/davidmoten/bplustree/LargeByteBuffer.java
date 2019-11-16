@@ -102,7 +102,7 @@ public interface LargeByteBuffer {
     }
 
     default void putVarint(int value) {
-        Preconditions.checkArgument(value >= 0);
+        Preconditions.checkArgument(value >= 0 && value <= Integer.MAX_VALUE / 8);
         // Adapated from ProtocolBuffers CodedOutputStream
         while (true) {
             if ((value & ~0x7F) == 0) {
@@ -116,7 +116,7 @@ public interface LargeByteBuffer {
     }
 
     default void putVarlong(long value) {
-//      Preconditions.checkArgument(value >= 0 && value <= MAX_VARINT);
+        Preconditions.checkArgument(value >= 0);
         while (true) {
             if ((value & ~0x7FL) == 0) {
                 put((byte) value);
