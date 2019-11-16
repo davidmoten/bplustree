@@ -467,4 +467,20 @@ public class BPlusTreeTest {
             assertFalse(it.hasNext());
         }
     }
+
+    @Test
+    public void testFindEntries() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(1, 10);
+            tree.insert(2, 20);
+            Iterator<Entry<Integer, Integer>> it = tree.findEntries(1, 2, true).iterator();
+            Entry<Integer, Integer> entry = it.next();
+            assertEquals(1, (int) entry.key());
+            assertEquals(10, (int) entry.value());
+            entry = it.next();
+            assertEquals(2, (int) entry.key());
+            assertEquals(20, (int) entry.value());
+            assertFalse(it.hasNext());
+        }
+    }
 }
