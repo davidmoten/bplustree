@@ -118,6 +118,15 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             this.maxNonLeafKeys = maxNonLeafKeys;
             return this;
         }
+        
+        public BuilderFile2 uniqueKeys(boolean uniqueKeys) {
+            this.uniqueKeys = uniqueKeys;
+            return this;
+        }
+        
+        public BuilderFile2 uniqueKeys() {
+            return uniqueKeys(true);
+        }
 
         public BuilderFile2 maxKeys(int maxKeys) {
             maxLeafKeys(maxKeys);
@@ -125,7 +134,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         }
 
         public BuilderFile2 deleteOnClose() {
-            return onClose(() -> clearDirectory(directory)); 
+            return onClose(() -> clearDirectory(directory));
         }
 
         public BuilderFile2 onClose(Runnable onClose) {
@@ -566,11 +575,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             return (Leaf<K, V>) node;
         } else {
             NonLeaf<K, V> n = (NonLeaf<K, V>) node;
-            if (n.numKeys() == 0) {
-                return null;
-            } else {
-                return firstLeaf(n.child(0));
-            }
+            return firstLeaf(n.child(0));
         }
     }
 

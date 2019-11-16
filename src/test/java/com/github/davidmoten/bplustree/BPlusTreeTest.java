@@ -38,8 +38,8 @@ public class BPlusTreeTest {
                 .naturalOrder();
     };
 
-    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree.memory()
-            .maxKeys(maxKeys).naturalOrder();
+    private static final Function<Integer, BPlusTree<Integer, Integer>> creatorMemory = maxKeys -> BPlusTree
+            .memory().maxKeys(maxKeys).naturalOrder();
 
     @Parameters
     public static Collection<Object[]> creators() {
@@ -304,7 +304,8 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys() throws Exception {
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys()
+            throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 12);
             t.insert(1, 13);
@@ -332,7 +333,8 @@ public class BPlusTreeTest {
     }
 
     @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame() throws Exception {
+    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame()
+            throws Exception {
         try (BPlusTree<Integer, Integer> t = create(2)) {
             t.insert(1, 2);
             t.insert(1, 3);
@@ -342,7 +344,8 @@ public class BPlusTreeTest {
 
     @Test
     public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() throws Exception {
-        try (BPlusTree<Integer, Integer> t = BPlusTree.memory().maxKeys(2).uniqueKeys().naturalOrder()) {
+        try (BPlusTree<Integer, Integer> t = BPlusTree.memory().maxKeys(2).uniqueKeys()
+                .naturalOrder()) {
             t.insert(1, 2);
             t.insert(1, 3);
             assertEquals(Lists.newArrayList(3), toList(t.find(0, 4)));
@@ -372,7 +375,8 @@ public class BPlusTreeTest {
             tree.insert(2, 200);
             tree.insert(0, 0);
             tree.insert(1, 100);
-            assertEquals(Lists.newArrayList(0, 100, 200, 300), Stream.from(tree.findAll()).toList().get());
+            assertEquals(Lists.newArrayList(0, 100, 200, 300),
+                    Stream.from(tree.findAll()).toList().get());
         }
     }
 
@@ -384,7 +388,8 @@ public class BPlusTreeTest {
             tree.insert(2, 200);
             tree.insert(1, 100);
             tree.insert(0, 7);
-            assertEquals(Lists.newArrayList(7, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
+            assertEquals(Lists.newArrayList(7, 100, 200, 300, 400),
+                    Stream.from(tree.findAll()).toList().get());
         }
     }
 
@@ -396,7 +401,8 @@ public class BPlusTreeTest {
             tree.insert(0, 7);
             tree.insert(2, 200);
             tree.insert(4, 400);
-            assertEquals(Lists.newArrayList(7, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
+            assertEquals(Lists.newArrayList(7, 100, 200, 300, 400),
+                    Stream.from(tree.findAll()).toList().get());
         }
     }
 
@@ -419,6 +425,45 @@ public class BPlusTreeTest {
                     }
                 }).forEach();
             }
+        }
+    }
+
+    @Test
+    public void testLeafToString() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(1, 1);
+            assertTrue(tree.root().toString().startsWith("Leaf"));
+        }
+    }
+
+    @Test
+    public void testNonLeafToString() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(1, 1);
+            tree.insert(2, 2);
+            tree.insert(3, 3);
+            assertTrue(tree.root().toString().startsWith("NonLeaf"));
+        }
+    }
+
+    @Test
+    public void testFindOneKey() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(1, 10);
+            tree.insert(2, 20);
+            Iterator<Integer> it = tree.find(1).iterator();
+            assertEquals(10, (int) it.next());
+            assertFalse(it.hasNext());
+        }
+    }
+
+    @Test
+    public void testFindOneKeyNotFound() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(1, 10);
+            tree.insert(2, 20);
+            Iterator<Integer> it = tree.find(3).iterator();
+            assertFalse(it.hasNext());
         }
     }
 }
