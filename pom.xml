@@ -275,7 +275,7 @@
                                         <argument>-i</argument>
                                         <argument>10</argument>
                                         <argument>-wi</argument>
-                                        <argument>8</argument>
+                                        <argument>2</argument>
                                         <argument>-jvmArgs</argument>
                                         <argument>-Xmx512m</argument>
                                     </arguments>
