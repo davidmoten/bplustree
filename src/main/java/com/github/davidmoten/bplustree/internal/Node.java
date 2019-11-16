@@ -31,14 +31,6 @@ public interface Node<K, V> {
      * @param key key to insert
      * @return the position where key should be inserted
      */
-    default int getLocation(K key) {
-        int numKeys = numKeys();
-        for (int i = 0; i < numKeys; i++) {
-            if (options().comparator().compare(key(i), key) > 0) {
-                return i;
-            }
-        }
-        return numKeys;
-    }
+    int getLocation(K key);
 
 }

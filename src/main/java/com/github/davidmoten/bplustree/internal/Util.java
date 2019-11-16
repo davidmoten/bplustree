@@ -2,6 +2,10 @@ package com.github.davidmoten.bplustree.internal;
 
 final class Util {
 
+    private Util() {
+        // prevent instantiation
+    }
+
     static <K, V> void insertNonfull(Leaf<K, V> leaf, K key, V value, int idx) {
         if (idx < leaf.numKeys() && leaf.options().uniqueKeys() && leaf.key(idx).equals(key)) {
             // We are inserting a duplicate value, simply overwrite the old one
