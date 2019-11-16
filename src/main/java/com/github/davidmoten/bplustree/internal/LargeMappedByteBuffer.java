@@ -10,17 +10,13 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
 import com.github.davidmoten.bplustree.LargeByteBuffer;
-import com.github.davidmoten.guavamini.Preconditions;
 
 public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuffer {
-
-    private static final int MAX_VARINT = Integer.MAX_VALUE / 8;
 
     private final int segmentSizeBytes;
 
