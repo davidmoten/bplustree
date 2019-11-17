@@ -1,5 +1,10 @@
 package com.github.davidmoten.bplustree;
 
+import java.io.File;
+
+import org.mapdb.BTreeMap;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Level;
@@ -33,7 +38,9 @@ public class Benchmarks {
 
         @Setup(Level.Trial)
         public void doSetup() {
-            tree = BPlusTree.file().directory("target/bench") //
+            tree = BPlusTree //
+                    .file() //
+                    .directory("target/bench") //
                     .clearDirectory() //
                     .deleteOnClose() //
                     .maxLeafKeys(16) //
@@ -53,11 +60,49 @@ public class Benchmarks {
         }
     }
 
+    @State(Scope.Thread)
+    public static class MapDbState {
+
+        private DB db;
+        private BTreeMap<Integer, Integer> tree;
+
+        @Setup(Level.Trial)
+        public void doSetup() {
+            db = DBMaker.fileDB(new File("target/mapdb")) //
+                    .concurrencyDisable() //
+                    .fileDeleteAfterClose() //
+                    .fileMmapEnableIfSupported() //
+                    .make();
+            tree = db.treeMap("tree") //
+                    .keySerializer(org.mapdb.Serializer.INTEGER) //
+                    .valueSerializer(org.mapdb.Serializer.INTEGER) //
+                    .createOrOpen();
+        }
+
+        @TearDown(Level.Trial)
+        public void doTearDown() {
+            try {
+                tree.close();
+                db.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
-    public void storeOneMillionInts(MyState state) throws Exception {
-        for (int i = 0; i < 1000000; i++) {
+    public void storeManyIntsBplusTree(MyState state) throws Exception {
+        for (int i = 0; i < 10000000; i++) {
             state.tree.insert(i, i);
+        }
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.SingleShotTime)
+    public void storeManyIntsMapDb(MapDbState state) {
+        for (int i = 0; i < 10000000; i++) {
+            state.tree.put(i, i);
         }
     }
 
