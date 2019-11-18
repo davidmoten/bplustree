@@ -90,10 +90,12 @@ public class Benchmarks {
         }
     }
 
+    private static final int MANY = 10000000;
+
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
     public void storeManyIntsBplusTree(MyState state) throws Exception {
-        for (int i = 0; i < 10000000; i++) {
+        for (int i = 0; i < MANY; i++) {
             state.tree.insert(i, i);
         }
     }
@@ -101,7 +103,7 @@ public class Benchmarks {
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
     public void storeManyIntsMapDb(MapDbState state) {
-        for (int i = 0; i < 10000000; i++) {
+        for (int i = 0; i < MANY; i++) {
             state.tree.put(i, i);
         }
     }

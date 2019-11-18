@@ -45,6 +45,8 @@ public interface Leaf<K, V> extends Node<K, V> {
         int numKeys = numKeys();
         if (numKeys == options().maxLeafKeys()) {
             // The node is full. We must split it
+            // the first mid entries will be retained
+            // and the rest moved to a new right sibling
             int mid = (options().maxLeafKeys() + 1) / 2;
             int len = numKeys - mid;
             Leaf<K, V> sibling = factory().createLeaf();
@@ -54,6 +56,8 @@ public interface Leaf<K, V> extends Node<K, V> {
                 Util.insertNonfull(this, key, value, i, mid);
             } else {
                 // Inserted element goes to right sibling
+                //TODO this probably brings about another array copy 
+                // (shift to the right) in sibling so perhaps should be combined with the original move
                 Util.insertNonfull(sibling, key, value, i - mid, len);
             }
             sibling.setNext(next());
