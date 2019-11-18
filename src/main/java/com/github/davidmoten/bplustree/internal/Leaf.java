@@ -42,18 +42,19 @@ public interface Leaf<K, V> extends Node<K, V> {
     default Split<K, V> insert(K key, V value) {
         // Simple linear search
         int i = getLocation(key);
-        if (numKeys() == options().maxLeafKeys()) {
+        int numKeys = numKeys();
+        if (numKeys == options().maxLeafKeys()) {
             // The node is full. We must split it
             int mid = (options().maxLeafKeys() + 1) / 2;
-            int len = numKeys() - mid;
+            int len = numKeys - mid;
             Leaf<K, V> sibling = factory().createLeaf();
             move(mid, len, sibling);
             if (i < mid) {
                 // Inserted element goes to left sibling
-                Util.insertNonfull(this, key, value, i);
+                Util.insertNonfull(this, key, value, i, mid);
             } else {
                 // Inserted element goes to right sibling
-                Util.insertNonfull(sibling, key, value, i - mid);
+                Util.insertNonfull(sibling, key, value, i - mid, len);
             }
             sibling.setNext(next());
             setNext(sibling);
@@ -63,7 +64,7 @@ public interface Leaf<K, V> extends Node<K, V> {
                     this, sibling);
         } else {
             // The node was not full
-            Util.insertNonfull(this, key, value, i);
+            Util.insertNonfull(this, key, value, i, numKeys);
             return null;
         }
     }

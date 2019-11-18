@@ -43,8 +43,8 @@ public class Benchmarks {
                     .directory("target/bench") //
                     .clearDirectory() //
                     .deleteOnClose() //
-                    .maxLeafKeys(16) //
-                    .segmentSizeMB(50) //
+                    .maxLeafKeys(32) //
+                    .segmentSizeMB(10) //
                     .keySerializer(Serializer.INTEGER) //
                     .valueSerializer(Serializer.INTEGER) //
                     .naturalOrder();

@@ -6,8 +6,10 @@ final class Util {
         // prevent instantiation
     }
 
-    static <K, V> void insertNonfull(Leaf<K, V> leaf, K key, V value, int idx) {
-        if (idx < leaf.numKeys() && leaf.options().uniqueKeys() && leaf.key(idx).equals(key)) {
+    static <K, V> void insertNonfull(Leaf<K, V> leaf, K key, V value, int idx, int numKeys) {
+        // numKeys == leaf.numKeys() but might be costly to call and may have already
+        // been calculated by the calling methods so we use a pased value
+        if (idx < numKeys && leaf.options().uniqueKeys() && leaf.key(idx).equals(key)) {
             // We are inserting a duplicate value, simply overwrite the old one
             leaf.setValue(idx, value);
         } else {
