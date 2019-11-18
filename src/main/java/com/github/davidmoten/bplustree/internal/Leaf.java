@@ -56,8 +56,9 @@ public interface Leaf<K, V> extends Node<K, V> {
                 Util.insertNonfull(this, key, value, i, mid);
             } else {
                 // Inserted element goes to right sibling
-                //TODO this probably brings about another array copy 
-                // (shift to the right) in sibling so perhaps should be combined with the original move
+                // TODO this probably brings about another array copy
+                // (shift to the right) in sibling so perhaps should be combined with the
+                // original move
                 Util.insertNonfull(sibling, key, value, i - mid, len);
             }
             sibling.setNext(next());
