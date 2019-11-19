@@ -90,7 +90,7 @@ public class Benchmarks {
         }
     }
 
-    private static final int MANY = 10000000;
+    private static final int MANY = 2000000;
 
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
@@ -100,7 +100,7 @@ public class Benchmarks {
         }
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
     public void storeManyIntsMapDb(MapDbState state) {
         for (int i = 0; i < MANY; i++) {

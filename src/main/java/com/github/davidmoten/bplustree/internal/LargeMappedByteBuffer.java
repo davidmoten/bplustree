@@ -12,8 +12,11 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
+import com.github.davidmoten.bplustree.Entry;
 import com.github.davidmoten.bplustree.LargeByteBuffer;
 
 public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuffer {
@@ -21,6 +24,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     private final int segmentSizeBytes;
 
     private final TreeMap<Long, Segment> map = new TreeMap<>();
+    private final List<Entry<Long,Segment>> list = new ArrayList<>();
     private final File directory;
     private final String segmentNamePrefix;
 
@@ -39,7 +43,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     private MappedByteBuffer bb(long position) {
         // TODO close segments when map gets too many entries
         long num = segmentNumber(position);
-        Segment segment = map.get(num);
+        Segment segment = getSegment(num);
         if (segment == null) {
             segment = createSegment(num);
         }
@@ -47,10 +51,26 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
         return segment.bb;
     }
 
+    private Segment getSegment(long num) {
+//        return map.get(num);
+        for (int i = 0; i< list.size(); i++) {
+            Entry<Long, Segment> entry = list.get(i);
+            if (entry.key() == num) {
+                return entry.value();
+            }
+        }
+        return null;
+    }
+    
+    private void putSegment(long num, Segment segment) {
+//        map.put(num, segment);
+        list.add(Entry.create(num,  segment));
+    }
+
     private Segment createSegment(long num) {
         File file = new File(directory, segmentNamePrefix + num);
         Segment segment = map(file, segmentSizeBytes);
-        map.put(num, segment);
+        putSegment(num, segment);
         return segment;
     }
 
@@ -283,10 +303,14 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     @Override
     public void close() throws IOException {
-        for (Segment segment : map.values()) {
-            segment.close();
+//        for (Segment segment : map.values()) {
+//            segment.close();
+//        }
+//        map.clear();
+        for (Entry<Long, Segment> entry:list) {
+            entry.value().close();
         }
-        map.clear();
+        list.clear();
     }
 
     private static final class Segment {
