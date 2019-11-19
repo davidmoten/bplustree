@@ -84,7 +84,7 @@ public interface Leaf<K, V> extends Node<K, V> {
     default int getLocation(K key) {
         int numKeys = numKeys();
         for (int i = 0; i < numKeys; i++) {
-            if (options().comparator().compare(key(i), key) >= 0) {
+            if (options().comparator().compare(key, key(i)) <= 0) {
                 return i;
             }
         }

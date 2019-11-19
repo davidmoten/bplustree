@@ -56,7 +56,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
     }
 
     /**
-     * Returns the position where 'key' should be inserted in a leaf node that has
+     * Returns the position where 'key' should be inserted in a non-leaf node that has
      * the given keys.
      * 
      * @param key key to insert
