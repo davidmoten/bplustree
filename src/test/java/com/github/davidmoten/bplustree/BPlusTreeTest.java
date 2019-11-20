@@ -145,19 +145,19 @@ public class BPlusTreeTest {
         }
     }
 
-    @Test
-    public void testStructureWithRepeats() throws Exception {
-        try (BPlusTree<Integer, Integer> t = create(4)) {
-            t.insert(1, 10);
-            t.insert(1, 20);
-            t.insert(1, 30);
-            t.insert(1, 40);
-            t.insert(1, 50);
-            t.insert(1, 60);
-            t.print();
-            t.findOrderPreserving(0, 2).forEach(System.out::println);
-        }
-    }
+//    @Test
+//    public void testStructureWithRepeats() throws Exception {
+//        try (BPlusTree<Integer, Integer> t = create(4)) {
+//            t.insert(1, 10);
+//            t.insert(1, 20);
+//            t.insert(1, 30);
+//            t.insert(1, 40);
+//            t.insert(1, 50);
+//            t.insert(1, 60);
+//            t.print();
+//            t.findOrderPreserving(0, 2).forEach(System.out::println);
+//        }
+//    }
 
     @Test
     public void testSplitsCorrect5Entries() throws Exception {
@@ -318,58 +318,58 @@ public class BPlusTreeTest {
         }
     }
 
-    @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys()
-            throws Exception {
-        try (BPlusTree<Integer, Integer> t = create(2)) {
-            t.insert(1, 12);
-            t.insert(1, 13);
-            t.insert(2, 21);
-            t.insert(2, 22);
-            t.insert(2, 23);
-            t.insert(3, 31);
-            assertEquals(Lists.newArrayList(12, 13, 21, 22, 23, 31), //
-                    toList(t.findOrderPreserving(0, 4)));
-        }
-    }
+//    @Test
+//    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodManyDifferentKeys()
+//            throws Exception {
+//        try (BPlusTree<Integer, Integer> t = create(2)) {
+//            t.insert(1, 12);
+//            t.insert(1, 13);
+//            t.insert(2, 21);
+//            t.insert(2, 22);
+//            t.insert(2, 23);
+//            t.insert(3, 31);
+//            assertEquals(Lists.newArrayList(12, 13, 21, 22, 23, 31), //
+//                    toList(t.findOrderPreserving(0, 4)));
+//        }
+//    }
 
-    @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethod() throws Exception {
-        try (BPlusTree<Integer, Integer> t = create(2)) {
-            t.insert(1, 12);
-            t.insert(1, 13);
-            t.insert(2, 21);
-            t.insert(2, 22);
-            t.insert(2, 23);
-            t.insert(3, 31);
-            assertEquals(Lists.newArrayList(12, 13, 21, 22, 23), //
-                    toList(t.findOrderPreserving(0, 3)));
-        }
-    }
+//    @Test
+//    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethod() throws Exception {
+//        try (BPlusTree<Integer, Integer> t = create(2)) {
+//            t.insert(1, 12);
+//            t.insert(1, 13);
+//            t.insert(2, 21);
+//            t.insert(2, 22);
+//            t.insert(2, 23);
+//            t.insert(3, 31);
+//            assertEquals(Lists.newArrayList(12, 13, 21, 22, 23), //
+//                    toList(t.findOrderPreserving(0, 3)));
+//        }
+//    }
     
-    @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethod2() throws Exception {
-        try (BPlusTree<Integer, Integer> t = create(4)) {
-            t.insert(1, 10);
-            t.insert(1, 11);
-            t.insert(1, 12);
-            t.insert(1, 13);
-            t.insert(1, 14);
-            t.insert(1, 15);
-            assertEquals(Lists.newArrayList(10, 11, 12, 13, 14, 15), //
-                    toList(t.findOrderPreserving(0, 3)));
-        }
-    }
+//    @Test
+//    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethod2() throws Exception {
+//        try (BPlusTree<Integer, Integer> t = create(2)) {
+//            t.insert(1, 10);
+//            t.insert(1, 11);
+//            t.insert(1, 12);
+//            t.insert(1, 13);
+//            t.insert(1, 14);
+//            t.insert(1, 15);
+//            assertEquals(Lists.newArrayList(10, 11, 12, 13, 14, 15), //
+//                    toList(t.findOrderPreserving(0, 3)));
+//        }
+//    }
 
-    @Test
-    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame()
-            throws Exception {
-        try (BPlusTree<Integer, Integer> t = create(2)) {
-            t.insert(1, 2);
-            t.insert(1, 3);
-            assertEquals(Lists.newArrayList(2, 3), toList(t.findOrderPreserving(0, 4)));
-        }
-    }
+//    @Test
+//    public void testDuplicateSupportedAndOrderPreservedBySpecialFindMethodAllKeysSame()
+//            throws Exception {
+//        try (BPlusTree<Integer, Integer> t = create(2)) {
+//            t.insert(1, 2);
+//            t.insert(1, 3);
+//            assertEquals(Lists.newArrayList(2, 3), toList(t.findOrderPreserving(0, 4)));
+//        }
+//    }
 
     @Test
     public void testDuplicateNotSupportedWhenUniqueKeysSetToTrue() throws Exception {

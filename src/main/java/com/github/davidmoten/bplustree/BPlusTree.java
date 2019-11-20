@@ -401,161 +401,161 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         };
     }
 
-    /**
-     * For the situation when uniqueness is false, when entries are inserted with
-     * the same key they are inserted before the last entry. As a consequence if we
-     * want to preserve the insert order in the returned values from a find then we
-     * need to collect entries with the same key and then emit them in reverse
-     * order. If there are a lot of keys with the same value then an
-     * {@link OutOfMemoryError} might be thrown.
-     * 
-     * @param startInclusive  start of the key range, inclusive
-     * @param finishExclusive finish of the key range, exclusive
-     * @return values of entries in searched for key range preserving insert order
-     */
-    public Iterable<V> findOrderPreserving(K startInclusive, K finishExclusive) {
-        return findOrderPreserving(startInclusive, finishExclusive, false);
-    }
-
-    private static final int VALUES_MAX_SIZE = 256;
-
-    /**
-     * For the situation when uniqueness is false, when entries are inserted with
-     * the same key they are inserted before the last entry. As a consequence if we
-     * want to preserve the insert order in the returned values from a find then we
-     * need to collect entries with the same key and then emit them in reverse
-     * order. If there are a lot of keys with the same value then an
-     * {@link OutOfMemoryError} might be thrown.
-     * 
-     * @param startInclusive    start of the key range, inclusive
-     * @param finish            finish of the key range
-     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
-     * @return values of entries in searched for key range preserving insert order
-     */
-    public Iterable<V> findOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive) {
-        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive, (k, v) -> v);
-    }
-
-    /**
-     * For the situation when uniqueness is false, when entries are inserted with
-     * the same key they are inserted before the last entry. As a consequence if we
-     * want to preserve the insert order in the returned values from a find then we
-     * need to collect entries with the same key and then emit them in reverse
-     * order. If there are a lot of keys with the same value then an
-     * {@link OutOfMemoryError} might be thrown.
-     * 
-     * @param startInclusive    start of the key range, inclusive
-     * @param finish            finish of the key range
-     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
-     * @return values of entries in searched for key range preserving insert order
-     */
-    public Iterable<Entry<K, V>> findEntriesOrderPreserving(K startInclusive, K finish,
-            boolean isFinishInclusive) {
-        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive,
-                (k, v) -> Entry.create(k, v));
-    }
-
-    /**
-     * For the situation when uniqueness is false, when entries are inserted with
-     * the same key they are inserted before the last entry. As a consequence if we
-     * want to preserve the insert order in the returned values from a find then we
-     * need to collect entries with the same key and then emit them in reverse
-     * order. If there are a lot of keys with the same value then an
-     * {@link OutOfMemoryError} might be thrown.
-     * 
-     * @param startInclusive    start of the key range, inclusive
-     * @param finish            finish of the key range
-     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
-     * @param mapper            maps key value pairs to the stream result
-     * @param                   <R> the type of streamed result that the key and
-     *                          value are mapped to
-     * @return values of entries in searched for key range preserving insert order
-     *         maps the key and value to the streamed result
-     */
-    public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish,
-            boolean isFinishInclusive, BiFunction<? super K, ? super V, ? extends R> mapper) {
-        return new Iterable<R>() {
-
-            @Override
-            public Iterator<R> iterator() {
-                return new Iterator<R>() {
-                    Leaf<K, V> leaf = findFirstLeaf(startInclusive);
-                    int idx = leaf.getLocation(startInclusive);
-                    K currentKey;
-                    List<R> values = new ArrayList<>();
-                    int valuesIdx = 0;
-                    List<R> nextValues = new ArrayList<>();
-
-                    @Override
-                    public boolean hasNext() {
-                        load();
-                        return valuesIdx < values.size();
-                    }
-
-                    @Override
-                    public R next() {
-                        load();
-                        int size = values.size();
-                        if (valuesIdx >= size) {
-                            throw new NoSuchElementException();
-                        } else {
-                            // emit in reverse order
-                            // clear the value from the list to enable early GC
-                            R v = values.set(size - valuesIdx - 1, null);
-                            valuesIdx++;
-                            return v;
-                        }
-                    }
-
-                    private void load() {
-                        if (valuesIdx < values.size()) {
-                            return;
-                        }
-                        valuesIdx = 0;
-                        values = clear(values, VALUES_MAX_SIZE);
-                        // swap values and nextValues
-                        List<R> temp = values;
-                        values = nextValues;
-                        nextValues = temp;
-                        while (true) {
-                            if (leaf == null) {
-                                return;
-                            } else if (idx < leaf.numKeys()) {
-                                K key = leaf.key(idx);
-                                int c = options.comparator().compare(key, finish);
-                                if (c < 0 || (c == 0 && isFinishInclusive)) {
-                                    if (currentKey == null) {
-                                        currentKey = key;
-                                    }
-                                    R r = mapper.apply(key, leaf.value(idx));
-                                    if (options.comparator().compare(currentKey, key) == 0) {
-                                        values.add(r);
-                                        idx++;
-                                    } else {
-                                        // key has changed
-                                        currentKey = key;
-                                        nextValues.add(r);
-                                        idx++;
-                                        // key has changed so we have found the next key sequence
-                                        return;
-                                    }
-                                } else {
-                                    // don't search further
-                                    leaf = null;
-                                    return;
-                                }
-                            } else {
-                                leaf = leaf.next();
-                                idx = 0;
-                            }
-                        }
-                    }
-
-                };
-            }
-
-        };
-    }
+//    /**
+//     * For the situation when uniqueness is false, when entries are inserted with
+//     * the same key they are inserted before the last entry. As a consequence if we
+//     * want to preserve the insert order in the returned values from a find then we
+//     * need to collect entries with the same key and then emit them in reverse
+//     * order. If there are a lot of keys with the same value then an
+//     * {@link OutOfMemoryError} might be thrown.
+//     * 
+//     * @param startInclusive  start of the key range, inclusive
+//     * @param finishExclusive finish of the key range, exclusive
+//     * @return values of entries in searched for key range preserving insert order
+//     */
+//    public Iterable<V> findOrderPreserving(K startInclusive, K finishExclusive) {
+//        return findOrderPreserving(startInclusive, finishExclusive, false);
+//    }
+//
+//    private static final int VALUES_MAX_SIZE = 256;
+//
+//    /**
+//     * For the situation when uniqueness is false, when entries are inserted with
+//     * the same key they are inserted before the last entry. As a consequence if we
+//     * want to preserve the insert order in the returned values from a find then we
+//     * need to collect entries with the same key and then emit them in reverse
+//     * order. If there are a lot of keys with the same value then an
+//     * {@link OutOfMemoryError} might be thrown.
+//     * 
+//     * @param startInclusive    start of the key range, inclusive
+//     * @param finish            finish of the key range
+//     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
+//     * @return values of entries in searched for key range preserving insert order
+//     */
+//    public Iterable<V> findOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive) {
+//        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive, (k, v) -> v);
+//    }
+//
+//    /**
+//     * For the situation when uniqueness is false, when entries are inserted with
+//     * the same key they are inserted before the last entry. As a consequence if we
+//     * want to preserve the insert order in the returned values from a find then we
+//     * need to collect entries with the same key and then emit them in reverse
+//     * order. If there are a lot of keys with the same value then an
+//     * {@link OutOfMemoryError} might be thrown.
+//     * 
+//     * @param startInclusive    start of the key range, inclusive
+//     * @param finish            finish of the key range
+//     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
+//     * @return values of entries in searched for key range preserving insert order
+//     */
+//    public Iterable<Entry<K, V>> findEntriesOrderPreserving(K startInclusive, K finish,
+//            boolean isFinishInclusive) {
+//        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive,
+//                (k, v) -> Entry.create(k, v));
+//    }
+//
+//    /**
+//     * For the situation when uniqueness is false, when entries are inserted with
+//     * the same key they are inserted before the last entry. As a consequence if we
+//     * want to preserve the insert order in the returned values from a find then we
+//     * need to collect entries with the same key and then emit them in reverse
+//     * order. If there are a lot of keys with the same value then an
+//     * {@link OutOfMemoryError} might be thrown.
+//     * 
+//     * @param startInclusive    start of the key range, inclusive
+//     * @param finish            finish of the key range
+//     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
+//     * @param mapper            maps key value pairs to the stream result
+//     * @param                   <R> the type of streamed result that the key and
+//     *                          value are mapped to
+//     * @return values of entries in searched for key range preserving insert order
+//     *         maps the key and value to the streamed result
+//     */
+//    public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish,
+//            boolean isFinishInclusive, BiFunction<? super K, ? super V, ? extends R> mapper) {
+//        return new Iterable<R>() {
+//
+//            @Override
+//            public Iterator<R> iterator() {
+//                return new Iterator<R>() {
+//                    Leaf<K, V> leaf = findFirstLeaf(startInclusive);
+//                    int idx = leaf.getLocation(startInclusive);
+//                    K currentKey;
+//                    List<R> values = new ArrayList<>();
+//                    int valuesIdx = 0;
+//                    List<R> nextValues = new ArrayList<>();
+//
+//                    @Override
+//                    public boolean hasNext() {
+//                        load();
+//                        return valuesIdx < values.size();
+//                    }
+//
+//                    @Override
+//                    public R next() {
+//                        load();
+//                        int size = values.size();
+//                        if (valuesIdx >= size) {
+//                            throw new NoSuchElementException();
+//                        } else {
+//                            // emit in reverse order
+//                            // clear the value from the list to enable early GC
+//                            R v = values.set(size - valuesIdx - 1, null);
+//                            valuesIdx++;
+//                            return v;
+//                        }
+//                    }
+//
+//                    private void load() {
+//                        if (valuesIdx < values.size()) {
+//                            return;
+//                        }
+//                        valuesIdx = 0;
+//                        values = clear(values, VALUES_MAX_SIZE);
+//                        // swap values and nextValues
+//                        List<R> temp = values;
+//                        values = nextValues;
+//                        nextValues = temp;
+//                        while (true) {
+//                            if (leaf == null) {
+//                                return;
+//                            } else if (idx < leaf.numKeys()) {
+//                                K key = leaf.key(idx);
+//                                int c = options.comparator().compare(key, finish);
+//                                if (c < 0 || (c == 0 && isFinishInclusive)) {
+//                                    if (currentKey == null) {
+//                                        currentKey = key;
+//                                    }
+//                                    R r = mapper.apply(key, leaf.value(idx));
+//                                    if (options.comparator().compare(currentKey, key) == 0) {
+//                                        values.add(r);
+//                                        idx++;
+//                                    } else {
+//                                        // key has changed
+//                                        currentKey = key;
+//                                        nextValues.add(r);
+//                                        idx++;
+//                                        // key has changed so we have found the next key sequence
+//                                        return;
+//                                    }
+//                                } else {
+//                                    // don't search further
+//                                    leaf = null;
+//                                    return;
+//                                }
+//                            } else {
+//                                leaf = leaf.next();
+//                                idx = 0;
+//                            }
+//                        }
+//                    }
+//
+//                };
+//            }
+//
+//        };
+//    }
 
     @VisibleForTesting
     static <T> List<T> clear(List<T> values, int maxSize) {
