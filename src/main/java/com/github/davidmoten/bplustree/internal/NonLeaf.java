@@ -56,20 +56,16 @@ public interface NonLeaf<K, V> extends Node<K, V> {
     }
 
     /**
-     * Returns the position where 'key' should be inserted in a non-leaf node that has
-     * the given keys.
+     * Returns the position where 'key' should be inserted in a non-leaf node that
+     * has the given keys. This is the first key in the NonLeaf for which the
+     * {@code key} is strictly before. If not strictly before any key in the NonLeaf
+     * then the current number of keys is returned.
      * 
      * @param key key to insert
      * @return the position where key should be inserted
      */
     default int getLocation(K key) {
-        int numKeys = numKeys();
-        for (int i = 0; i < numKeys; i++) {
-            if (options().comparator().compare(key, key(i)) < 0) {
-                return i;
-            }
-        }
-        return numKeys;
+        return Util.getLocationOld(this, key, options().comparator());
     }
 
     default int getLocationNew(K key) {

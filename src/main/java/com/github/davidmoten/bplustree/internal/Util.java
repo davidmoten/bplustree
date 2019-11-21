@@ -70,7 +70,7 @@ final class Util {
                     if (c == 0) {
                         return start;
                     } else if (start < finish) {
-                        start= finish;
+                        start = finish;
                     } else {
                         return start;
                     }
@@ -80,6 +80,16 @@ final class Util {
             }
         }
 
+    }
+
+    static <K,V> int getLocationOld(NonLeaf<K, V> n, K key, Comparator<? super K> comparator) {
+        int numKeys = n.numKeys();
+        for (int i = 0; i < numKeys; i++) {
+            if (comparator.compare(key, n.key(i)) < 0) {
+                return i;
+            }
+        }
+        return numKeys;
     }
 
 }
