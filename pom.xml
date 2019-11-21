@@ -283,6 +283,10 @@
                                         <argument>10</argument>
                                         <argument>-wi</argument>
                                         <argument>10</argument>
+                                        <argument>-w</argument>
+                                        <argument>20</argument>
+                                        <argument>-r</argument>
+                                        <argument>20</argument>
                                         <argument>-jvmArgs</argument>
                                         <argument>-Xmx512m</argument>
                                     </arguments>
