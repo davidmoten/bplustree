@@ -43,7 +43,7 @@ final class Util {
         } // else the current node is not affected
     }
 
-    static <K> int getLocation(NonLeaf<K, ?> node, K key, Comparator<? super K> comparator) {
+    static <K, V> int getLocation(NonLeaf<K, V> node, K key, Comparator<? super K> comparator) {
         int numKeys = node.numKeys();
         if (numKeys == 0) {
             return 0;
@@ -51,38 +51,25 @@ final class Util {
         int start = 0;
         int finish = numKeys - 1;
         while (true) {
+            System.out.println("start="+ start + ", finish="+ finish);
             int mid = (start + finish) / 2;
             int c = comparator.compare(key, node.key(mid));
             if (c < 0) {
-                if (mid == start) {
+                finish = mid;
+                if (start == finish) {
                     return mid;
-                } else {
-                    finish = mid;
                 }
             } else {
-                if (mid == finish) {
-                    if (c == 0)
-                        return mid;
-                    else
-                        // return position after existing keys
-                        return numKeys;
-                } else if (mid == start) {
-                    if (c == 0) {
-                        return start;
-                    } else if (start < finish) {
-                        start = finish;
-                    } else {
-                        return start;
-                    }
-                } else {
-                    start = mid;
+                if (start == finish) {
+                    return mid;
                 }
+                start = mid + 1;
             }
         }
 
     }
 
-    static <K,V> int getLocationOld(NonLeaf<K, V> n, K key, Comparator<? super K> comparator) {
+    static <K, V> int getLocationOld(NonLeaf<K, V> n, K key, Comparator<? super K> comparator) {
         int numKeys = n.numKeys();
         for (int i = 0; i < numKeys; i++) {
             if (comparator.compare(key, n.key(i)) < 0) {
