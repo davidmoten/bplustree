@@ -76,7 +76,8 @@ public interface Leaf<K, V> extends Node<K, V> {
 
     /**
      * Returns the position where 'key' should be inserted in a leaf node that has
-     * the given keys.
+     * the given keys. The position returned will be the first key to which
+     * {@code key} is equal to or less than.
      * 
      * @param key key to insert
      * @return the position where key should be inserted
