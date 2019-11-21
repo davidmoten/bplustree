@@ -50,10 +50,20 @@ final class Util {
         }
         int start = 0;
         int finish = numKeys - 1;
+        int prevMid = -1;
+        K midKey = null;
         while (true) {
-            System.out.println("start="+ start + ", finish="+ finish);
             int mid = (start + finish) / 2;
-            int c = comparator.compare(key, node.key(mid));
+            // use cahced key if mid doesn't change
+            final K k;
+            if (prevMid == mid) {
+                k = midKey;
+            } else {
+                k = node.key(mid);
+            }
+            prevMid = mid;
+            midKey = k;
+            int c = comparator.compare(key, k);
             if (c < 0) {
                 finish = mid;
                 if (start == finish) {
@@ -61,7 +71,7 @@ final class Util {
                 }
             } else {
                 if (start == finish) {
-                    return mid;
+                    return mid + 1;
                 }
                 start = mid + 1;
             }

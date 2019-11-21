@@ -9,25 +9,24 @@ import org.junit.Test;
 public class NonLeafTest {
 
     @Test
-//    @Ignore
     public void testGetLocationUniqueKeys() {
         NonLeaf<Integer, Integer> n = create(1, 3, 5);
         assertEquals(0, Util.getLocation(n, 0, Comparator.naturalOrder()));
-        assertEquals(0, Util.getLocation(n, 1, Comparator.naturalOrder()));
+        assertEquals(1, Util.getLocation(n, 1, Comparator.naturalOrder()));
         assertEquals(1, Util.getLocation(n, 2, Comparator.naturalOrder()));
-        assertEquals(1, Util.getLocation(n, 3, Comparator.naturalOrder()));
+        assertEquals(2, Util.getLocation(n, 3, Comparator.naturalOrder()));
         assertEquals(2, Util.getLocation(n, 4, Comparator.naturalOrder()));
-        assertEquals(2, Util.getLocation(n, 5, Comparator.naturalOrder()));
+        assertEquals(3, Util.getLocation(n, 5, Comparator.naturalOrder()));
         assertEquals(3, Util.getLocation(n, 6, Comparator.naturalOrder()));
     }
 
     @Test
     public void testGetLocationNonUniqueKeys() {
         NonLeaf<Integer, Integer> n = create(1, 1, 3, 3);
-        assertEquals(4, Util.getLocation(n, 3, Comparator.naturalOrder()));
         assertEquals(0, Util.getLocation(n, 0, Comparator.naturalOrder()));
         assertEquals(2, Util.getLocation(n, 1, Comparator.naturalOrder()));
         assertEquals(2, Util.getLocation(n, 2, Comparator.naturalOrder()));
+        assertEquals(4, Util.getLocation(n, 3, Comparator.naturalOrder()));
         assertEquals(4, Util.getLocation(n, 4, Comparator.naturalOrder()));
     }
     
