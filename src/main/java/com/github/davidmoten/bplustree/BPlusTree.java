@@ -38,8 +38,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     /** Create a new empty tree. */
     private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Runnable onClose,
             Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, onClose, comparator,
-                factoryProvider);
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, onClose, comparator, factoryProvider);
         this.factory = options.factoryProvider().createFactory(options);
         this.root = factory.loadOrCreateRoot();
         factory.root(root);
@@ -118,12 +117,12 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             this.maxNonLeafKeys = maxNonLeafKeys;
             return this;
         }
-        
+
         public BuilderFile2 uniqueKeys(boolean uniqueKeys) {
             this.uniqueKeys = uniqueKeys;
             return this;
         }
-        
+
         public BuilderFile2 uniqueKeys() {
             return uniqueKeys(true);
         }
@@ -143,8 +142,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         }
 
         public <K> BuilderFile3<K> keySerializer(Serializer<K> serializer) {
-            Preconditions.checkArgument(serializer.maxSize() > 0,
-                    "key serializer must have non-zero maxSize");
+            Preconditions.checkArgument(serializer.maxSize() > 0, "key serializer must have non-zero maxSize");
             return new BuilderFile3<K>(this, serializer);
         }
     }
@@ -182,8 +180,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         }
 
         public BPlusTree<K, V> comparator(Comparator<? super K> comparator) {
-            FactoryProvider<K, V> factoryProvider = options -> new FactoryFile<K, V>(options,
-                    b.directory, keySerializer, valueSerializer, b.segmentSizeBytes, b.onClose);
+            FactoryProvider<K, V> factoryProvider = options -> new FactoryFile<K, V>(options, b.directory,
+                    keySerializer, valueSerializer, b.segmentSizeBytes, b.onClose);
 
             if (b.maxLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
                 if (b.maxNonLeafKeys == MAX_KEYS_NOT_SPECIFIED) {
@@ -196,8 +194,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                 b.maxNonLeafKeys = b.maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(b.maxLeafKeys, b.maxNonLeafKeys, b.uniqueKeys, b.onClose,
-                    comparator, factoryProvider);
+            return new BPlusTree<K, V>(b.maxLeafKeys, b.maxNonLeafKeys, b.uniqueKeys, b.onClose, comparator,
+                    factoryProvider);
         }
 
     }
@@ -255,8 +253,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                 maxInnerKeys = maxLeafKeys;
             }
 
-            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, null, comparator,
-                    factoryProvider);
+            return new BPlusTree<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, null, comparator, factoryProvider);
         }
 
     }
@@ -284,7 +281,8 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * Looks for the given key. If it is not found, it returns null. If it is found,
      * it returns the associated value.
      * 
-     * @param key key to find
+     * @param key
+     *            key to find
      * @return the first matching value or null if not found
      */
     public V findFirst(K key) {
@@ -317,8 +315,10 @@ public final class BPlusTree<K, V> implements AutoCloseable {
      * Returns a key ordered sequence of values whose keys are &gt;= start and &lt;
      * finish. Note that the insert order of duplicate keys may not be preserved.
      * 
-     * @param startInclusive  inclusive end of search
-     * @param finishExclusive exclusive end of search
+     * @param startInclusive
+     *            inclusive end of search
+     * @param finishExclusive
+     *            exclusive end of search
      * @return in-order sequence of values whose keys are &gt;= start and &lt;
      *         finish
      */
@@ -334,8 +334,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         return findEntries(startInclusive, finishExclusive, false);
     }
 
-    public Iterable<Entry<K, V>> findEntries(K startInclusive, K finish,
-            boolean isFinishInclusive) {
+    public Iterable<Entry<K, V>> findEntries(K startInclusive, K finish, boolean isFinishInclusive) {
         return find(startInclusive, finish, isFinishInclusive, (k, v) -> Entry.create(k, v));
     }
 
@@ -347,6 +346,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             public Iterator<R> iterator() {
                 return new Iterator<R>() {
                     Leaf<K, V> leaf = findFirstLeaf(startInclusive);
+                    int numKeys = leaf.numKeys();
                     int idx = leaf.getLocation(startInclusive);
                     R value;
 
@@ -375,7 +375,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                         while (true) {
                             if (leaf == null) {
                                 return;
-                            } else if (idx < leaf.numKeys()) {
+                            } else if (idx < numKeys) {
                                 K key = leaf.key(idx);
                                 int c = options.comparator().compare(key, finish);
                                 if (c < 0 || (c == 0 && isFinishInclusive)) {
@@ -388,6 +388,9 @@ public final class BPlusTree<K, V> implements AutoCloseable {
                                 return;
                             } else {
                                 leaf = leaf.next();
+                                if (leaf != null) {
+                                    numKeys = leaf.numKeys();
+                                }
                                 idx = 0;
                             }
                         }
@@ -399,161 +402,176 @@ public final class BPlusTree<K, V> implements AutoCloseable {
         };
     }
 
-//    /**
-//     * For the situation when uniqueness is false, when entries are inserted with
-//     * the same key they are inserted before the last entry. As a consequence if we
-//     * want to preserve the insert order in the returned values from a find then we
-//     * need to collect entries with the same key and then emit them in reverse
-//     * order. If there are a lot of keys with the same value then an
-//     * {@link OutOfMemoryError} might be thrown.
-//     * 
-//     * @param startInclusive  start of the key range, inclusive
-//     * @param finishExclusive finish of the key range, exclusive
-//     * @return values of entries in searched for key range preserving insert order
-//     */
-//    public Iterable<V> findOrderPreserving(K startInclusive, K finishExclusive) {
-//        return findOrderPreserving(startInclusive, finishExclusive, false);
-//    }
-//
-//    private static final int VALUES_MAX_SIZE = 256;
-//
-//    /**
-//     * For the situation when uniqueness is false, when entries are inserted with
-//     * the same key they are inserted before the last entry. As a consequence if we
-//     * want to preserve the insert order in the returned values from a find then we
-//     * need to collect entries with the same key and then emit them in reverse
-//     * order. If there are a lot of keys with the same value then an
-//     * {@link OutOfMemoryError} might be thrown.
-//     * 
-//     * @param startInclusive    start of the key range, inclusive
-//     * @param finish            finish of the key range
-//     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
-//     * @return values of entries in searched for key range preserving insert order
-//     */
-//    public Iterable<V> findOrderPreserving(K startInclusive, K finish, boolean isFinishInclusive) {
-//        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive, (k, v) -> v);
-//    }
-//
-//    /**
-//     * For the situation when uniqueness is false, when entries are inserted with
-//     * the same key they are inserted before the last entry. As a consequence if we
-//     * want to preserve the insert order in the returned values from a find then we
-//     * need to collect entries with the same key and then emit them in reverse
-//     * order. If there are a lot of keys with the same value then an
-//     * {@link OutOfMemoryError} might be thrown.
-//     * 
-//     * @param startInclusive    start of the key range, inclusive
-//     * @param finish            finish of the key range
-//     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
-//     * @return values of entries in searched for key range preserving insert order
-//     */
-//    public Iterable<Entry<K, V>> findEntriesOrderPreserving(K startInclusive, K finish,
-//            boolean isFinishInclusive) {
-//        return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive,
-//                (k, v) -> Entry.create(k, v));
-//    }
-//
-//    /**
-//     * For the situation when uniqueness is false, when entries are inserted with
-//     * the same key they are inserted before the last entry. As a consequence if we
-//     * want to preserve the insert order in the returned values from a find then we
-//     * need to collect entries with the same key and then emit them in reverse
-//     * order. If there are a lot of keys with the same value then an
-//     * {@link OutOfMemoryError} might be thrown.
-//     * 
-//     * @param startInclusive    start of the key range, inclusive
-//     * @param finish            finish of the key range
-//     * @param isFinishInclusive if true then finish is inclusive otherwise exclusive
-//     * @param mapper            maps key value pairs to the stream result
-//     * @param                   <R> the type of streamed result that the key and
-//     *                          value are mapped to
-//     * @return values of entries in searched for key range preserving insert order
-//     *         maps the key and value to the streamed result
-//     */
-//    public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish,
-//            boolean isFinishInclusive, BiFunction<? super K, ? super V, ? extends R> mapper) {
-//        return new Iterable<R>() {
-//
-//            @Override
-//            public Iterator<R> iterator() {
-//                return new Iterator<R>() {
-//                    Leaf<K, V> leaf = findFirstLeaf(startInclusive);
-//                    int idx = leaf.getLocation(startInclusive);
-//                    K currentKey;
-//                    List<R> values = new ArrayList<>();
-//                    int valuesIdx = 0;
-//                    List<R> nextValues = new ArrayList<>();
-//
-//                    @Override
-//                    public boolean hasNext() {
-//                        load();
-//                        return valuesIdx < values.size();
-//                    }
-//
-//                    @Override
-//                    public R next() {
-//                        load();
-//                        int size = values.size();
-//                        if (valuesIdx >= size) {
-//                            throw new NoSuchElementException();
-//                        } else {
-//                            // emit in reverse order
-//                            // clear the value from the list to enable early GC
-//                            R v = values.set(size - valuesIdx - 1, null);
-//                            valuesIdx++;
-//                            return v;
-//                        }
-//                    }
-//
-//                    private void load() {
-//                        if (valuesIdx < values.size()) {
-//                            return;
-//                        }
-//                        valuesIdx = 0;
-//                        values = clear(values, VALUES_MAX_SIZE);
-//                        // swap values and nextValues
-//                        List<R> temp = values;
-//                        values = nextValues;
-//                        nextValues = temp;
-//                        while (true) {
-//                            if (leaf == null) {
-//                                return;
-//                            } else if (idx < leaf.numKeys()) {
-//                                K key = leaf.key(idx);
-//                                int c = options.comparator().compare(key, finish);
-//                                if (c < 0 || (c == 0 && isFinishInclusive)) {
-//                                    if (currentKey == null) {
-//                                        currentKey = key;
-//                                    }
-//                                    R r = mapper.apply(key, leaf.value(idx));
-//                                    if (options.comparator().compare(currentKey, key) == 0) {
-//                                        values.add(r);
-//                                        idx++;
-//                                    } else {
-//                                        // key has changed
-//                                        currentKey = key;
-//                                        nextValues.add(r);
-//                                        idx++;
-//                                        // key has changed so we have found the next key sequence
-//                                        return;
-//                                    }
-//                                } else {
-//                                    // don't search further
-//                                    leaf = null;
-//                                    return;
-//                                }
-//                            } else {
-//                                leaf = leaf.next();
-//                                idx = 0;
-//                            }
-//                        }
-//                    }
-//
-//                };
-//            }
-//
-//        };
-//    }
+    // /**
+    // * For the situation when uniqueness is false, when entries are inserted with
+    // * the same key they are inserted before the last entry. As a consequence if
+    // we
+    // * want to preserve the insert order in the returned values from a find then
+    // we
+    // * need to collect entries with the same key and then emit them in reverse
+    // * order. If there are a lot of keys with the same value then an
+    // * {@link OutOfMemoryError} might be thrown.
+    // *
+    // * @param startInclusive start of the key range, inclusive
+    // * @param finishExclusive finish of the key range, exclusive
+    // * @return values of entries in searched for key range preserving insert order
+    // */
+    // public Iterable<V> findOrderPreserving(K startInclusive, K finishExclusive) {
+    // return findOrderPreserving(startInclusive, finishExclusive, false);
+    // }
+    //
+    // private static final int VALUES_MAX_SIZE = 256;
+    //
+    // /**
+    // * For the situation when uniqueness is false, when entries are inserted with
+    // * the same key they are inserted before the last entry. As a consequence if
+    // we
+    // * want to preserve the insert order in the returned values from a find then
+    // we
+    // * need to collect entries with the same key and then emit them in reverse
+    // * order. If there are a lot of keys with the same value then an
+    // * {@link OutOfMemoryError} might be thrown.
+    // *
+    // * @param startInclusive start of the key range, inclusive
+    // * @param finish finish of the key range
+    // * @param isFinishInclusive if true then finish is inclusive otherwise
+    // exclusive
+    // * @return values of entries in searched for key range preserving insert order
+    // */
+    // public Iterable<V> findOrderPreserving(K startInclusive, K finish, boolean
+    // isFinishInclusive) {
+    // return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive,
+    // (k, v) -> v);
+    // }
+    //
+    // /**
+    // * For the situation when uniqueness is false, when entries are inserted with
+    // * the same key they are inserted before the last entry. As a consequence if
+    // we
+    // * want to preserve the insert order in the returned values from a find then
+    // we
+    // * need to collect entries with the same key and then emit them in reverse
+    // * order. If there are a lot of keys with the same value then an
+    // * {@link OutOfMemoryError} might be thrown.
+    // *
+    // * @param startInclusive start of the key range, inclusive
+    // * @param finish finish of the key range
+    // * @param isFinishInclusive if true then finish is inclusive otherwise
+    // exclusive
+    // * @return values of entries in searched for key range preserving insert order
+    // */
+    // public Iterable<Entry<K, V>> findEntriesOrderPreserving(K startInclusive, K
+    // finish,
+    // boolean isFinishInclusive) {
+    // return findEntriesOrderPreserving(startInclusive, finish, isFinishInclusive,
+    // (k, v) -> Entry.create(k, v));
+    // }
+    //
+    // /**
+    // * For the situation when uniqueness is false, when entries are inserted with
+    // * the same key they are inserted before the last entry. As a consequence if
+    // we
+    // * want to preserve the insert order in the returned values from a find then
+    // we
+    // * need to collect entries with the same key and then emit them in reverse
+    // * order. If there are a lot of keys with the same value then an
+    // * {@link OutOfMemoryError} might be thrown.
+    // *
+    // * @param startInclusive start of the key range, inclusive
+    // * @param finish finish of the key range
+    // * @param isFinishInclusive if true then finish is inclusive otherwise
+    // exclusive
+    // * @param mapper maps key value pairs to the stream result
+    // * @param <R> the type of streamed result that the key and
+    // * value are mapped to
+    // * @return values of entries in searched for key range preserving insert order
+    // * maps the key and value to the streamed result
+    // */
+    // public <R> Iterable<R> findEntriesOrderPreserving(K startInclusive, K finish,
+    // boolean isFinishInclusive, BiFunction<? super K, ? super V, ? extends R>
+    // mapper) {
+    // return new Iterable<R>() {
+    //
+    // @Override
+    // public Iterator<R> iterator() {
+    // return new Iterator<R>() {
+    // Leaf<K, V> leaf = findFirstLeaf(startInclusive);
+    // int idx = leaf.getLocation(startInclusive);
+    // K currentKey;
+    // List<R> values = new ArrayList<>();
+    // int valuesIdx = 0;
+    // List<R> nextValues = new ArrayList<>();
+    //
+    // @Override
+    // public boolean hasNext() {
+    // load();
+    // return valuesIdx < values.size();
+    // }
+    //
+    // @Override
+    // public R next() {
+    // load();
+    // int size = values.size();
+    // if (valuesIdx >= size) {
+    // throw new NoSuchElementException();
+    // } else {
+    // // emit in reverse order
+    // // clear the value from the list to enable early GC
+    // R v = values.set(size - valuesIdx - 1, null);
+    // valuesIdx++;
+    // return v;
+    // }
+    // }
+    //
+    // private void load() {
+    // if (valuesIdx < values.size()) {
+    // return;
+    // }
+    // valuesIdx = 0;
+    // values = clear(values, VALUES_MAX_SIZE);
+    // // swap values and nextValues
+    // List<R> temp = values;
+    // values = nextValues;
+    // nextValues = temp;
+    // while (true) {
+    // if (leaf == null) {
+    // return;
+    // } else if (idx < leaf.numKeys()) {
+    // K key = leaf.key(idx);
+    // int c = options.comparator().compare(key, finish);
+    // if (c < 0 || (c == 0 && isFinishInclusive)) {
+    // if (currentKey == null) {
+    // currentKey = key;
+    // }
+    // R r = mapper.apply(key, leaf.value(idx));
+    // if (options.comparator().compare(currentKey, key) == 0) {
+    // values.add(r);
+    // idx++;
+    // } else {
+    // // key has changed
+    // currentKey = key;
+    // nextValues.add(r);
+    // idx++;
+    // // key has changed so we have found the next key sequence
+    // return;
+    // }
+    // } else {
+    // // don't search further
+    // leaf = null;
+    // return;
+    // }
+    // } else {
+    // leaf = leaf.next();
+    // idx = 0;
+    // }
+    // }
+    // }
+    //
+    // };
+    // }
+    //
+    // };
+    // }
 
     @VisibleForTesting
     static <T> List<T> clear(List<T> values, int maxSize) {

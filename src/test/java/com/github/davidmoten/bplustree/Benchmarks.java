@@ -163,10 +163,14 @@ public class Benchmarks {
 
     private static final int MANY = 2000000;
 
+    private static final int TIME_SECONDS = 2;
+    private static final int ITERATIONS = 5;
+    private static final int WARMUP_ITERATIONS = 5;
+
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
-    @Warmup(iterations = 10, time = 10)
-    @Measurement(iterations = 10, time = 10)
+    @Warmup(iterations = WARMUP_ITERATIONS, time = TIME_SECONDS)
+    @Measurement(iterations = ITERATIONS, time = TIME_SECONDS)
     public void storeManyIntsBPlusTree(EmptyTree state) throws Exception {
         for (int i = 0; i < MANY; i++) {
             state.tree.insert(i, i);
@@ -175,8 +179,8 @@ public class Benchmarks {
 
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
-    @Warmup(iterations = 10, time = 10)
-    @Measurement(iterations = 10, time = 10)
+    @Warmup(iterations = WARMUP_ITERATIONS, time = TIME_SECONDS)
+    @Measurement(iterations = ITERATIONS, time = TIME_SECONDS)
     public void storeManyIntsMapDb(EmptyTreeMapDb state) {
         for (int i = 0; i < MANY; i++) {
             state.tree.put(i, i);
@@ -185,23 +189,26 @@ public class Benchmarks {
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
-    @Warmup(iterations = 3, time = 10)
-    @Measurement(iterations = 5, time = 10)
+    @Warmup(iterations = WARMUP_ITERATIONS, time = TIME_SECONDS)
+    @Measurement(iterations = ITERATIONS, time = TIME_SECONDS)
     public long rangeSearchManyIntsBPlusTree(NonEmptyTree state) {
         return count(state.tree.find(100000, 100000, true).iterator());
     }
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
-    @Warmup(iterations = 3, time = 10)
-    @Measurement(iterations = 5, time = 10)
+    @Warmup(iterations = WARMUP_ITERATIONS, time = TIME_SECONDS)
+    @Measurement(iterations = ITERATIONS, time = TIME_SECONDS)
     public long rangeSearchManyIntsMapDb(NonEmptyTreeMapDb state) {
         return count(state.tree.valueIterator(100000, true, 100000, true));
     }
-    
+
     private static long count(Iterator<?> it) {
         long count = 0;
-        while (it.hasNext()) count++;
+        while (it.hasNext()) {
+            it.next();
+            count++;
+        }
         return count;
     }
 
