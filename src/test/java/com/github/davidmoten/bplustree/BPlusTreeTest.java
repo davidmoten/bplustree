@@ -511,4 +511,17 @@ public class BPlusTreeTest {
             assertFalse(it.hasNext());
         }
     }
+    
+    @Test
+    public void testFindEntriesExclusive() throws Exception {
+        try (BPlusTree<Integer, Integer> tree = create(2)) {
+            tree.insert(1, 10);
+            tree.insert(2, 20);
+            Iterator<Entry<Integer, Integer>> it = tree.findEntries(1, 2).iterator();
+            Entry<Integer, Integer> entry = it.next();
+            assertEquals(1, (int) entry.key());
+            assertEquals(10, (int) entry.value());
+            assertFalse(it.hasNext());
+        }
+    }
 }

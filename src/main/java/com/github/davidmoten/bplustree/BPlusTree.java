@@ -316,8 +316,6 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     /**
      * Returns a key ordered sequence of values whose keys are &gt;= start and &lt;
      * finish. Note that the insert order of duplicate keys may not be preserved.
-     * See {@link BPlusTree#findOrderPreserving(Object, Object)} to preserve insert
-     * order on duplicate keys.
      * 
      * @param startInclusive  inclusive end of search
      * @param finishExclusive exclusive end of search
