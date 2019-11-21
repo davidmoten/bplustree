@@ -100,7 +100,7 @@ public class Benchmarks {
         }
     }
 
-//    @Benchmark
+    @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
     public void storeManyIntsMapDb(MapDbState state) {
         for (int i = 0; i < MANY; i++) {
