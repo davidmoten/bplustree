@@ -57,9 +57,9 @@ public interface NonLeaf<K, V> extends Node<K, V> {
 
     /**
      * Returns the position where 'key' should be inserted in a non-leaf node that
-     * has the given keys. This is the first key in the NonLeaf for which the
-     * {@code key} is strictly before. If not strictly before any key in the NonLeaf
-     * then the current number of keys is returned.
+     * has the given keys.  The position returned will be the first key K for which
+     * {@code key} &lt; K.. If no key satisfies that criterion then returns the
+     * current number of keys.
      * 
      * @param key key to insert
      * @return the position where key should be inserted

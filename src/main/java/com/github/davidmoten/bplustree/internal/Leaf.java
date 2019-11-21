@@ -76,20 +76,15 @@ public interface Leaf<K, V> extends Node<K, V> {
 
     /**
      * Returns the position where 'key' should be inserted in a leaf node that has
-     * the given keys. The position returned will be the first key to which
-     * {@code key} is equal to or less than.
+     * the given keys. The position returned will be the first key K for which
+     * {@code key} &lt;= K.. If no key satisfies that criterion then returns the
+     * current number of keys.
      * 
      * @param key key to insert
      * @return the position where key should be inserted
      */
     default int getLocation(K key) {
-        int numKeys = numKeys();
-        for (int i = 0; i < numKeys; i++) {
-            if (options().comparator().compare(key, key(i)) <= 0) {
-                return i;
-            }
-        }
-        return numKeys;
+        return Util.getLocation(this, key, options().comparator());
     }
 
 }
