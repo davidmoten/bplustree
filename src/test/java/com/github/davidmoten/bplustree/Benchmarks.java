@@ -1,18 +1,22 @@
 package com.github.davidmoten.bplustree;
 
 import java.io.File;
+import java.util.Iterator;
 
+import org.davidmoten.kool.Stream;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Level;
+import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Warmup;
 
 public class Benchmarks {
 
@@ -32,7 +36,7 @@ public class Benchmarks {
     }
 
     @State(Scope.Thread)
-    public static class MyState {
+    public static class EmptyTree {
 
         BPlusTree<Integer, Integer> tree;
 
@@ -61,7 +65,7 @@ public class Benchmarks {
     }
 
     @State(Scope.Thread)
-    public static class MapDbState {
+    public static class EmptyTreeMapDb {
 
         private DB db;
         private BTreeMap<Integer, Integer> tree;
@@ -90,11 +94,80 @@ public class Benchmarks {
         }
     }
 
+    private static final int NON_EMPTY_COUNT = 1000000;
+
+    @State(Scope.Thread)
+    public static class NonEmptyTree {
+
+        BPlusTree<Integer, Integer> tree;
+
+        @Setup(Level.Trial)
+        public void doSetup() {
+            tree = BPlusTree //
+                    .file() //
+                    .directory("target/bench") //
+                    .clearDirectory() //
+                    .deleteOnClose() //
+                    .maxLeafKeys(32) //
+                    .segmentSizeMB(10) //
+                    .keySerializer(Serializer.INTEGER) //
+                    .valueSerializer(Serializer.INTEGER) //
+                    .naturalOrder();
+            for (int i = 0; i < NON_EMPTY_COUNT; i++) {
+                tree.insert(i, i);
+            }
+        }
+
+        @TearDown(Level.Trial)
+        public void doTearDown() {
+            try {
+                tree.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @State(Scope.Thread)
+    public static class NonEmptyTreeMapDb {
+
+        private DB db;
+        private BTreeMap<Integer, Integer> tree;
+
+        @Setup(Level.Trial)
+        public void doSetup() {
+            db = DBMaker.fileDB(new File("target/mapdb")) //
+                    .concurrencyDisable() //
+                    .fileDeleteAfterClose() //
+                    .fileMmapEnableIfSupported() //
+                    .make();
+            tree = db.treeMap("tree") //
+                    .keySerializer(org.mapdb.Serializer.INTEGER) //
+                    .valueSerializer(org.mapdb.Serializer.INTEGER) //
+                    .createOrOpen();
+            for (int i = 0; i < NON_EMPTY_COUNT; i++) {
+                tree.put(i, i);
+            }
+        }
+
+        @TearDown(Level.Trial)
+        public void doTearDown() {
+            try {
+                tree.close();
+                db.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     private static final int MANY = 2000000;
 
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
-    public void storeManyIntsBplusTree(MyState state) throws Exception {
+    @Warmup(iterations = 10, time = 10)
+    @Measurement(iterations = 10, time = 10)
+    public void storeManyIntsBPlusTree(EmptyTree state) throws Exception {
         for (int i = 0; i < MANY; i++) {
             state.tree.insert(i, i);
         }
@@ -102,19 +175,43 @@ public class Benchmarks {
 
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
-    public void storeManyIntsMapDb(MapDbState state) {
+    @Warmup(iterations = 10, time = 10)
+    @Measurement(iterations = 10, time = 10)
+    public void storeManyIntsMapDb(EmptyTreeMapDb state) {
         for (int i = 0; i < MANY; i++) {
             state.tree.put(i, i);
         }
     }
 
-//    @Benchmark
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @Warmup(iterations = 3, time = 10)
+    @Measurement(iterations = 5, time = 10)
+    public long rangeSearchManyIntsBPlusTree(NonEmptyTree state) {
+        return count(state.tree.find(100000, 100000, true).iterator());
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @Warmup(iterations = 3, time = 10)
+    @Measurement(iterations = 5, time = 10)
+    public long rangeSearchManyIntsMapDb(NonEmptyTreeMapDb state) {
+        return count(state.tree.valueIterator(100000, true, 100000, true));
+    }
+    
+    private static long count(Iterator<?> it) {
+        long count = 0;
+        while (it.hasNext()) count++;
+        return count;
+    }
+
+    // @Benchmark
     public long getLong() {
         a.position(0);
         return a.getLong();
     }
 
-//    @Benchmark
+    // @Benchmark
     public long getVarlong() {
         b.position(0);
         return b.getVarlong();
