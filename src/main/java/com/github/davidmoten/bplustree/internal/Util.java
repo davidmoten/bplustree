@@ -43,27 +43,17 @@ final class Util {
         } // else the current node is not affected
     }
 
-    static <K, V> int getLocation(Node<K, V> node, K key, Comparator<? super K> comparator, boolean acceptEquals) {
+    static <K, V> int getLocation(Node<K, V> node, K key, Comparator<? super K> comparator,
+            boolean acceptEquals) {
         int numKeys = node.numKeys();
         if (numKeys == 0) {
             return 0;
         }
         int start = 0;
         int finish = numKeys - 1;
-        int prevMid = -1;
-        K midKey = null;
         while (true) {
             int mid = (start + finish) / 2;
-            // use cached key if mid doesn't change
-            final K k;
-            if (prevMid == mid) {
-                k = midKey;
-            } else {
-                k = node.key(mid);
-            }
-            prevMid = mid;
-            midKey = k;
-            int c = comparator.compare(key, k);
+            int c = comparator.compare(key, node.key(mid));
             if (c < 0 || (acceptEquals && c == 0)) {
                 finish = mid;
                 if (start == finish) {
