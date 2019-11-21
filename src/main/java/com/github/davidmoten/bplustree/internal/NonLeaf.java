@@ -65,7 +65,7 @@ public interface NonLeaf<K, V> extends Node<K, V> {
      * @return the position where key should be inserted
      */
     default int getLocation(K key) {
-        return Util.getLocation(this, key, options().comparator());
+        return Util.getLocation(this, key, options().comparator(), false);
     }
 
 }
