@@ -1,6 +1,7 @@
 package com.github.davidmoten.bplustree.internal.file;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.github.davidmoten.bplustree.Serializer;
@@ -47,9 +48,14 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
         this.leaves = Lists.newArrayList(new LeafFile<K, V>(options, this, -1),
                 new LeafFile<K, V>(options, this, -1));
-        this.nonLeaves = Lists.newArrayList(new NonLeafFile<K, V>(options, this, -1),
-                new NonLeafFile<K, V>(options, this, -1), new NonLeafFile<K, V>(options, this, -1),
-                new NonLeafFile<K, V>(options, this, -1));
+        {
+            // worst case is there are log(N) non leaves used concurrently
+            List<NonLeafFile<K, V>> list = new ArrayList<>();
+            for (int i = 0; i < 1000; i++) {
+                list.add(new NonLeafFile<K, V>(options, this, -1));
+            }
+            this.nonLeaves = list;
+        }
     }
 
     //////////////////////////////////////////////////
