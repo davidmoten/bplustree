@@ -3,7 +3,6 @@ package com.github.davidmoten.bplustree;
 import java.io.File;
 import java.util.Iterator;
 
-import org.davidmoten.kool.Stream;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -34,6 +33,8 @@ public class Benchmarks {
         b.putVarlong(1234567);
         return b;
     }
+    
+    private static final int MAX_KEYS = 32;
 
     @State(Scope.Thread)
     public static class EmptyTree {
@@ -47,7 +48,7 @@ public class Benchmarks {
                     .directory("target/bench") //
                     .clearDirectory() //
                     .deleteOnClose() //
-                    .maxLeafKeys(32) //
+                    .maxLeafKeys(MAX_KEYS) //
                     .segmentSizeMB(10) //
                     .keySerializer(Serializer.INTEGER) //
                     .valueSerializer(Serializer.INTEGER) //
@@ -72,7 +73,8 @@ public class Benchmarks {
 
         @Setup(Level.Trial)
         public void doSetup() {
-            db = DBMaker.fileDB(new File("target/mapdb")) //
+            db = DBMaker //
+                    .fileDB(new File("target/mapdb")) //
                     .concurrencyDisable() //
                     .fileDeleteAfterClose() //
                     .fileMmapEnableIfSupported() //
@@ -108,7 +110,7 @@ public class Benchmarks {
                     .directory("target/bench") //
                     .clearDirectory() //
                     .deleteOnClose() //
-                    .maxLeafKeys(32) //
+                    .maxLeafKeys(MAX_KEYS) //
                     .segmentSizeMB(10) //
                     .keySerializer(Serializer.INTEGER) //
                     .valueSerializer(Serializer.INTEGER) //
