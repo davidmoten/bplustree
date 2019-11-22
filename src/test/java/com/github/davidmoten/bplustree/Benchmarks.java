@@ -34,7 +34,12 @@ public class Benchmarks {
         return b;
     }
     
-    private static final int MAX_KEYS = 32;
+    private static final int MAX_KEYS = 8;
+    private static final int MANY = 2000000;
+    private static final int NON_EMPTY_COUNT = 1000000;
+    private static final int TIME_SECONDS = 2;
+    private static final int ITERATIONS = 5;
+    private static final int WARMUP_ITERATIONS = 5;
 
     @State(Scope.Thread)
     public static class EmptyTree {
@@ -95,8 +100,6 @@ public class Benchmarks {
             }
         }
     }
-
-    private static final int NON_EMPTY_COUNT = 1000000;
 
     @State(Scope.Thread)
     public static class NonEmptyTree {
@@ -162,12 +165,6 @@ public class Benchmarks {
             }
         }
     }
-
-    private static final int MANY = 2000000;
-
-    private static final int TIME_SECONDS = 2;
-    private static final int ITERATIONS = 5;
-    private static final int WARMUP_ITERATIONS = 5;
 
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
