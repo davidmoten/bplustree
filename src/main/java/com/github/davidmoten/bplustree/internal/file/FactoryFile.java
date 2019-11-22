@@ -33,6 +33,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final LargeMappedByteBuffer bb;
     private final LargeMappedByteBuffer values;
     private final Runnable onClose;
+    private final List<NonLeafFile<K, V>> nonLeaves;
+    private int nonLeavesIndex = 0;
 
     @SuppressWarnings("unchecked")
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
@@ -45,6 +47,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
         this.leaves = Lists.newArrayList(new LeafFile<K, V>(options, this, -1),
                 new LeafFile<K, V>(options, this, -1));
+        this.nonLeaves = Lists.newArrayList(new NonLeafFile<K, V>(options, this, -1),
+                new NonLeafFile<K, V>(options, this, -1), new NonLeafFile<K, V>(options, this, -1),
+                new NonLeafFile<K, V>(options, this, -1));
     }
 
     //////////////////////////////////////////////////
@@ -196,7 +201,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public NonLeaf<K, V> createNonLeaf() {
-        return new NonLeafFile<K, V>(options, this, nextNonLeafPosition());
+        NonLeafFile<K, V> nonLeaf = nonLeaves.get(nonLeavesIndex);
+        nonLeavesIndex = (nonLeavesIndex + 1) % nonLeaves.size();
+        nonLeaf.position(nextNonLeafPosition());
+        return nonLeaf;
     }
 
     private int nonLeafBytes() {

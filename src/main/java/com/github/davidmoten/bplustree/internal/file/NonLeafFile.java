@@ -9,7 +9,7 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
 
     private final Options<K, V> options;
     private final FactoryFile<K, V> factory;
-    private final long position;
+    private long position;
 
     public NonLeafFile(Options<K, V> options, FactoryFile<K, V> factory, long position) {
         this.options = options;
@@ -94,6 +94,10 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
         b.append("]");
         b.append("]");
         return b.toString();
+    }
+
+    public void position(long position) {
+        this.position = position;
     }
 
 }
