@@ -1,6 +1,7 @@
 package com.github.davidmoten.bplustree.internal.file;
 
 import java.io.File;
+import java.util.List;
 
 import com.github.davidmoten.bplustree.Serializer;
 import com.github.davidmoten.bplustree.internal.Factory;
@@ -9,6 +10,7 @@ import com.github.davidmoten.bplustree.internal.Leaf;
 import com.github.davidmoten.bplustree.internal.Node;
 import com.github.davidmoten.bplustree.internal.NonLeaf;
 import com.github.davidmoten.bplustree.internal.Options;
+import com.github.davidmoten.guavamini.Lists;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
@@ -18,6 +20,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int POSITION_BYTES = 8;
     private static final long POSITION_NOT_PRESENT = -1;
     private final Options<K, V> options;
+    private final List<LeafFile<K, V>> leaves;
+    private int leavesIndex = 0;
 
     // position where next node will be written, first 8 bytes are for the position
     // of the root node
@@ -30,6 +34,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final LargeMappedByteBuffer values;
     private final Runnable onClose;
 
+    @SuppressWarnings("unchecked")
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
             Serializer<V> valueSerializer, int segmentSizeBytes, Runnable onClose) {
         this.options = options;
@@ -38,6 +43,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.onClose = onClose;
         this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes, "index-");
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
+        this.leaves = Lists.newArrayList(new LeafFile<K, V>(options, this, -1),
+                new LeafFile<K, V>(options, this, -1));
     }
 
     //////////////////////////////////////////////////
@@ -54,7 +61,10 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public Leaf<K, V> createLeaf() {
-        return new LeafFile<K, V>(options, this, leafNextPosition());
+        LeafFile<K, V> leaf = leaves.get(leavesIndex);
+        leavesIndex = (leavesIndex + 1) % leaves.size();
+        leaf.position(leafNextPosition());
+        return leaf;
     }
 
     private int leafBytes() {
