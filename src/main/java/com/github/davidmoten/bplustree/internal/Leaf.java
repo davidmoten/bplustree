@@ -49,7 +49,7 @@ public interface Leaf<K, V> extends Node<K, V> {
             // and the rest moved to a new right sibling
             int mid = (options().maxLeafKeys() + 1) / 2;
             int len = numKeys - mid;
-            Leaf<K, V> sibling = factory().getLeaf();
+            Leaf<K, V> sibling = factory().createLeaf();
             move(mid, len, sibling);
             if (i < mid) {
                 // Inserted element goes to left sibling

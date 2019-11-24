@@ -2,7 +2,7 @@ package com.github.davidmoten.bplustree.internal;
 
 public interface Factory<K, V> extends AutoCloseable {
 
-    Leaf<K, V> getLeaf();
+    Leaf<K, V> createLeaf();
 
     NonLeaf<K, V> createNonLeaf();
 

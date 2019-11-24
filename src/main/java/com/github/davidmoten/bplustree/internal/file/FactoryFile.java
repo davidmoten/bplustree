@@ -3,6 +3,7 @@ package com.github.davidmoten.bplustree.internal.file;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import com.github.davidmoten.bplustree.Serializer;
 import com.github.davidmoten.bplustree.internal.Factory;
@@ -71,14 +72,26 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     //////////////////////////////////////////////////
 
     @Override
-    public LeafFile<K, V> getLeaf() {
+    public Leaf<K, V> createLeaf() {
         return getLeaf(leafNextPosition());
     }
 
-    public LeafFile<K, V> getLeaf(long position) {
+    private final TreeMap<Long, Leaf<K, V>> leavesCache = new TreeMap<Long, Leaf<K, V>>();
+
+    public Leaf<K, V> getLeaf(long position) {
+        LeafFile<K, V> leaf = nextFreeLeaf();
+        leaf.position(position);
+        return leaf;
+    }
+
+    public void leafSetKey(int i, long position, K k) {
+        bb.position(position + relativeLeafKeyPosition(i));
+        keySerializer.write(bb, k);
+    }
+
+    LeafFile<K, V> nextFreeLeaf() {
         LeafFile<K, V> leaf = leaves.get(leavesIndex);
         leavesIndex = (leavesIndex + 1) % leaves.size();
-        leaf.position(position);
         return leaf;
     }
 
@@ -337,10 +350,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         if (rootPosition == 0) {
             bb.position(0);
             bb.putLong(POSITION_BYTES);
-            return getLeaf();
+            return createLeaf();
         } else {
             return readNode(rootPosition);
         }
     }
-
 }

@@ -104,4 +104,8 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
         this.position = position;
     }
 
+    public void setKey(int i, K k) {
+        factory.leafSetKey(i, position, k);
+    }
+
 }

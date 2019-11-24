@@ -15,7 +15,7 @@ public final class FactoryMemory<K, V> implements Factory<K, V> {
     }
 
     @Override
-    public Leaf<K, V> getLeaf() {
+    public Leaf<K, V> createLeaf() {
         return new LeafMemory<K, V>(options, this);
     }
 
@@ -41,6 +41,6 @@ public final class FactoryMemory<K, V> implements Factory<K, V> {
 
     @Override
     public Node<K, V> loadOrCreateRoot() {
-        return getLeaf();
+        return createLeaf();
     }
 }
