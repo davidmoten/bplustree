@@ -23,7 +23,7 @@ public interface Node<K, V> {
         }
         return list;
     }
-    
+
     /**
      * Returns the position where 'key' should be inserted in a leaf node that has
      * the given keys.
@@ -33,4 +33,6 @@ public interface Node<K, V> {
      */
     int getLocation(K key);
 
+    default void commit() {
+    }
 }

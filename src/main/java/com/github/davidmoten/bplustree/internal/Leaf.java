@@ -49,7 +49,7 @@ public interface Leaf<K, V> extends Node<K, V> {
             // and the rest moved to a new right sibling
             int mid = (options().maxLeafKeys() + 1) / 2;
             int len = numKeys - mid;
-            Leaf<K, V> sibling = factory().createLeaf();
+            Leaf<K, V> sibling = factory().getLeaf();
             move(mid, len, sibling);
             if (i < mid) {
                 // Inserted element goes to left sibling
@@ -62,7 +62,9 @@ public interface Leaf<K, V> extends Node<K, V> {
                 Util.insertNonfull(sibling, key, value, i - mid, len);
             }
             sibling.setNext(next());
+            sibling.commit();
             setNext(sibling);
+            this.commit();
             // Notify the parent about the split
             return new Split<>(sibling.key(0), // make the right's key >=
                                                // result.key
@@ -70,6 +72,7 @@ public interface Leaf<K, V> extends Node<K, V> {
         } else {
             // The node was not full
             Util.insertNonfull(this, key, value, i, numKeys);
+            this.commit();
             return null;
         }
     }

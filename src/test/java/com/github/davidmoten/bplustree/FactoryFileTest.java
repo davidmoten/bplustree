@@ -14,8 +14,8 @@ public class FactoryFileTest {
     public void testLeafFile() throws Exception {
         try (BPlusTree<Integer, Long> t = create()) {
             Factory<Integer, Long> factory = t.factory();
-            LeafFile<Integer, Long> leaf = (LeafFile<Integer, Long>) factory.createLeaf();
-            LeafFile<Integer, Long> leaf2 = (LeafFile<Integer, Long>) factory.createLeaf();
+            LeafFile<Integer, Long> leaf = (LeafFile<Integer, Long>) factory.getLeaf();
+            LeafFile<Integer, Long> leaf2 = (LeafFile<Integer, Long>) factory.getLeaf();
             leaf.setNumKeys(2);
             assertEquals(2, leaf.numKeys());
             leaf.setNumKeys(0);

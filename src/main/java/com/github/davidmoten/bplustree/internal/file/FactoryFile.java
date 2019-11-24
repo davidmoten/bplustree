@@ -71,10 +71,14 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     //////////////////////////////////////////////////
 
     @Override
-    public Leaf<K, V> createLeaf() {
+    public LeafFile<K, V> getLeaf() {
+        return getLeaf(leafNextPosition());
+    }
+
+    public LeafFile<K, V> getLeaf(long position) {
         LeafFile<K, V> leaf = leaves.get(leavesIndex);
         leavesIndex = (leavesIndex + 1) % leaves.size();
-        leaf.position(leafNextPosition());
+        leaf.position(position);
         return leaf;
     }
 
@@ -206,7 +210,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     //////////////////////////////////////////////////
 
     @Override
-    public NonLeaf<K, V> createNonLeaf() {
+    public NonLeafFile<K, V> createNonLeaf() {
         NonLeafFile<K, V> nonLeaf = nonLeaves.get(nonLeavesIndex);
         nonLeavesIndex = (nonLeavesIndex + 1) % nonLeaves.size();
         nonLeaf.position(nextNonLeafPosition());
@@ -333,7 +337,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         if (rootPosition == 0) {
             bb.position(0);
             bb.putLong(POSITION_BYTES);
-            return createLeaf();
+            return getLeaf();
         } else {
             return readNode(rootPosition);
         }
