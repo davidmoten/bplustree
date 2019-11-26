@@ -84,7 +84,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return leaf;
     }
 
-    public void leafSetKey(int i, long position, K k) {
+    public void leafSetKey(long position, int i,  K k) {
         bb.position(position + relativeLeafKeyPosition(i));
         keySerializer.write(bb, k);
     }
@@ -354,5 +354,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         } else {
             return readNode(rootPosition);
         }
+    }
+
+    public Options<K, V> options() {
+        return options;
     }
 }

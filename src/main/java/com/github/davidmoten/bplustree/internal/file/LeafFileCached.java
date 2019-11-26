@@ -6,30 +6,30 @@ import com.github.davidmoten.bplustree.internal.Options;
 
 public final class LeafFileCached<K, V> implements Leaf<K, V> {
 
-    private final Options<K, V> options;
     private final FactoryFile<K, V> factory;
+
     protected final K[] keys;
     protected final V[] values;
+
     private int numKeys;
     private boolean numKeysChanged;
     private boolean numKeysLoaded;
     private long next;
-    private final LeafFile<K, V> delegate;
+    private long position;
 
     @SuppressWarnings("unchecked")
-    public LeafFileCached(Options<K, V> options, FactoryFile<K, V> factory, long position) {
-        this.options = options;
-        this.keys = (K[]) new Object[options.maxLeafKeys()];
-        this.values = (V[]) new Object[options.maxLeafKeys()];
+    public LeafFileCached(FactoryFile<K, V> factory, long position) {
+        this.keys = (K[]) new Object[factory.options().maxLeafKeys()];
+        this.values = (V[]) new Object[factory.options().maxLeafKeys()];
         this.factory = factory;
-        this.delegate = new LeafFile<K, V>(options, factory, position);
+        this.position = position;
     }
 
     @Override
     public V value(int index) {
         V v = values[index];
         if (v == null) {
-            return delegate.value(index);
+            return factory.leafValue(position, index);
         } else {
             return v;
         }
@@ -39,7 +39,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V> {
     public K key(int index) {
         K k = keys[index];
         if (k == null) {
-            return delegate.key(index);
+            return factory.leafKey(position, index);
         } else {
             return k;
         }
@@ -51,7 +51,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V> {
             return numKeys;
         } else {
             numKeysLoaded = true;
-            return numKeys = delegate.numKeys();
+            return numKeys = factory.leafNumKeys(position);
         }
     }
 
@@ -60,7 +60,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V> {
         other.setNumKeys(length);
         System.arraycopy(keys, start, ((LeafFileCached<K, V>) other).keys, 0, length);
         System.arraycopy(values, start, ((LeafFileCached<K, V>) other).values, 0, length);
-        numKeys = start;
+        setNumKeys(start);
     }
 
     @Override
@@ -80,12 +80,12 @@ public final class LeafFileCached<K, V> implements Leaf<K, V> {
         System.arraycopy(values, idx, values, idx + 1, numKeys - idx);
         keys[idx] = key;
         values[idx] = value;
-        numKeys = numKeys() + 1;
+        setNumKeys(numKeys() + 1);
     }
 
     @Override
     public Options<K, V> options() {
-        return options;
+        return factory.options();
     }
 
     @Override
@@ -104,21 +104,21 @@ public final class LeafFileCached<K, V> implements Leaf<K, V> {
     }
 
     public long position() {
-        return delegate.position();
+        return position;
     }
 
     public void commit() {
         if (numKeysChanged) {
-            delegate.setNumKeys(numKeys);
+            factory.leafSetNumKeys(position, numKeys);
         }
         for (int i = 0; i < keys.length; i++) {
             K k = keys[i];
             if (k != null) {
-                delegate.setKey(i, k);
+                factory.leafSetKey(position, i, k);
             }
             V v = values[i];
             if (v != null) {
-                delegate.setValue(i, v);
+                factory.leafSetValue(position, i, v);
             }
         }
     }
