@@ -71,6 +71,11 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     public void move(int start, int length, Leaf<K, V> other) {
         LeafFileCached<K, V> o = ((LeafFileCached<K, V>) other);
         other.setNumKeys(length);
+        for (int i = start; i < start + length; i++) {
+            // ensure keys and values are loaded
+            key(i);
+            value(i);
+        }
         System.arraycopy(keys, start, o.keys, 0, length);
         System.arraycopy(values, start, o.values, 0, length);
         setNumKeys(start);
@@ -100,11 +105,18 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
 
     @Override
     public void insert(int idx, K key, V value) {
+        // load numKeys
+        numKeys();
+        for (int i = idx; i < numKeys; i++) {
+            // ensure keys and values are loaded
+            key(i);
+            value(i);
+        }
         System.arraycopy(keys, idx, keys, idx + 1, numKeys - idx);
         System.arraycopy(values, idx, values, idx + 1, numKeys - idx);
         keys[idx] = key;
         values[idx] = value;
-        setNumKeys(numKeys() + 1);
+        setNumKeys(numKeys + 1);
         for (int i = idx; i < numKeys; i++) {
             keyChanged[i] = true;
             valueChanged[i] = true;
@@ -155,6 +167,16 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     }
 
     private void reset() {
+        resetChanged();
+        resetLoaded();
+    }
+
+    private void resetLoaded() {
+        numKeysLoaded = false;
+        nextLoaded = false;
+    }
+
+    private void resetChanged() {
         for (int i = 0; i < keys.length; i++) {
             keys[i] = null;
             values[i] = null;
@@ -162,9 +184,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
             valueChanged[i] = false;
         }
         numKeysChanged = false;
-        numKeysLoaded = false;
         nextChanged = false;
-        nextLoaded = false;
     }
 
     public void commit() {
@@ -214,7 +234,5 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
         b.append("]");
         return b.toString();
     }
-    
-    
 
 }

@@ -62,9 +62,9 @@ public interface Leaf<K, V> extends Node<K, V> {
                 Util.insertNonfull(sibling, key, value, i - mid, len);
             }
             sibling.setNext(next());
-            sibling.commit();
+//            sibling.commit();
             setNext(sibling);
-            this.commit();
+//            this.commit();
             // Notify the parent about the split
             return new Split<>(sibling.key(0), // make the right's key >=
                                                // result.key
@@ -72,7 +72,7 @@ public interface Leaf<K, V> extends Node<K, V> {
         } else {
             // The node was not full
             Util.insertNonfull(this, key, value, i, numKeys);
-            this.commit();
+//            this.commit();
             return null;
         }
     }
