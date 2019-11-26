@@ -1,5 +1,7 @@
 package com.github.davidmoten.bplustree.internal.file;
 
+import java.util.Arrays;
+
 import com.github.davidmoten.bplustree.internal.Factory;
 import com.github.davidmoten.bplustree.internal.Leaf;
 import com.github.davidmoten.bplustree.internal.Options;
@@ -8,19 +10,29 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
 
     private final FactoryFile<K, V> factory;
 
-    protected final K[] keys;
-    protected final V[] values;
+    private final K[] keys;
+    private final V[] values;
+
+    private final boolean[] keyChanged;
+    private final boolean[] valueChanged;
 
     private int numKeys;
     private boolean numKeysChanged;
     private boolean numKeysLoaded;
     private long next;
+
+    private boolean nextChanged;
+
+    private boolean nextLoaded;
+
     private long position;
 
     @SuppressWarnings("unchecked")
     public LeafFileCached(FactoryFile<K, V> factory, long position) {
         this.keys = (K[]) new Object[factory.options().maxLeafKeys()];
         this.values = (V[]) new Object[factory.options().maxLeafKeys()];
+        this.keyChanged = new boolean[factory.options().maxLeafKeys()];
+        this.valueChanged = new boolean[factory.options().maxLeafKeys()];
         this.factory = factory;
         this.position = position;
     }
@@ -29,20 +41,20 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     public V value(int index) {
         V v = values[index];
         if (v == null) {
-            return factory.leafValue(position, index);
-        } else {
-            return v;
+            v = factory.leafValue(position, index);
+            values[index] = v;
         }
+        return v;
     }
 
     @Override
     public K key(int index) {
         K k = keys[index];
         if (k == null) {
-            return factory.leafKey(position, index);
-        } else {
-            return k;
+            k = factory.leafKey(position, index);
+            keys[index] = k;
         }
+        return k;
     }
 
     @Override
@@ -57,21 +69,33 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
 
     @Override
     public void move(int start, int length, Leaf<K, V> other) {
+        LeafFileCached<K, V> o = ((LeafFileCached<K, V>) other);
         other.setNumKeys(length);
-        System.arraycopy(keys, start, ((LeafFileCached<K, V>) other).keys, 0, length);
-        System.arraycopy(values, start, ((LeafFileCached<K, V>) other).values, 0, length);
+        System.arraycopy(keys, start, o.keys, 0, length);
+        System.arraycopy(values, start, o.values, 0, length);
         setNumKeys(start);
+        for (int i = 0; i < length; i++) {
+            o.keyChanged[i] = true;
+            o.valueChanged[i] = true;
+        }
+        for (int i = start; i < start + length; i++) {
+            // don't write changes for the moved records
+            o.keyChanged[i] = false;
+            o.valueChanged[i] = false;
+        }
     }
 
     @Override
     public void setNumKeys(int numKeys) {
         this.numKeys = numKeys;
         this.numKeysChanged = true;
+        this.numKeysLoaded = true;
     }
 
     @Override
     public void setValue(int idx, V value) {
         values[idx] = value;
+        valueChanged[idx] = true;
     }
 
     @Override
@@ -81,6 +105,10 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
         keys[idx] = key;
         values[idx] = value;
         setNumKeys(numKeys() + 1);
+        for (int i = idx; i < numKeys; i++) {
+            keyChanged[i] = true;
+            valueChanged[i] = true;
+        }
     }
 
     @Override
@@ -95,12 +123,25 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
 
     @Override
     public void setNext(Leaf<K, V> sibling) {
-        this.next = ((LeafFileCached<K, V>) sibling).position();
+        if (sibling == null) {
+            this.next = FactoryFile.POSITION_NOT_PRESENT;
+        } else {
+            this.next = ((LeafFileCached<K, V>) sibling).position();
+        }
+        this.nextChanged = true;
+        this.nextLoaded = true;
     }
 
     @Override
-    public Leaf<K, V> next() {
-        return ((FactoryFile<K, V>) factory).getLeaf(next);
+    public LeafFileCached<K, V> next() {
+        if (!nextLoaded) {
+            next = factory.leafNextPosition(position);
+        }
+        if (next == FactoryFile.POSITION_NOT_PRESENT) {
+            return null;
+        } else {
+            return factory.getLeaf(next);
+        }
     }
 
     public long position() {
@@ -110,6 +151,20 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     public void position(long position) {
         // make sure you commit before calling this one though!
         this.position = position;
+        reset();
+    }
+
+    private void reset() {
+        for (int i = 0; i < keys.length; i++) {
+            keys[i] = null;
+            values[i] = null;
+            keyChanged[i] = false;
+            valueChanged[i] = false;
+        }
+        numKeysChanged = false;
+        numKeysLoaded = false;
+        nextChanged = false;
+        nextLoaded = false;
     }
 
     public void commit() {
@@ -117,15 +172,49 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
             factory.leafSetNumKeys(position, numKeys);
         }
         for (int i = 0; i < keys.length; i++) {
-            K k = keys[i];
-            if (k != null) {
-                factory.leafSetKey(position, i, k);
+            if (keyChanged[i]) {
+                factory.leafSetKey(position, i, keys[i]);
             }
-            V v = values[i];
-            if (v != null) {
-                factory.leafSetValue(position, i, v);
+            if (valueChanged[i]) {
+                factory.leafSetValue(position, i, values[i]);
             }
         }
+        if (nextChanged) {
+            factory.leafSetNext(position, next);
+        }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("LeafFileCached [factory=");
+        b.append(factory);
+        b.append(", keys=");
+        b.append(Arrays.toString(keys));
+        b.append(", values=");
+        b.append(Arrays.toString(values));
+        b.append(", keyChanged=");
+        b.append(Arrays.toString(keyChanged));
+        b.append(", valueChanged=");
+        b.append(Arrays.toString(valueChanged));
+        b.append(", numKeys=");
+        b.append(numKeys);
+        b.append(", numKeysChanged=");
+        b.append(numKeysChanged);
+        b.append(", numKeysLoaded=");
+        b.append(numKeysLoaded);
+        b.append(", next=");
+        b.append(next);
+        b.append(", nextChanged=");
+        b.append(nextChanged);
+        b.append(", nextLoaded=");
+        b.append(nextLoaded);
+        b.append(", position=");
+        b.append(position);
+        b.append("]");
+        return b.toString();
+    }
+    
+    
 
 }

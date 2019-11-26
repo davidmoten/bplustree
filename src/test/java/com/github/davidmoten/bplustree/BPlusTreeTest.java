@@ -461,6 +461,7 @@ public class BPlusTreeTest {
     public void testLeafToString() throws Exception {
         try (BPlusTree<Integer, Integer> tree = create(2)) {
             tree.insert(1, 1);
+            System.out.println(tree.root().toString());
             assertTrue(tree.root().toString().startsWith("Leaf"));
         }
     }

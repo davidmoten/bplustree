@@ -15,6 +15,7 @@ import org.davidmoten.kool.Stream;
 import org.junit.Test;
 
 import com.github.davidmoten.bplustree.internal.file.LeafFile;
+import com.github.davidmoten.bplustree.internal.file.LeafFileCached;
 import com.github.davidmoten.guavamini.Lists;
 
 public final class BPlusTreeFileTest {
@@ -36,7 +37,7 @@ public final class BPlusTreeFileTest {
         BPlusTree<Integer, Integer> tree = create(2);
         tree.insert(3, 10);
         tree.commit();
-        LeafFile<Integer, Integer> leaf = (LeafFile<Integer, Integer>) tree.root();
+        LeafFileCached<Integer, Integer> leaf = (LeafFileCached<Integer, Integer>) tree.root();
         assertEquals(1, leaf.numKeys());
         assertEquals(3, (int) leaf.key(0));
         assertEquals(10, (int) leaf.value(0));
@@ -51,7 +52,7 @@ public final class BPlusTreeFileTest {
         BPlusTree<Integer, Integer> tree = create(2);
         tree.insert(3, 10);
         tree.insert(5, 20);
-        LeafFile<Integer, Integer> leaf = (LeafFile<Integer, Integer>) tree.root();
+        LeafFileCached<Integer, Integer> leaf = (LeafFileCached<Integer, Integer>) tree.root();
         assertEquals(2, leaf.numKeys());
         assertEquals(3, (int) leaf.key(0));
         assertEquals(10, (int) leaf.value(0));
@@ -68,7 +69,7 @@ public final class BPlusTreeFileTest {
         BPlusTree<Integer, Integer> tree = create(2);
         tree.insert(5, 20);
         tree.insert(3, 10);
-        LeafFile<Integer, Integer> leaf = (LeafFile<Integer, Integer>) tree.root();
+        LeafFileCached<Integer, Integer> leaf = (LeafFileCached<Integer, Integer>) tree.root();
         assertEquals(2, leaf.numKeys());
         assertEquals(3, (int) leaf.key(0));
         assertEquals(10, (int) leaf.value(0));

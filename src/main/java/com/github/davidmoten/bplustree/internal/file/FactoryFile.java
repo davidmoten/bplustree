@@ -21,7 +21,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int NUM_KEYS_BYTES = 1;
     private static final int NUM_NODES_BYTES = 4;
     private static final int POSITION_BYTES = 8;
-    private static final long POSITION_NOT_PRESENT = -1;
+    static final long POSITION_NOT_PRESENT = -1;
     private final Options<K, V> options;
     private final List<LeafFile<K, V>> leaves;
     private int leavesIndex = 0;
@@ -83,7 +83,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private long counter = 0;
 
-    public Leaf<K, V> getLeaf(long position) {
+    public LeafFileCached<K, V> getLeaf(long position) {
         LeafFileCached<K, V> leaf = leavesCache.get(position);
         if (leaf == null) {
             leaf = nextFreeLeaf(position);
@@ -213,25 +213,33 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetNext(long position, LeafFile<K, V> sibling) {
-        long p = position + relativeLeafKeyPosition(options.maxLeafKeys());
-        long v;
+        long pos;
         if (sibling == null) {
-            v = POSITION_NOT_PRESENT;
+            pos = POSITION_NOT_PRESENT;
         } else {
-            v = sibling.position();
+            pos = sibling.position();
         }
+        leafSetNext(position, pos);
+    }
+
+    public void leafSetNext(long position, long next) {
+        long p = position + relativeLeafKeyPosition(options.maxLeafKeys());
         bb.position(p);
-        bb.putLong(v);
+        bb.putLong(next);
     }
 
     public LeafFile<K, V> leafNext(long position) {
-        bb.position(position + relativeLeafKeyPosition(options.maxLeafKeys()));
-        long p = bb.getLong();
+        long p = leafNextPosition(position);
         if (p == POSITION_NOT_PRESENT) {
             return null;
         } else {
             return new LeafFile<K, V>(options, this, p);
         }
+    }
+
+    public long leafNextPosition(long position) {
+        bb.position(position + relativeLeafKeyPosition(options.maxLeafKeys()));
+        return bb.getLong();
     }
 
     //////////////////////////////////////////////////

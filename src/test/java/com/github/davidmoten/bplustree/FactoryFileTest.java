@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.github.davidmoten.bplustree.internal.Factory;
-import com.github.davidmoten.bplustree.internal.file.LeafFile;
+import com.github.davidmoten.bplustree.internal.file.LeafFileCached;
 import com.github.davidmoten.bplustree.internal.file.NonLeafFile;
 
 public class FactoryFileTest {
@@ -14,8 +14,8 @@ public class FactoryFileTest {
     public void testLeafFile() throws Exception {
         try (BPlusTree<Integer, Long> t = create()) {
             Factory<Integer, Long> factory = t.factory();
-            LeafFile<Integer, Long> leaf = (LeafFile<Integer, Long>) factory.createLeaf();
-            LeafFile<Integer, Long> leaf2 = (LeafFile<Integer, Long>) factory.createLeaf();
+            LeafFileCached<Integer, Long> leaf = (LeafFileCached<Integer, Long>) factory.createLeaf();
+            LeafFileCached<Integer, Long> leaf2 = (LeafFileCached<Integer, Long>) factory.createLeaf();
             leaf.setNumKeys(2);
             assertEquals(2, leaf.numKeys());
             leaf.setNumKeys(0);
