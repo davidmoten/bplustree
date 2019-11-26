@@ -4,7 +4,7 @@ import com.github.davidmoten.bplustree.internal.Factory;
 import com.github.davidmoten.bplustree.internal.Leaf;
 import com.github.davidmoten.bplustree.internal.Options;
 
-public final class LeafFileCached<K, V> implements Leaf<K, V> {
+public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
 
     private final FactoryFile<K, V> factory;
 
@@ -105,6 +105,11 @@ public final class LeafFileCached<K, V> implements Leaf<K, V> {
 
     public long position() {
         return position;
+    }
+
+    public void position(long position) {
+        // make sure you commit before calling this one though!
+        this.position = position;
     }
 
     public void commit() {

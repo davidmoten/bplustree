@@ -2,6 +2,7 @@ package com.github.davidmoten.bplustree.internal.file;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -76,23 +77,46 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return getLeaf(leafNextPosition());
     }
 
-    private final TreeMap<Long, Leaf<K, V>> leavesCache = new TreeMap<Long, Leaf<K, V>>();
+    private final LinkedHashMap<Long, LeafFileCached<K, V>> leavesCache = new LinkedHashMap<>();
+    private final TreeMap<Long, Long> accesses = new TreeMap<Long, Long>();
+    private final int CACHE_MAX_SIZE = 10000;
+
+    private long counter = 0;
 
     public Leaf<K, V> getLeaf(long position) {
-        LeafFile<K, V> leaf = nextFreeLeaf();
-        leaf.position(position);
+        LeafFileCached<K, V> leaf = leavesCache.get(position);
+        if (leaf == null) {
+            leaf = nextFreeLeaf(position);
+        } else {
+            accesses.put(counter++, position);
+        }
         return leaf;
     }
 
-    public void leafSetKey(long position, int i,  K k) {
-        bb.position(position + relativeLeafKeyPosition(i));
-        keySerializer.write(bb, k);
-    }
-
-    LeafFile<K, V> nextFreeLeaf() {
+    LeafFile<K, V> nextFreeLeafOld() {
         LeafFile<K, V> leaf = leaves.get(leavesIndex);
         leavesIndex = (leavesIndex + 1) % leaves.size();
         return leaf;
+    }
+
+    LeafFileCached<K, V> nextFreeLeaf(long position) {
+        LeafFileCached<K, V> leaf;
+        if (leavesCache.size() < CACHE_MAX_SIZE) {
+            leaf = new LeafFileCached<K, V>(this, position);
+        } else {
+            Long c = accesses.firstKey();
+            leaf = leavesCache.remove(accesses.remove(c));
+            leaf.commit();
+            leaf.position(position);
+        }
+        accesses.put(counter++, position);
+        leavesCache.put(position, leaf);
+        return leaf;
+    }
+
+    public void leafSetKey(long position, int i, K k) {
+        bb.position(position + relativeLeafKeyPosition(i));
+        keySerializer.write(bb, k);
     }
 
     private int leafBytes() {
@@ -276,7 +300,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position(pos);
         int type = bb.get();
         if (type == Leaf.TYPE) {
-            return new LeafFile<>(options, this, pos);
+            return getLeaf(pos);
         } else {
             return new NonLeafFile<>(options, this, pos);
         }
