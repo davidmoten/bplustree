@@ -79,7 +79,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     private final LinkedHashMap<Long, LeafFileCached<K, V>> leavesCache = new LinkedHashMap<>();
     private final TreeMap<Long, Long> accesses = new TreeMap<Long, Long>();
-    private final int CACHE_MAX_SIZE = 10000;
+    private final int CACHE_MAX_SIZE = 1;
 
     private long counter = 0;
 
@@ -104,8 +104,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         if (leavesCache.size() < CACHE_MAX_SIZE) {
             leaf = new LeafFileCached<K, V>(this, position);
         } else {
-            Long c = accesses.firstKey();
-            leaf = leavesCache.remove(accesses.remove(c));
+            Long c = accesses.pollFirstEntry().getValue();
+            leaf = leavesCache.remove(c);
+            System.out.println(leaf);
             leaf.commit();
             leaf.position(position);
         }

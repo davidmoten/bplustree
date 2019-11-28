@@ -3,11 +3,15 @@ package com.github.davidmoten.bplustree;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.github.davidmoten.bplustree.internal.Factory;
 import com.github.davidmoten.bplustree.internal.FactoryProvider;
@@ -711,6 +715,18 @@ public final class BPlusTree<K, V> implements AutoCloseable {
 
     public void commit() {
         factory.commit();
+    }
+
+    public Stream<V> valuesStream() {
+        return StreamSupport.stream(findAll().spliterator(), false);
+    }
+    
+    public void assertEquals(@SuppressWarnings("unchecked") V... values) {
+        List<V> expected = Arrays.asList(values);
+        List<V> list = valuesStream().collect(Collectors.toList());
+        if (!expected.equals(list)) {
+            throw new AssertionError("expected "+ expected + " but was " + list);
+        }
     }
 
 }

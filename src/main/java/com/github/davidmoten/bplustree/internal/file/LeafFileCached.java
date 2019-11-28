@@ -35,6 +35,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
         this.valueChanged = new boolean[factory.options().maxLeafKeys()];
         this.factory = factory;
         this.position = position;
+        this.next = 0;
     }
 
     @Override
@@ -85,8 +86,8 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
         }
         for (int i = start; i < start + length; i++) {
             // don't write changes for the moved records
-            o.keyChanged[i] = false;
-            o.valueChanged[i] = false;
+            keyChanged[i] = false;
+            valueChanged[i] = false;
         }
     }
 
@@ -148,6 +149,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     public LeafFileCached<K, V> next() {
         if (!nextLoaded) {
             next = factory.leafNextPosition(position);
+            nextLoaded = true;
         }
         if (next == FactoryFile.POSITION_NOT_PRESENT) {
             return null;
@@ -188,27 +190,31 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     }
 
     public void commit() {
+        System.out.println("precommit: "+ this);
         if (numKeysChanged) {
             factory.leafSetNumKeys(position, numKeys);
+            numKeysChanged = false;
         }
         for (int i = 0; i < keys.length; i++) {
             if (keyChanged[i]) {
                 factory.leafSetKey(position, i, keys[i]);
+                keyChanged[i] = false;
             }
             if (valueChanged[i]) {
                 factory.leafSetValue(position, i, values[i]);
+                valueChanged[i] = false;
             }
         }
         if (nextChanged) {
             factory.leafSetNext(position, next);
+            nextChanged = false;
         }
     }
 
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
-        b.append("LeafFileCached [factory=");
-        b.append(factory);
+        b.append("LeafFileCached [");
         b.append(", keys=");
         b.append(Arrays.toString(keys));
         b.append(", values=");
