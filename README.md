@@ -68,7 +68,7 @@ tree.findEntries(0, 3000).forEach(System.out.println);
 tree.find(0, 3000).forEach(System.out.println);
 ```
 ## Duplicate keys
-Duplicate keys are allowed by default. You can force overwrite of keyed values by setting `.unique(false)` in the builder.
+Duplicate keys are allowed by default. You can force overwrite of keyed values by setting `.unique(true)` in the builder.
 
 Note that for efficiency values with duplicate keys are entered into the tree in reverse insert order so to extract the values retaining insert order a special method is used:
 
