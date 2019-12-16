@@ -2,9 +2,7 @@ package com.github.davidmoten.bplustree.internal.file;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import com.github.davidmoten.bplustree.Serializer;
 import com.github.davidmoten.bplustree.internal.Factory;
@@ -77,18 +75,14 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return getLeaf(leafNextPosition());
     }
 
-    private final LinkedHashMap<Long, LeafFileCached<K, V>> leavesCache = new LinkedHashMap<>();
-    private final TreeMap<Long, Long> accesses = new TreeMap<Long, Long>();
-    private final int CACHE_MAX_SIZE = 1;
-
-    private long counter = 0;
+    private final int CACHE_MAX_SIZE = 3; // must be at least 3
+    private final ExpiringCache<Long, LeafFileCached<K, V>> leavesCache = new ExpiringCache<>(
+            CACHE_MAX_SIZE);
 
     public LeafFileCached<K, V> getLeaf(long position) {
         LeafFileCached<K, V> leaf = leavesCache.get(position);
         if (leaf == null) {
             leaf = nextFreeLeaf(position);
-        } else {
-            accesses.put(counter++, position);
         }
         return leaf;
     }
@@ -100,19 +94,21 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     LeafFileCached<K, V> nextFreeLeaf(long position) {
-        LeafFileCached<K, V> leaf;
-        if (leavesCache.size() < CACHE_MAX_SIZE) {
-            leaf = new LeafFileCached<K, V>(this, position);
+        if (leavesCache.isAtMaxSize()) {
+            LeafFileCached<K, V> expired = leavesCache.expireOne();
+            if (expired.position() == position) {
+                leavesCache.put(position, expired);
+            } else {
+                expired.commit();
+                expired.position(position);
+                leavesCache.put(position, expired);
+            }
+            return expired;
         } else {
-            Long c = accesses.pollFirstEntry().getValue();
-            leaf = leavesCache.remove(c);
-            System.out.println(leaf);
-            leaf.commit();
-            leaf.position(position);
+            LeafFileCached<K, V> leaf = new LeafFileCached<K, V>(this, position);
+            leavesCache.put(position, leaf);
+            return leaf;
         }
-        accesses.put(counter++, position);
-        leavesCache.put(position, leaf);
-        return leaf;
     }
 
     public void leafSetKey(long position, int i, K k) {
@@ -368,6 +364,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     public void commit() {
         bb.commit();
         values.commit();
+        leavesCache.forEach((k, v) -> v.commit());
     }
 
     @Override

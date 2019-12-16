@@ -432,6 +432,7 @@ public class BPlusTreeTest {
             tree.insert(2, 200);
             tree.insert(1, 100);
             tree.insert(0, 7);
+            tree.print();
             assertEquals(Lists.newArrayList(7, 100, 200, 300, 400), Stream.from(tree.findAll()).toList().get());
         }
     }
