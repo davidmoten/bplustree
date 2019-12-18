@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.github.davidmoten.bplustree.internal.Factory;
 import com.github.davidmoten.bplustree.internal.Leaf;
 import com.github.davidmoten.bplustree.internal.Options;
+import com.github.davidmoten.guavamini.Preconditions;
 
 public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
 
@@ -140,6 +141,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
             this.next = FactoryFile.POSITION_NOT_PRESENT;
         } else {
             this.next = ((LeafFileCached<K, V>) sibling).position();
+            Preconditions.checkArgument(this.position != next);
         }
         this.nextChanged = true;
         this.nextLoaded = true;
@@ -176,6 +178,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     private void resetLoaded() {
         numKeysLoaded = false;
         nextLoaded = false;
+        next = FactoryFile.POSITION_NOT_PRESENT;
     }
 
     private void resetChanged() {

@@ -12,6 +12,7 @@ import com.github.davidmoten.bplustree.internal.Node;
 import com.github.davidmoten.bplustree.internal.NonLeaf;
 import com.github.davidmoten.bplustree.internal.Options;
 import com.github.davidmoten.guavamini.Lists;
+import com.github.davidmoten.guavamini.Preconditions;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
@@ -220,6 +221,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     }
 
     public void leafSetNext(long position, long next) {
+        Preconditions.checkArgument(position != next);
         long p = position + relativeLeafKeyPosition(options.maxLeafKeys());
         bb.position(p);
         bb.putLong(next);
