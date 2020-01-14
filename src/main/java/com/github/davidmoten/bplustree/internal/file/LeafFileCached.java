@@ -36,7 +36,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
         this.valueChanged = new boolean[factory.options().maxLeafKeys()];
         this.factory = factory;
         this.position = position;
-        this.next = 0;
+        this.next = FactoryFile.POSITION_NOT_PRESENT;
     }
 
     @Override
