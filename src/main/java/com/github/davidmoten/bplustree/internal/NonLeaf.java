@@ -33,6 +33,9 @@ public interface NonLeaf<K, V> extends Node<K, V> {
     @Override
     default Split<K, V> insert(K key, V value) {
         if (numKeys() == options().maxNonLeafKeys()) { // Split
+            if (Integer.valueOf(0) == key && Integer.valueOf(7) == value) {
+                System.out.println("debug point");
+            }
             int mid = options().maxNonLeafKeys() / 2 + 1;
             int len = options().maxNonLeafKeys() - mid;
             NonLeaf<K, V> sibling = factory().createNonLeaf();

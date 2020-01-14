@@ -108,4 +108,14 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
         factory.leafSetKey(position, i, k);
     }
 
+    @Override
+    public void locked(boolean locked) {
+       // do nothing
+    }
+
+    @Override
+    public boolean isLocked() {
+        return false;
+    }
+
 }

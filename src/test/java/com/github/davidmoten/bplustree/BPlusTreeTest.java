@@ -28,7 +28,8 @@ public class BPlusTreeTest {
 
     private static final Function<Integer, BPlusTree<Integer, Integer>> creatorFile = maxKeys -> {
 
-        return BPlusTree.file() //
+        return BPlusTree //
+                .file() //
                 .directory(Testing.newDirectory()) //
                 .clearDirectory() //
                 .deleteOnClose() //

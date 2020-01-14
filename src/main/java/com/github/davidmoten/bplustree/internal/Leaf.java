@@ -40,40 +40,48 @@ public interface Leaf<K, V> extends Node<K, V> {
 
     @Override
     default Split<K, V> insert(K key, V value) {
-        // Simple linear search
-        int i = getLocation(key);
-        int numKeys = numKeys();
-        if (numKeys == options().maxLeafKeys()) {
-            // The node is full. We must split it
-            // the first mid entries will be retained
-            // and the rest moved to a new right sibling
-            int mid = (options().maxLeafKeys() + 1) / 2;
-            int len = numKeys - mid;
-            Leaf<K, V> sibling = factory().createLeaf();
-            move(mid, len, sibling);
-            if (i < mid) {
-                // Inserted element goes to left sibling
-                Util.insertNonfull(this, key, value, i, mid);
-            } else {
-                // Inserted element goes to right sibling
-                // TODO this probably brings about another array copy
-                // (shift to the right) in sibling so perhaps should be combined with the
-                // original move
-                Util.insertNonfull(sibling, key, value, i - mid, len);
+        lock();
+        try {
+            if (Integer.valueOf(0) == key && Integer.valueOf(7) == value) {
+                System.out.println("debug point");
             }
-            sibling.setNext(next());
+            // Simple linear search
+            int i = getLocation(key);
+            int numKeys = numKeys();
+            if (numKeys == options().maxLeafKeys()) {
+                // The node is full. We must split it
+                // the first mid entries will be retained
+                // and the rest moved to a new right sibling
+                int mid = (options().maxLeafKeys() + 1) / 2;
+                int len = numKeys - mid;
+                Leaf<K, V> sibling = factory().createLeaf();
+                move(mid, len, sibling);
+                if (i < mid) {
+                    // Inserted element goes to left sibling
+                    Util.insertNonfull(this, key, value, i, mid);
+                } else {
+                    // Inserted element goes to right sibling
+                    // TODO this probably brings about another array copy
+                    // (shift to the right) in sibling so perhaps should be combined with the
+                    // original move
+                    Util.insertNonfull(sibling, key, value, i - mid, len);
+                }
+                sibling.setNext(next());
 //            sibling.commit();
-            setNext(sibling);
+                setNext(sibling);
 //            this.commit();
-            // Notify the parent about the split
-            return new Split<>(sibling.key(0), // make the right's key >=
-                                               // result.key
-                    this, sibling);
-        } else {
-            // The node was not full
-            Util.insertNonfull(this, key, value, i, numKeys);
+                // Notify the parent about the split
+                return new Split<>(sibling.key(0), // make the right's key >=
+                                                   // result.key
+                        this, sibling);
+            } else {
+                // The node was not full
+                Util.insertNonfull(this, key, value, i, numKeys);
 //            this.commit();
-            return null;
+                return null;
+            }
+        } finally {
+            release();
         }
     }
 

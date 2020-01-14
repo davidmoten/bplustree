@@ -91,7 +91,16 @@ public final class NonLeafMemory<K, V> implements NonLeaf<K, V> {
         builder.append("]");
         return builder.toString();
     }
-    
-    
 
+    @Override
+    public void locked(boolean locked) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public boolean isLocked() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

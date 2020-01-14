@@ -99,4 +99,14 @@ public final class LeafMemory<K, V> implements Leaf<K, V> {
         return builder.toString();
     }
 
+    @Override
+    public void locked(boolean locked) {
+        // do nothing
+    }
+
+    @Override
+    public boolean isLocked() {
+        return false;
+    }
+
 }

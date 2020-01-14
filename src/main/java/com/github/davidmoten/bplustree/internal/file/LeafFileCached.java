@@ -28,6 +28,8 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
 
     private long position;
 
+    private boolean locked;
+
     @SuppressWarnings("unchecked")
     public LeafFileCached(FactoryFile<K, V> factory, long position) {
         this.keys = (K[]) new Object[factory.options().maxLeafKeys()];
@@ -173,6 +175,7 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     private void reset() {
         resetChanged();
         resetLoaded();
+        numKeys = 0;
     }
 
     private void resetLoaded() {
@@ -193,7 +196,6 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
     }
 
     public void commit() {
-        System.out.println("precommit: "+ this);
         if (numKeysChanged) {
             factory.leafSetNumKeys(position, numKeys);
             numKeysChanged = false;
@@ -242,6 +244,16 @@ public final class LeafFileCached<K, V> implements Leaf<K, V>, NodeFile {
         b.append(position);
         b.append("]");
         return b.toString();
+    }
+
+    @Override
+    public void locked(boolean locked) {
+        this.locked = locked;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return locked;
     }
 
 }

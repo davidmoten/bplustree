@@ -5,8 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
+import com.github.davidmoten.bplustree.internal.Lockable;
+
 // Position -> NodeFile, Counter -> Position
-final class ExpiringCache<K, V> {
+final class ExpiringCache<K, V extends Lockable> {
 
     private final int maxSize;
     private final LinkedHashMap<K, V> map = new LinkedHashMap<K, V>();
@@ -20,10 +22,14 @@ final class ExpiringCache<K, V> {
     }
 
     V expireOne() {
-        Iterator<K> it = map.keySet().iterator();
-        K k = it.next();
-        V v = map.remove(k);
-        return v;
+        Iterator<Entry<K, V>> it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<K, V> entry = it.next();
+            if (!entry.getValue().isLocked()) {
+                return map.remove(entry.getKey());
+            }
+        }
+        throw new RuntimeException("all entries locked, cannot expire one");
     }
 
     V get(K key) {

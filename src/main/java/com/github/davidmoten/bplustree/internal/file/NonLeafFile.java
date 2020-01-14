@@ -100,4 +100,15 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
         this.position = position;
     }
 
+    @Override
+    public void locked(boolean locked) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public boolean isLocked() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }

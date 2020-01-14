@@ -3,7 +3,7 @@ package com.github.davidmoten.bplustree.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface Node<K, V> {
+public interface Node<K, V> extends Lockable {
 
     // returns null if no split, otherwise returns split info
     Split<K, V> insert(K key, V value);
