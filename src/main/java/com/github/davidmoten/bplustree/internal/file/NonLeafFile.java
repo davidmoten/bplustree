@@ -70,6 +70,11 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
     public long position() {
         return position;
     }
+    
+    @Override
+    public void position(long position) {
+        this.position = position;
+    }
 
     @Override
     public String toString() {
@@ -92,10 +97,6 @@ public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
         b.append("]");
         b.append("]");
         return b.toString();
-    }
-
-    public void position(long position) {
-        this.position = position;
     }
 
 }

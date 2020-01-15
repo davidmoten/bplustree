@@ -21,7 +21,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int POSITION_BYTES = 8;
     private static final long POSITION_NOT_PRESENT = -1;
     private final Options<K, V> options;
-    private final List<LeafFile<K, V>> leaves;
+    
+    // a pool of LeafFile objects to use
+    private final List<LeafFile<K, V>> leavesPool;
     private int leavesIndex = 0;
 
     // position where next node will be written, first 8 bytes are for the position
@@ -34,7 +36,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final LargeMappedByteBuffer bb;
     private final LargeMappedByteBuffer values;
     private final Runnable onClose;
-    private final List<NonLeafFile<K, V>> nonLeaves;
+
+    // a pool of NonLeafFile objects to use
+    private final List<NonLeafFile<K, V>> nonLeavesPool;
     private int nonLeavesIndex = 0;
 
     @SuppressWarnings("unchecked")
@@ -46,7 +50,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.onClose = onClose;
         this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes, "index-");
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
-        this.leaves = Lists.newArrayList(new LeafFile<K, V>(this, -1),
+        this.leavesPool = Lists.newArrayList(new LeafFile<K, V>(this, -1),
                 new LeafFile<K, V>(this, -1));
         {
             // worst case is there are log(N) non leaves used concurrently
@@ -54,7 +58,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
             for (int i = 0; i < 1000; i++) {
                 list.add(new NonLeafFile<K, V>(this, -1));
             }
-            this.nonLeaves = list;
+            this.nonLeavesPool = list;
         }
     }
 
@@ -72,8 +76,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public Leaf<K, V> createLeaf() {
-        LeafFile<K, V> leaf = leaves.get(leavesIndex);
-        leavesIndex = (leavesIndex + 1) % leaves.size();
+        LeafFile<K, V> leaf = leavesPool.get(leavesIndex);
+        leavesIndex = (leavesIndex + 1) % leavesPool.size();
         leaf.position(leafNextPosition());
         return leaf;
     }
@@ -207,8 +211,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public NonLeaf<K, V> createNonLeaf() {
-        NonLeafFile<K, V> nonLeaf = nonLeaves.get(nonLeavesIndex);
-        nonLeavesIndex = (nonLeavesIndex + 1) % nonLeaves.size();
+        NonLeafFile<K, V> nonLeaf = nonLeavesPool.get(nonLeavesIndex);
+        nonLeavesIndex = (nonLeavesIndex + 1) % nonLeavesPool.size();
         nonLeaf.position(nextNonLeafPosition());
         return nonLeaf;
     }
