@@ -19,6 +19,7 @@ import java.util.TreeMap;
 
 import com.github.davidmoten.bplustree.Entry;
 import com.github.davidmoten.bplustree.LargeByteBuffer;
+import com.github.davidmoten.guavamini.annotations.VisibleForTesting;
 
 public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuffer {
 
@@ -41,24 +42,25 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     private long position;
 
-//    private MappedByteBuffer bbSearchOptimized(long position) {
-//        // TODO close segments when map gets too many entries
-//
-//        // the majority of calls will occur on the same segment as the previous call so
-//        // we do a quick check
-//        // of that
-//        long num = segmentNumber(position);
-//        if (lastSegmentNum != num) {
-//            Segment segment = getSegment(num);
-//            if (segment == null) {
-//                segment = createSegment(num);
-//            }
-//            lastSegmentNum = num;
-//            lastBb = segment.bb;
-//        }
-//        lastBb.position((int) (position % segmentSizeBytes));
-//        return lastBb;
-//    }
+    // private MappedByteBuffer bbSearchOptimized(long position) {
+    // // TODO close segments when map gets too many entries
+    //
+    // // the majority of calls will occur on the same segment as the previous call
+    // so
+    // // we do a quick check
+    // // of that
+    // long num = segmentNumber(position);
+    // if (lastSegmentNum != num) {
+    // Segment segment = getSegment(num);
+    // if (segment == null) {
+    // segment = createSegment(num);
+    // }
+    // lastSegmentNum = num;
+    // lastBb = segment.bb;
+    // }
+    // lastBb.position((int) (position % segmentSizeBytes));
+    // return lastBb;
+    // }
 
     private MappedByteBuffer bb(long position) {
         // TODO close segments when map gets too many entries
@@ -73,7 +75,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     }
 
     private Segment getSegment(long num) {
-//        return map.get(num);
+        // return map.get(num);
         for (int i = 0; i < list.size(); i++) {
             Entry<Long, Segment> entry = list.get(i);
             if (entry.key() == num) {
@@ -84,7 +86,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     }
 
     private void putSegment(long num, Segment segment) {
-//        map.put(num, segment);
+        // map.put(num, segment);
         list.add(Entry.create(num, segment));
     }
 
@@ -97,12 +99,7 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     private static Segment map(File file, int segmentSizeBytes) {
         try {
-            if (file.exists()) {
-                if (file.length() != segmentSizeBytes) {
-                    throw new IllegalStateException("segment file " + file + " should be of size "
-                            + segmentSizeBytes + " but was of size " + file.length());
-                }
-            }
+            checkFile(file, segmentSizeBytes);
             try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
                 raf.setLength(segmentSizeBytes);
             }
@@ -118,6 +115,14 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
             return new Segment(channel, bb);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    @VisibleForTesting
+    static void checkFile(File file, int segmentSizeBytes) {
+        if (file.exists() && file.length() != segmentSizeBytes) {
+            throw new IllegalStateException("segment file " + file + " should be of size " + segmentSizeBytes
+                    + " but was of size " + file.length());
         }
     }
 
@@ -324,10 +329,10 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     @Override
     public void close() throws IOException {
-//        for (Segment segment : map.values()) {
-//            segment.close();
-//        }
-//        map.clear();
+        // for (Segment segment : map.values()) {
+        // segment.close();
+        // }
+        // map.clear();
         for (Entry<Long, Segment> entry : list) {
             entry.value().close();
         }

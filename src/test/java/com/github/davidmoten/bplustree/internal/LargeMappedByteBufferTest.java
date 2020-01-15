@@ -3,6 +3,7 @@ package com.github.davidmoten.bplustree.internal;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
@@ -14,8 +15,7 @@ public class LargeMappedByteBufferTest {
     @Test
     public void testWriteAndReadIntValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Integer.BYTES + 1; size++) {
-            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size,
-                    "index-")) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size, "index-")) {
                 b.putInt(10);
                 assertEquals(4, b.position());
                 b.putInt(11);
@@ -33,8 +33,7 @@ public class LargeMappedByteBufferTest {
 
     @Test
     public void testWriteAndReadBytes() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
-                "index-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2, "index-")) {
             b.put((byte) 1);
             b.put((byte) 2);
             b.put((byte) 3);
@@ -47,8 +46,7 @@ public class LargeMappedByteBufferTest {
 
     @Test
     public void testReadAndWriteVarints() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
-                "index-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2, "index-")) {
             b.putVarint(1234567);
             b.putVarint(Integer.MIN_VALUE);
             b.putVarint(Integer.MAX_VALUE);
@@ -75,8 +73,7 @@ public class LargeMappedByteBufferTest {
 
     @Test
     public void testReadAndWriteVarlongs() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
-                "index-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2, "index-")) {
             b.putVarlong(1234567890123L);
             b.putVarlong(-56);
             long maxLong = Long.MAX_VALUE;
@@ -102,8 +99,7 @@ public class LargeMappedByteBufferTest {
 
     @Test(expected = IllegalStateException.class)
     public void testReadAndWriteIllegalVarlong() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2,
-                "index-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 2, "index-")) {
             b.put((byte) -1);
             b.put((byte) -1);
             b.put((byte) -1);
@@ -121,8 +117,7 @@ public class LargeMappedByteBufferTest {
 
     @Test
     public void testWriteAndReadArrayWithinSegment() throws IOException {
-        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100,
-                "index-")) {
+        try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), 100, "index-")) {
             byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
             b.put(bytes);
             b.put(bytes);
@@ -141,8 +136,7 @@ public class LargeMappedByteBufferTest {
     @Test
     public void testWriteAndReadShortValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Short.BYTES + 1; size++) {
-            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size,
-                    "index-")) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size, "index-")) {
                 b.putShort((short) 10);
                 b.putShort((short) 11);
                 b.putShort((short) 12);
@@ -158,8 +152,7 @@ public class LargeMappedByteBufferTest {
     @Test
     public void testWriteAndReadLongValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Long.BYTES + 1; size++) {
-            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size,
-                    "index-")) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size, "index-")) {
                 b.putLong(10);
                 b.putLong(11);
                 b.putLong(12);
@@ -175,8 +168,7 @@ public class LargeMappedByteBufferTest {
     @Test
     public void testWriteAndReadDoubleValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Double.BYTES + 1; size++) {
-            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size,
-                    "index-")) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size, "index-")) {
                 b.putDouble(10.01);
                 b.putDouble(11.01);
                 b.putDouble(12.01);
@@ -192,8 +184,7 @@ public class LargeMappedByteBufferTest {
     @Test
     public void testWriteAndReadFloatValuesAcrossSegments() throws IOException {
         for (int size = 1; size <= 3 * Float.BYTES + 1; size++) {
-            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size,
-                    "index-")) {
+            try (LargeMappedByteBuffer b = new LargeMappedByteBuffer(Testing.newDirectory(), size, "index-")) {
                 b.putFloat(10.01f);
                 b.putFloat(11.01f);
                 b.putFloat(12.01f);
@@ -204,5 +195,18 @@ public class LargeMappedByteBufferTest {
                 assertEquals(12.01f, b.getFloat(), 0.00001);
             }
         }
+    }
+
+    @Test
+    public void testCheckFileWhenFileDoesNotExistDoesNotThrow() throws IOException {
+        File file = new File("target/doesNotExist");
+        LargeMappedByteBuffer.checkFile(file, 20);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCheckFileWhenFileExistsAndIsNotOfExpectedSize() throws IOException {
+        File file = new File("target/zeroLengthFile");
+        file.createNewFile();
+        LargeMappedByteBuffer.checkFile(file, 20);
     }
 }
