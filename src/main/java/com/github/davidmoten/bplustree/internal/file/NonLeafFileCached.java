@@ -7,20 +7,28 @@ import com.github.davidmoten.bplustree.internal.Options;
 
 public final class NonLeafFileCached<K, V> implements NonLeaf<K, V>, NodeFile {
 
-    private final Options<K, V> options;
     private final FactoryFile<K, V> factory;
     private long position;
     private boolean locked;
+    
+    private int numKeys;
+    private final K[] keys;
+    private final Node<K,V>[] children;
+    private int numChildren;
+    
+    private 
 
-    public NonLeafFileCached(Options<K, V> options, FactoryFile<K, V> factory, long position) {
-        this.options = options;
+    NonLeafFileCached(FactoryFile<K, V> factory, long position) {
         this.factory = factory;
         this.position = position;
+        this.keys  = (K[]) (new Object[factory.options().maxNonLeafKeys()]);
+        this.children  = (Node<K,V>[]) (new Object[factory.options().maxNonLeafKeys()]);
+        this.numChildren = 0;
     }
 
     @Override
     public Options<K, V> options() {
-        return options;
+        return factory.options();
     }
 
     @Override

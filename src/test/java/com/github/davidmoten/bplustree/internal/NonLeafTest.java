@@ -67,6 +67,18 @@ public class NonLeafTest {
                 return null;
             }
 
+            @Override
+            public void locked(boolean locked) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            @Override
+            public boolean isLocked() {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
         };
 
     }

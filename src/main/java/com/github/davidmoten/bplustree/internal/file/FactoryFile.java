@@ -53,7 +53,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
             // worst case is there are log(N) non leaves used concurrently
             List<NonLeafFile<K, V>> list = new ArrayList<>();
             for (int i = 0; i < 1000; i++) {
-                list.add(new NonLeafFile<K, V>(options, this, -1));
+                list.add(new NonLeafFile<K, V>(this, -1));
             }
             this.nonLeaves = list;
         }
@@ -76,7 +76,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return getLeaf(leafNextPosition());
     }
 
-    private final int CACHE_MAX_SIZE = 10000; // must be at least 3
+    private final int CACHE_MAX_SIZE = 10; // must be at least 3
     private final ExpiringCache<Long, LeafFileCached<K, V>> leavesCache = new ExpiringCache<>(
             CACHE_MAX_SIZE);
 
@@ -309,7 +309,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         if (type == Leaf.TYPE) {
             return getLeaf(pos);
         } else {
-            return new NonLeafFile<>(options, this, pos);
+            return new NonLeafFile<>(this, pos);
         }
     }
 
