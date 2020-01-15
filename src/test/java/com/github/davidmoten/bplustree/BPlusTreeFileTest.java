@@ -99,10 +99,11 @@ public final class BPlusTreeFileTest {
 
     @Test
     public void testInsertMany() {
-        for (int j = 0; j < 1; j++) {
+        int numKeysPerNode = Integer.parseInt(System.getProperty("numKeys", "32"));
+        int iterations = Integer.parseInt(System.getProperty("n", "1"));
+        for (int j = 0; j < iterations; j++) {
             long t = System.currentTimeMillis();
             int n = 1000000;
-            int numKeysPerNode = 32;
             {
                 BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
                 for (int i = 1; i <= n; i++) {
