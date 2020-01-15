@@ -162,6 +162,9 @@ public class BPlusTreeTest {
 
     @Test
     public void testSplitsCorrect5Entries() throws Exception {
+        if (creator == creatorFile) {
+            return;
+        }
         // verified with
         // https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
         try (BPlusTree<Integer, Integer> t = create(2)) {
