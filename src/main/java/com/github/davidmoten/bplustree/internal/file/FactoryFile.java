@@ -76,7 +76,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         return getLeaf(leafNextPosition());
     }
 
-    private final int CACHE_MAX_SIZE = 3; // must be at least 3
+    private final int CACHE_MAX_SIZE = 10000; // must be at least 3
     private final ExpiringCache<Long, LeafFileCached<K, V>> leavesCache = new ExpiringCache<>(
             CACHE_MAX_SIZE);
 
