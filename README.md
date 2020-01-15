@@ -3,7 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.davidmoten/bplustree/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.davidmoten/bplustree)<br/>
 [![codecov](https://codecov.io/gh/davidmoten/bplustree/branch/master/graph/badge.svg)](https://codecov.io/gh/davidmoten/bplustree)<br/>
 
-**Status:** pre-alpha (in development)
+**Status:** beta
 
 Disk based B+-tree in java using memory mapped files (size limited only be available disk space).
 
@@ -11,20 +11,18 @@ Disk based B+-tree in java using memory mapped files (size limited only be avail
 * size only limited by available disk
 * supports range queries
 * optionally supports duplicate keys
-* supports queries preserving insert order on duplicate keys 
 
 ## Requirements
 
 * fast read time for range queries by time and key
 * fast insert time
 * single node implementation (not distributed)
-* support truncate (throw away old stuff) and maintain perf requirements
 * use memory-mapped files for speed
 * fixed size keys
 * variable size values
 * very large size storage (>2GB of keys or values)
 * optimized for insert in approximate index order
-* single threaded (no concurrency support)
+* single threaded
 * no transactions
 * delete not supported (?)
 
@@ -87,4 +85,4 @@ So you insert the String hashcode in the key and combine the String with the val
 ## Design
 B+-tree index is stored across multiple files (of fixed size). Pointers to values are stored in the tree and the values are stored across a separate set of files (of fixed size).
 
-A LargeByteBuffer abstracts access via Memory Mapped Files to a set of files (ByteBuffer only offers int positions which restricts size to 2GB, LargeByteBuffer offers long positions with no effective limit of size (apart from available disk).
+A LargeByteBuffer abstracts access via Memory Mapped Files to a set of files (ByteBuffer only offers int positions which restricts size to 2GB, LargeByteBuffer offers long positions with no effective limit of size (apart from available disk)).
