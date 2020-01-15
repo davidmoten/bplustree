@@ -42,26 +42,6 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     private long position;
 
-    // private MappedByteBuffer bbSearchOptimized(long position) {
-    // // TODO close segments when map gets too many entries
-    //
-    // // the majority of calls will occur on the same segment as the previous call
-    // so
-    // // we do a quick check
-    // // of that
-    // long num = segmentNumber(position);
-    // if (lastSegmentNum != num) {
-    // Segment segment = getSegment(num);
-    // if (segment == null) {
-    // segment = createSegment(num);
-    // }
-    // lastSegmentNum = num;
-    // lastBb = segment.bb;
-    // }
-    // lastBb.position((int) (position % segmentSizeBytes));
-    // return lastBb;
-    // }
-
     private MappedByteBuffer bb(long position) {
         // TODO close segments when map gets too many entries
 
@@ -75,7 +55,6 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
     }
 
     private Segment getSegment(long num) {
-        // return map.get(num);
         for (int i = 0; i < list.size(); i++) {
             Entry<Long, Segment> entry = list.get(i);
             if (entry.key() == num) {
@@ -329,10 +308,6 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
 
     @Override
     public void close() throws IOException {
-        // for (Segment segment : map.values()) {
-        // segment.close();
-        // }
-        // map.clear();
         for (Entry<Long, Segment> entry : list) {
             entry.value().close();
         }
