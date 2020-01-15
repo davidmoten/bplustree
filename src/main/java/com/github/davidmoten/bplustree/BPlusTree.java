@@ -38,7 +38,7 @@ public final class BPlusTree<K, V> implements AutoCloseable {
     /** Create a new empty tree. */
     private BPlusTree(int maxLeafKeys, int maxInnerKeys, boolean uniqueKeys, Runnable onClose,
             Comparator<? super K> comparator, FactoryProvider<K, V> factoryProvider) {
-        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, onClose, comparator, factoryProvider);
+        this.options = new Options<K, V>(maxLeafKeys, maxInnerKeys, uniqueKeys, comparator, factoryProvider);
         this.factory = options.factoryProvider().createFactory(options);
         this.root = factory.loadOrCreateRoot();
         factory.root(root);
