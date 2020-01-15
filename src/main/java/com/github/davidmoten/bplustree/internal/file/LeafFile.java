@@ -74,6 +74,11 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
     }
     
     @Override
+    public void position(long position) {
+        this.position = position;
+    }
+    
+    @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
         b.append("LeafFile [");
@@ -96,11 +101,6 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
         b.append("]");
         b.append("]");
         return b.toString();
-    }
-
-    @Override
-    public void position(long position) {
-        this.position = position;
     }
 
 }
