@@ -91,6 +91,7 @@ public interface LargeByteBuffer {
      * 
      * <p>
      * Algorithm used is from ProtocolBuffers.
+     * @return the decoded integer
      */
     default int getVarint() {
         // Adapated from ProtocolBuffers CodedInputStream
@@ -142,6 +143,7 @@ public interface LargeByteBuffer {
      * 
      * <p>
      * Algorithm used is from ProtocolBuffers.
+     * @return the decoded long
      */
     default long getVarlong() {
         long result = 0;
