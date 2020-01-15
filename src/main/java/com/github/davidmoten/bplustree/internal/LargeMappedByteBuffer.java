@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -385,7 +386,9 @@ public final class LargeMappedByteBuffer implements AutoCloseable, LargeByteBuff
                 Object theUnsafe = theUnsafeField.get(null);
                 clean.invoke(theUnsafe, cb);
             }
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException
+                | SecurityException | NoSuchMethodException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
         cb = null;
     }
