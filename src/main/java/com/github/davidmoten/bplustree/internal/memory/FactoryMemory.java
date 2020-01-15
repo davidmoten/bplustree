@@ -43,4 +43,9 @@ public final class FactoryMemory<K, V> implements Factory<K, V> {
     public Node<K, V> loadOrCreateRoot() {
         return createLeaf();
     }
+
+    @Override
+    public Options<K, V> options() {
+        return options;
+    }
 }

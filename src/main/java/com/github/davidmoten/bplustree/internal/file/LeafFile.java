@@ -7,10 +7,8 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
 
     private final FactoryFile<K, V> factory;
     private long position;
-    private final Options<K, V> options;
 
-    public LeafFile(Options<K, V> options, FactoryFile<K, V> factory, long position) {
-        this.options = options;
+    public LeafFile(FactoryFile<K, V> factory, long position) {
         this.factory = factory;
         this.position = position;
     }
@@ -32,7 +30,7 @@ public class LeafFile<K, V> implements Leaf<K, V>, NodeFile {
 
     @Override
     public Options<K, V> options() {
-        return options;
+        return factory.options();
     }
 
     @Override

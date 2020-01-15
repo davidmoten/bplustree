@@ -46,13 +46,13 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.onClose = onClose;
         this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes, "index-");
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
-        this.leaves = Lists.newArrayList(new LeafFile<K, V>(options, this, -1),
-                new LeafFile<K, V>(options, this, -1));
+        this.leaves = Lists.newArrayList(new LeafFile<K, V>(this, -1),
+                new LeafFile<K, V>(this, -1));
         {
             // worst case is there are log(N) non leaves used concurrently
             List<NonLeafFile<K, V>> list = new ArrayList<>();
             for (int i = 0; i < 1000; i++) {
-                list.add(new NonLeafFile<K, V>(options, this, -1));
+                list.add(new NonLeafFile<K, V>(this, -1));
             }
             this.nonLeaves = list;
         }
@@ -189,7 +189,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         if (p == POSITION_NOT_PRESENT) {
             return null;
         } else {
-            return new LeafFile<K, V>(options, this, p);
+            return new LeafFile<K, V>(this, p);
         }
     }
 
@@ -259,9 +259,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position(pos);
         int type = bb.get();
         if (type == Leaf.TYPE) {
-            return new LeafFile<>(options, this, pos);
+            return new LeafFile<>(this, pos);
         } else {
-            return new NonLeafFile<>(options, this, pos);
+            return new NonLeafFile<>(this, pos);
         }
     }
 
@@ -337,6 +337,11 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         } else {
             return readNode(rootPosition);
         }
+    }
+
+    @Override
+    public Options<K, V> options() {
+        return options;
     }
 
 }

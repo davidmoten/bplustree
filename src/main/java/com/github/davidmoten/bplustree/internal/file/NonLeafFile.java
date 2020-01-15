@@ -7,19 +7,17 @@ import com.github.davidmoten.bplustree.internal.Options;
 
 public final class NonLeafFile<K, V> implements NonLeaf<K, V>, NodeFile {
 
-    private final Options<K, V> options;
     private final FactoryFile<K, V> factory;
     private long position;
 
-    public NonLeafFile(Options<K, V> options, FactoryFile<K, V> factory, long position) {
-        this.options = options;
+    public NonLeafFile(FactoryFile<K, V> factory, long position) {
         this.factory = factory;
         this.position = position;
     }
 
     @Override
     public Options<K, V> options() {
-        return options;
+        return factory.options();
     }
 
     @Override
