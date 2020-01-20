@@ -228,9 +228,6 @@ public final class BPlusTreeFileTest {
         try {
         while (true) {
             int value = r.nextInt(100);
-            if (count == 2495268) {
-                System.out.println("just before error");
-            }
             tree.insert(value, value);
             count++;
             if (count % 100000 == 0) {
