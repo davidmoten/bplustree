@@ -1,7 +1,6 @@
 package com.github.davidmoten.bplustree.internal.file;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.github.davidmoten.bplustree.Serializer;
@@ -11,6 +10,7 @@ import com.github.davidmoten.bplustree.internal.Leaf;
 import com.github.davidmoten.bplustree.internal.Node;
 import com.github.davidmoten.bplustree.internal.NonLeaf;
 import com.github.davidmoten.bplustree.internal.Options;
+import com.github.davidmoten.bplustree.internal.util.LazyList;
 import com.github.davidmoten.guavamini.Lists;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
@@ -21,7 +21,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private static final int POSITION_BYTES = 8;
     private static final long POSITION_NOT_PRESENT = -1;
     private final Options<K, V> options;
-    
+
     // a pool of LeafFile objects to use
     private final List<LeafFile<K, V>> leavesPool;
     private int leavesIndex = 0;
@@ -38,7 +38,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final Runnable onClose;
 
     // a pool of NonLeafFile objects to use
-    private final List<NonLeafFile<K, V>> nonLeavesPool;
+    private final LazyList<NonLeafFile<K, V>> nonLeavesPool = new LazyList<>(10000,
+            () -> new NonLeafFile<K, V>(this, -1));
     private int nonLeavesIndex = 0;
 
     @SuppressWarnings("unchecked")
@@ -52,14 +53,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
         this.leavesPool = Lists.newArrayList(new LeafFile<K, V>(this, -1),
                 new LeafFile<K, V>(this, -1));
-        {
-            // worst case is there are log(N) non leaves used concurrently
-            List<NonLeafFile<K, V>> list = new ArrayList<>();
-            for (int i = 0; i < 10000; i++) {
-                list.add(new NonLeafFile<K, V>(this, -1));
-            }
-            this.nonLeavesPool = list;
-        }
     }
 
     //////////////////////////////////////////////////
