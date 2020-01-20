@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,7 +97,7 @@ public final class BPlusTreeFileTest {
         assertEquals(20, (int) tree.findFirst(5));
         assertEquals(30, (int) tree.findFirst(7));
     }
-
+    
     @Test
     public void testInsertMany() {
         int numKeysPerNode = Integer.parseInt(System.getProperty("numKeys", "32"));
@@ -197,26 +198,41 @@ public final class BPlusTreeFileTest {
         }
     }
 
+//    public static void main(String[] args) {
+//        BPlusTree<Long, Long> tree = BPlusTree //
+//                .file() //
+//                .directory(Testing.newDirectory()) //
+//                .maxKeys(8) //
+//                .keySerializer(Serializer.LONG) //
+//                .valueSerializer(Serializer.LONG) //
+//                .naturalOrder();
+//        long i = 1;
+//        long t = System.currentTimeMillis();
+//        while (true) {
+//            tree.insert(i, i);
+//            if (i % 1000000 == 0) {
+//                long t2 = System.currentTimeMillis();
+//                System.out.println(i / 1000000 + "m, insertRate=" + 1000000 * 1000.0 / (t2 - t)
+//                        + " per second");
+//                t = t2;
+//            }
+//            i++;
+//        }
+//    }
+
     public static void main(String[] args) {
-        BPlusTree<Long, Long> tree = BPlusTree //
-                .file() //
-                .directory(Testing.newDirectory()) //
-                .maxKeys(8) //
-                .keySerializer(Serializer.LONG) //
-                .valueSerializer(Serializer.LONG) //
-                .naturalOrder();
-        long i = 1;
-        long t = System.currentTimeMillis();
+        // fails after 2.4m entries inserted
+        BPlusTree<Integer, Integer> tree = create(8);
+        Random r = new Random(123456789);
+        long count = 0;
         while (true) {
-            tree.insert(i, i);
-            if (i % 1000000 == 0) {
-                long t2 = System.currentTimeMillis();
-                System.out.println(i / 1000000 + "m, insertRate=" + 1000000 * 1000.0 / (t2 - t)
-                        + " per second");
-                t = t2;
+            int value = r.nextInt(100);
+            tree.insert(value, value);
+            count++;
+            if (count % 100000 == 0) {
+                System.out.println(count);
             }
-            i++;
         }
     }
-
+    
 }
