@@ -97,7 +97,7 @@ public final class BPlusTreeFileTest {
         assertEquals(20, (int) tree.findFirst(5));
         assertEquals(30, (int) tree.findFirst(7));
     }
-    
+
     @Test
     public void testInsertMany() {
         int numKeysPerNode = Integer.parseInt(System.getProperty("numKeys", "32"));
@@ -225,14 +225,22 @@ public final class BPlusTreeFileTest {
         BPlusTree<Integer, Integer> tree = create(8);
         Random r = new Random(123456789);
         long count = 0;
+        try {
         while (true) {
             int value = r.nextInt(100);
+            if (count == 2495268) {
+                System.out.println("just before error");
+            }
             tree.insert(value, value);
             count++;
             if (count % 100000 == 0) {
                 System.out.println(count);
             }
         }
+        } catch (Error e) {
+            System.out.println(count);
+            throw e;
+        }
     }
-    
+
 }

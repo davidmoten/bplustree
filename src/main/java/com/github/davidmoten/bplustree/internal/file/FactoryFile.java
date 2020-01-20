@@ -55,7 +55,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         {
             // worst case is there are log(N) non leaves used concurrently
             List<NonLeafFile<K, V>> list = new ArrayList<>();
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 10000; i++) {
                 list.add(new NonLeafFile<K, V>(this, -1));
             }
             this.nonLeavesPool = list;
