@@ -38,6 +38,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final Runnable onClose;
 
     // a pool of NonLeafFile objects to use
+    //TODO make size of non-leaf pool dynamic, a function of tree depth
     private final LazyList<NonLeafFile<K, V>> nonLeavesPool = new LazyList<>(10000,
             () -> new NonLeafFile<K, V>(this, -1));
     private int nonLeavesIndex = 0;
