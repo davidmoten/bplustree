@@ -48,4 +48,5 @@ public final class FactoryMemory<K, V> implements Factory<K, V> {
     public Options<K, V> options() {
         return options;
     }
+
 }

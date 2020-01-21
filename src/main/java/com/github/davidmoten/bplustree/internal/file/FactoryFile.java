@@ -2,6 +2,8 @@ package com.github.davidmoten.bplustree.internal.file;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.github.davidmoten.bplustree.Serializer;
 import com.github.davidmoten.bplustree.internal.Factory;
@@ -10,8 +12,6 @@ import com.github.davidmoten.bplustree.internal.Leaf;
 import com.github.davidmoten.bplustree.internal.Node;
 import com.github.davidmoten.bplustree.internal.NonLeaf;
 import com.github.davidmoten.bplustree.internal.Options;
-import com.github.davidmoten.bplustree.internal.util.LazyList;
-import com.github.davidmoten.guavamini.Lists;
 
 public final class FactoryFile<K, V> implements Factory<K, V> {
 
@@ -37,13 +37,6 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private final LargeMappedByteBuffer values;
     private final Runnable onClose;
 
-    // a pool of NonLeafFile objects to use
-    //TODO make size of non-leaf pool dynamic, a function of tree depth
-    private final LazyList<NonLeafFile<K, V>> nonLeavesPool = new LazyList<>(10000,
-            () -> new NonLeafFile<K, V>(this, -1));
-    private int nonLeavesIndex = 0;
-
-    @SuppressWarnings("unchecked")
     public FactoryFile(Options<K, V> options, File directory, Serializer<K> keySerializer,
             Serializer<V> valueSerializer, int segmentSizeBytes, Runnable onClose) {
         this.options = options;
@@ -52,8 +45,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.onClose = onClose;
         this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes, "index-");
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
-        this.leavesPool = Lists.newArrayList(new LeafFile<K, V>(this, -1),
-                new LeafFile<K, V>(this, -1));
+        this.leavesPool = createLeafPool(this, 10);
     }
 
     //////////////////////////////////////////////////
@@ -68,11 +60,21 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     // Every Leaf has space allocated for maxLeafKeys key value pairs
     //////////////////////////////////////////////////
 
+    private static <K, V> List<LeafFile<K, V>> createLeafPool(FactoryFile<K, V> factory, int size) {
+        return IntStream //
+                .rangeClosed(1, size) //
+                .mapToObj(x -> new LeafFile<K, V>(factory, POSITION_NOT_PRESENT)).collect(Collectors.toList());
+    }
+
     @Override
     public Leaf<K, V> createLeaf() {
+        return getLeaf(leafNextPosition());
+    }
+
+    private Leaf<K, V> getLeaf(long position) {
         LeafFile<K, V> leaf = leavesPool.get(leavesIndex);
         leavesIndex = (leavesIndex + 1) % leavesPool.size();
-        leaf.position(leafNextPosition());
+        leaf.position(position);
         return leaf;
     }
 
@@ -205,17 +207,13 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public NonLeaf<K, V> createNonLeaf() {
-        NonLeafFile<K, V> nonLeaf = nonLeavesPool.get(nonLeavesIndex);
-        nonLeavesIndex = (nonLeavesIndex + 1) % nonLeavesPool.size();
-        nonLeaf.position(nextNonLeafPosition());
-        return nonLeaf;
+        return new NonLeafFile<K, V>(this, nextNonLeafPosition());
     }
 
     private int nonLeafBytes() {
         // every key has a child node to the left and the final key has a child node to
         // the right as well as the left
-        return NODE_TYPE_BYTES + NUM_NODES_BYTES
-                + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
+        return NODE_TYPE_BYTES + NUM_NODES_BYTES + options.maxNonLeafKeys() * (POSITION_BYTES + keySerializer.maxSize())
                 + POSITION_BYTES;
     }
 
@@ -257,9 +255,9 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position(pos);
         int type = bb.get();
         if (type == Leaf.TYPE) {
-            return new LeafFile<>(this, pos);
+            return getLeaf(pos);
         } else {
-            return new NonLeafFile<>(this, pos);
+            return new NonLeafFile<K, V>(this, pos);
         }
     }
 

@@ -307,7 +307,6 @@ public final class BPlusTree<K, V> implements AutoCloseable {
             int idx = inner.getLocation(key);
             node = inner.child(idx);
         }
-        // We are @ leaf after while floop
         return (Leaf<K, V>) node;
     }
 

@@ -15,8 +15,6 @@ final class Util {
             // We are inserting a duplicate value, simply overwrite the old one
             leaf.setValue(idx, value);
         } else {
-            // TODO put at end of duplicate keys?
-            // so that iteration reflects sort order then addition order
             // The key we are inserting is unique
             leaf.insert(idx, key, value);
         }
@@ -25,7 +23,8 @@ final class Util {
     static <K, V> void insertNonfull(NonLeaf<K, V> node, K key, V value) {
         // Simple linear search
         int index = node.getLocation(key);
-        Split<K, V> result = node.child(index).insert(key, value);
+        Node<K, V> child = node.child(index);
+        Split<K, V> result = child.insert(key, value);
 
         if (result != null) {
             if (index == node.numKeys()) {
@@ -43,8 +42,7 @@ final class Util {
         } // else the current node is not affected
     }
 
-    static <K, V> int getLocation(Node<K, V> node, K key, Comparator<? super K> comparator,
-            boolean acceptEquals) {
+    static <K, V> int getLocation(Node<K, V> node, K key, Comparator<? super K> comparator, boolean acceptEquals) {
         int numKeys = node.numKeys();
         if (numKeys == 0) {
             return 0;
@@ -67,25 +65,5 @@ final class Util {
             }
         }
     }
-
-//    static <K, V> int getLocationOld(NonLeaf<K, V> n, K key, Comparator<? super K> comparator) {
-//        int numKeys = n.numKeys();
-//        for (int i = 0; i < numKeys; i++) {
-//            if (comparator.compare(key, n.key(i)) < 0) {
-//                return i;
-//            }
-//        }
-//        return numKeys;
-//    }
-
-//    static <K, V> int getLocationOld(Leaf<K, V> n, K key, Comparator<? super K> comparator) {
-//        int numKeys = n.numKeys();
-//        for (int i = 0; i < numKeys; i++) {
-//            if (comparator.compare(key, n.key(i)) <= 0) {
-//                return i;
-//            }
-//        }
-//        return numKeys;
-//    }
 
 }

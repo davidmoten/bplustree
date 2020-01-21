@@ -18,5 +18,5 @@ public interface Factory<K, V> extends AutoCloseable {
     Node<K, V> loadOrCreateRoot();
     
     Options<K, V> options();
-
+    
 }

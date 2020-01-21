@@ -104,7 +104,7 @@ public final class BPlusTreeFileTest {
         int iterations = Integer.parseInt(System.getProperty("n", "1"));
         for (int j = 0; j < iterations; j++) {
             long t = System.currentTimeMillis();
-            int n = 1000000;
+            int n = 1_000_000;
             {
                 BPlusTree<Integer, Integer> tree = create(numKeysPerNode);
                 for (int i = 1; i <= n; i++) {
