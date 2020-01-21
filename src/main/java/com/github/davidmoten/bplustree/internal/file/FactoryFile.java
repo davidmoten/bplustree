@@ -45,7 +45,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.onClose = onClose;
         this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes, "index-");
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
-        this.leavesPool = createLeafPool(this, 3);
+        this.leavesPool = createLeafPool(this, 10);
     }
 
     //////////////////////////////////////////////////
@@ -256,8 +256,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position(pos);
         int type = bb.get();
         if (type == Leaf.TYPE) {
-//            return new LeafFile<K,V>(this, pos);
-            return getLeaf(pos);
+            return new LeafFile<K,V>(this, pos);
+//            return getLeaf(pos);
         } else {
             return new NonLeafFile<K, V>(this, pos);
         }
