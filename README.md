@@ -11,7 +11,7 @@ Disk based B+-tree in java using memory mapped files (size limited only be avail
 * size only limited by available disk
 * supports range queries
 * optionally supports duplicate keys
-* much faster read and write than H2 file-based database (because no transactions and possibly weaker persistence guarantees).
+* much faster read and write than H2 file-based database (because no transactions and different persistence model).
 
 ## Requirements
 
