@@ -1,5 +1,5 @@
 # bplustree
-<a href="https://travis-ci.org/davidmoten/bplustree"><img src="https://travis-ci.org/davidmoten/bplustree.svg"/></a><br/>
+<a href="https://github.com/davidmoten/bplustree/actions/workflows/ci.yml"><img src="https://github.com/davidmoten/bplustree/actions/workflows/ci.yml/badge.svg"/></a><br/>
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.davidmoten/bplustree/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.davidmoten/bplustree)<br/>
 [![codecov](https://codecov.io/gh/davidmoten/bplustree/branch/master/graph/badge.svg)](https://codecov.io/gh/davidmoten/bplustree)<br/>
 
