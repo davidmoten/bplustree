@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -21,9 +23,12 @@ import com.github.davidmoten.guavamini.Lists;
 public final class BPlusTreeFileTest {
 
     private static BPlusTree<Integer, Integer> create(int maxKeys) {
-
+        return create(Testing.newDirectory(), maxKeys);
+    }
+    
+    private static BPlusTree<Integer, Integer> create(File dir, int maxKeys) {
         return BPlusTree.file() //
-                .directory(Testing.newDirectory()) //
+                .directory(dir) //
                 .clearDirectory() //
                 .maxKeys(maxKeys) //
                 .segmentSizeMB(1) //
@@ -196,6 +201,45 @@ public final class BPlusTreeFileTest {
         } catch (NoSuchElementException e) {
             // ok
         }
+    }
+    
+    
+    @Test
+    public void testCreateAndReopen() throws Exception {
+        File dir = Testing.newDirectory();
+        int maxKeys = 4;
+        BPlusTree<Integer, Integer> tree = BPlusTree //
+                .file() //
+                .directory(dir) //
+                .maxKeys(maxKeys) //
+                .segmentSizeMB(1) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
+                .naturalOrder();
+        tree.insert(2, 3);
+        tree.insert(1, 4);
+        tree.commit();
+        tree.findAll().forEach(System.out::println);
+        tree.close();
+        tree = BPlusTree //
+                .file() //
+                .directory(dir) //
+                .maxKeys(maxKeys) //
+                .segmentSizeMB(1) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
+                .naturalOrder();
+        assertEquals(Arrays.asList(4, 3), toList(tree.findAll()));
+        tree.close();
+    }
+    
+    private static <T> List<T> toList(Iterable<T> iterable) {
+        Iterator<T> it = iterable.iterator();
+        List<T> list = new ArrayList<>();
+        while (it.hasNext()) {
+            list.add(it.next());
+        }
+        return list;
     }
 
 //    public static void main(String[] args) {
