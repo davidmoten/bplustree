@@ -33,6 +33,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
     private long valuesIndex = 0; // position where next value will be written
     private final Serializer<K> keySerializer;
     private final Serializer<V> valueSerializer;
+    private final LargeMappedByteBuffer metadata;
     private final LargeMappedByteBuffer bb;
     private final LargeMappedByteBuffer values;
     private final Runnable onClose;
@@ -45,6 +46,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         this.onClose = onClose;
         this.bb = new LargeMappedByteBuffer(directory, segmentSizeBytes, "index-");
         this.values = new LargeMappedByteBuffer(directory, segmentSizeBytes, "value-");
+        this.metadata = new LargeMappedByteBuffer(directory, 8192, "metadata-"); // only needs 8 bytes right now
         this.leavesPool = createLeafPool(this, 10);
     }
 
@@ -115,7 +117,7 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
         bb.position(position + NODE_TYPE_BYTES);
         bb.put((byte) numKeys);
     }
-
+    
     public V leafValue(long position, int i) {
         long p = position + relativeLeafKeyPosition(i) + keySerializer.maxSize();
         bb.position(p);
@@ -314,8 +316,11 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
 
     @Override
     public void commit() {
-        bb.commit();
         values.commit();
+        metadata.position(0);
+        metadata.putLong(valuesIndex);
+        metadata.commit();
+        bb.commit();
     }
 
     @Override
@@ -333,6 +338,8 @@ public final class FactoryFile<K, V> implements Factory<K, V> {
             bb.putLong(POSITION_BYTES);
             return createLeaf();
         } else {
+            metadata.position(0);
+            valuesIndex = metadata.getLong(); 
             return readNode(rootPosition);
         }
     }
