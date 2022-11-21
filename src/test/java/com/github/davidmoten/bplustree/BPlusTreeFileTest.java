@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -216,10 +215,9 @@ public final class BPlusTreeFileTest {
                 .keySerializer(Serializer.INTEGER) //
                 .valueSerializer(Serializer.INTEGER) //
                 .naturalOrder();
-        tree.insert(2, 3);
         tree.insert(1, 4);
         tree.commit();
-        tree.findAll().forEach(System.out::println);
+        assertEquals(Arrays.asList(4), toList(tree.findAll()));
         tree.close();
         tree = BPlusTree //
                 .file() //
@@ -229,7 +227,9 @@ public final class BPlusTreeFileTest {
                 .keySerializer(Serializer.INTEGER) //
                 .valueSerializer(Serializer.INTEGER) //
                 .naturalOrder();
-        assertEquals(Arrays.asList(4, 3), toList(tree.findAll()));
+        assertEquals(Arrays.asList(4), toList(tree.findAll()));
+        tree.insert(2, 5);
+        assertEquals(Arrays.asList(4, 5), toList(tree.findAll()));
         tree.close();
     }
     
@@ -265,22 +265,20 @@ public final class BPlusTreeFileTest {
 //    }
 
     public static void main(String[] args) {
-        // fails after 2.4m entries inserted
-        BPlusTree<Integer, Integer> tree = create(8);
-        Random r = new Random(123456789);
-        long count = 0;
-        try {
-        while (true) {
-            int value = r.nextInt(100);
-            tree.insert(value, value);
-            count++;
-            if (count % 100000 == 0) {
-                System.out.println(count);
+        BPlusTree<Long, String> tree;
+        int choice = 1;
+        if (choice == 1) {
+            tree = BPlusTree.file().directory("").maxLeafKeys(255).maxNonLeafKeys(255).uniqueKeys(true).segmentSizeMB(4)
+                    .keySerializer(Serializer.LONG).valueSerializer(Serializer.utf8()).naturalOrder();
+            for (int i = 0; i < 100; i++) {
+                tree.insert(i + 1L, "value" + i);
             }
-        }
-        } catch (Error e) {
-            System.out.println(count);
-            throw e;
+        } else if (choice == 2) {
+            tree = BPlusTree.file().directory("").maxLeafKeys(255).maxNonLeafKeys(255).uniqueKeys(true).segmentSizeMB(4)
+                    .keySerializer(Serializer.LONG).valueSerializer(Serializer.utf8()).naturalOrder();
+            for (int i = 100; i < 200; i++) {
+                tree.insert(i + 1L, "value" + i);
+            }
         }
     }
 
