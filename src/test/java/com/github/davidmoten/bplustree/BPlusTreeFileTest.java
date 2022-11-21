@@ -210,6 +210,7 @@ public final class BPlusTreeFileTest {
         BPlusTree<Integer, Integer> tree = BPlusTree //
                 .file() //
                 .directory(dir) //
+                .clearDirectory() //
                 .maxKeys(maxKeys) //
                 .segmentSizeMB(1) //
                 .keySerializer(Serializer.INTEGER) //
@@ -230,6 +231,39 @@ public final class BPlusTreeFileTest {
         assertEquals(Arrays.asList(4), toList(tree.findAll()));
         tree.insert(2, 5);
         assertEquals(Arrays.asList(4, 5), toList(tree.findAll()));
+        tree.close();
+    }
+    
+    @Test
+    public void testCreateAndReopen2() throws Exception {
+        File dir = Testing.newDirectory();
+        int maxKeys = 4;
+        BPlusTree<Integer, Integer> tree = BPlusTree //
+                .file() //
+                .directory(dir) //
+                .clearDirectory() //
+                .maxKeys(maxKeys) //
+                .segmentSizeMB(1) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
+                .naturalOrder();
+        tree.insert(0, 1);
+        tree.insert(1, 2);
+        tree.insert(2, 3);
+        tree.commit();
+        assertEquals(Arrays.asList(1, 2, 3), toList(tree.findAll()));
+        tree.close();
+        tree = BPlusTree //
+                .file() //
+                .directory(dir) //
+                .maxKeys(maxKeys) //
+                .segmentSizeMB(1) //
+                .keySerializer(Serializer.INTEGER) //
+                .valueSerializer(Serializer.INTEGER) //
+                .naturalOrder();
+        assertEquals(Arrays.asList(1, 2, 3), toList(tree.findAll()));
+        tree.insert(3, 4);
+        assertEquals(Arrays.asList(1, 2, 3, 4), toList(tree.findAll()));
         tree.close();
     }
     
