@@ -23,7 +23,7 @@
         <exec.version>3.4.1</exec.version>
 
         <cobertura.version>2.7</cobertura.version>
-        <checkstyle.version>3.4.0</checkstyle.version>
+        <checkstyle.version>3.5.0</checkstyle.version>
         <findbugs.version>2.5.4</findbugs.version>
         <javadoc.version>3.8.0</javadoc.version>
         <pmd.version>3.24.0</pmd.version>
